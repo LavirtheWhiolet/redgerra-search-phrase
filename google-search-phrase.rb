@@ -17,7 +17,7 @@ end
 
 browser = Watir::Browser.new(:phantomjs, "--ignore-ssl-errors=yes")
 browser.goto "google.com"
-b.text_field("q").set(ARGV[0])
+b.text_field("q").set("\"#{ARGV[0]}\"")
 b.button(name: "btnG").click()
 doc = Nokogiri::HTML(b.html)
 doc.xpath("//div[@id='ires']/ol/li/h3/a/@href").
