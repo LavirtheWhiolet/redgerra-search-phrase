@@ -38,7 +38,6 @@ module Google
       @browser.button(name: "btnG").click()
       # 
       @cached_results = current_result_urls
-      @old_next_page_url = nil
     end
     
     # :call-seq:
@@ -49,8 +48,11 @@ module Google
       case arg
       when Numeric
         index = arg
-        while @cached_results.size <= index and (next_page_url = next_page_url!).not_nil?
-          @browser.goto next_page_url
+        while @cached_results.size <= index and (nxt = next_page_url).not_nil?
+          puts "Going!"
+          @browser.goto nxt
+          new_result_urls = current_result_urls
+          (puts "Broken."; break) if @cached_results[(-new_result_urls.size)..-1] == new_result_urls
           @cached_results.concat current_result_urls
         end
         return @cached_results[index]
@@ -64,19 +66,12 @@ module Google
     
     private
     
-    # returns URL of the next page in the search results or nil if there are
-    # no more pages.
-    # 
-    # This method can be called only once when +@browser+ changes.
-    # 
-    def next_page_url!
+    # returns next search results page URL or nil.
+    def next_page_url
       next_page_href = Nokogiri::HTML(@browser.html).
         xpath("//table[@id='nav']/tbody/tr/td/a/@href").last
       return nil if next_page_href.nil?
-      next_page_url = next_page_href.value
-      return nil if next_page_url == @old_next_page_url
-      @old_next_page_url = next_page_url
-      return next_page_url
+      return next_page_href.value
     end
     
     # Result URLs which are currently loaded by +@browser+.
@@ -111,4 +106,4 @@ module Google
   
 end
 
-Google.search("czezch republic")[35]
+p Google.search("czezch republic")[35]
