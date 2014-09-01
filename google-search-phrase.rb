@@ -34,11 +34,10 @@ module Google
       # Search!
       @browser = Watir::Browser.new(:phantomjs, args: ["--ignore-ssl-errors=yes"])
       @browser.goto "google.com"
-      @browser.text_field(name: "q").set("search_phrase")
+      @browser.text_field(name: "q").set(search_phrase)
       @browser.button(name: "btnG").click()
       # 
       @cached_results = current_result_urls
-      # 
       @old_next_page_url = nil
     end
     
@@ -73,10 +72,8 @@ module Google
     def next_page_url!
       next_page_href = Nokogiri::HTML(@browser.html).
         xpath("//table[@id='nav']/tbody/tr/td/a/@href").last
-      p next_page_href
       return nil if next_page_href.nil?
       next_page_url = next_page_href.value
-      p next_page_url
       return nil if next_page_url == @old_next_page_url
       @old_next_page_url = next_page_url
       return next_page_url
@@ -114,4 +111,4 @@ module Google
   
 end
 
-p Google.search("czezch republic")[35]
+Google.search("czezch republic")[35]
