@@ -1,7 +1,6 @@
 gem 'nokogiri'
 gem 'watir'
 require 'nokogiri'
-require 'watir'
 require 'uri'
 require 'cgi'
 require 'string/lchomp'
@@ -11,11 +10,13 @@ module Google
   
   class SearchResultURLs
     
-    def initialize(search_phrase)
+    def initialize(browser, query)
+      # 
+      @browser = browser
       # Search!
       @browser = Watir::Browser.new(:phantomjs, args: ["--ignore-ssl-errors=yes"])
       @browser.goto "google.com"
-      @browser.text_field(name: "q").set(search_phrase)
+      @browser.text_field(name: "q").set(query)
       @browser.button(name: "btnG").click()
       # 
       @cached_results = current_result_urls
@@ -31,7 +32,7 @@ module Google
       case arg
       when Numeric
         index = arg
-        while @cached_results.size <= index and (nxt = next_page_url).not_nil?
+        while index >= @cached_results.size and (nxt = next_page_url).not_nil?
           @browser.goto nxt
           @cached_results.concat current_result_urls
         end
@@ -85,9 +86,13 @@ module Google
     
   end
   
+  # 
   # returns Google::SearchResultURLs.
-  def search(phrase)
-    Google::SearchResultURLs.new(phrase)
+  #
+  # +browser+ is Watir::Browser which will be used to access Google.
+  # 
+  def search(query, browser)
+    Google::SearchResultURLs.new(browser, query)
   end
   
   module_function :search
