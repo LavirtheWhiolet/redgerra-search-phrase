@@ -64,7 +64,7 @@ module Google
         compact
     end
     
-    # The Google::SearchResultURLs must be closed if they would not be used
+    # The Google::SearchResultURLs should be closed if they would not be used
     # anymore.
     def close()
       @browser.close()
