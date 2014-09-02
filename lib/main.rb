@@ -1,7 +1,11 @@
-require 'weak_map'
+require 'expiring_hash_map'
 
-m = WeakMap.new
-loop do
-  m[Object.new] = Object.new
-  puts m.size
-end
+m = ExpiringHashMap.new(5) { |x| puts "DELETED: #{x}" }
+m["a"] = 10
+m["b"] = 20
+sleep(3)
+puts m["a"]  #=> 10
+sleep(3)
+puts m["a"]  #=> 10
+puts m["b"]  #=> nil
+sleep 10
