@@ -25,6 +25,8 @@ module Google
     #   results[index]
     #   results[from..to]
     # 
+    # returns either URL (as String) or nil if there are no more URLs.
+    # 
     def [](arg)
       case arg
       when Numeric
@@ -71,6 +73,14 @@ module Google
           q_urls[0]
         end.
         compact
+    end
+    
+    # The Google::SearchResultURLs must be closed if they would not be used
+    # anymore.
+    def close()
+      @browser.close()
+      @browser = nil
+      @cached_results = nil
     end
     
   end
