@@ -22,27 +22,15 @@ module Google
       @cached_results = current_result_urls
     end
     
-    # :call-seq:
-    #   results[index]
-    #   results[from..to]
     # 
     # returns either URL (as String) or nil if there are no more URLs.
     # 
-    def [](arg)
-      case arg
-      when Numeric
-        index = arg
-        while index >= @cached_results.size and (nxt = next_page_url).not_nil?
-          @browser.goto nxt
-          @cached_results.concat current_result_urls
-        end
-        return @cached_results[index]
-      when Range
-        range = arg
-        range.reduce([]) { |result, index| result << self[index] }
-      else
-        raise ArgumentError.new %(either Numeric or Range is required)
+    def [](index)
+      while index >= @cached_results.size and (nxt = next_page_url).not_nil?
+        @browser.goto nxt
+        @cached_results.concat current_result_urls
       end
+      return @cached_results[index]
     end
     
     private
