@@ -1,3 +1,7 @@
-require 'google/search'
+require 'weak_map'
 
-puts Google.search("I am on it like an ugly on an orc")[15]
+m = WeakMap.new
+loop do
+  m[Object.new] = Object.new
+  puts m.size
+end
