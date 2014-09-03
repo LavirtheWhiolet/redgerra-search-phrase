@@ -122,7 +122,7 @@ class Phrases
   def to_text_blocks(element)
     case element
     when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-      DS.delimiter.concat(DS[str]).concat(DS.delimiter)
+      DS[str]
     when Nokogiri::XML::Comment
       DS[""]
     when Nokogiri::XML::Document, Nokogiri::XML::Element
