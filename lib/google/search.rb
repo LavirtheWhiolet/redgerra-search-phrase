@@ -5,10 +5,18 @@ require 'uri'
 require 'cgi'
 require 'string/lchomp'
 require 'object/not_nil'
+require 'monitor'
 
 module Google
   
+  # 
+  # Result of Google::search().
+  # 
+  # This class is thread-safe.
+  # 
   class SearchResultURLs
+    
+    include MonitorMixin
     
     def initialize(browser, query)
       # 
@@ -26,11 +34,23 @@ module Google
     # returns either URL (as String) or nil if there are no more URLs.
     # 
     def [](index)
-      while index >= @cached_results.size and (nxt = next_page_url).not_nil?
-        @browser.goto nxt
-        @cached_results.concat current_result_urls
+      mon_synchronize do
+        while index >= @cached_results.size and (nxt = next_page_url).not_nil?
+          @browser.goto nxt
+          @cached_results.concat current_result_urls
+        end
+        return @cached_results[index]
       end
-      return @cached_results[index]
+    end
+    
+    # The Google::SearchResultURLs should be closed if they would not be used
+    # anymore.
+    def close()
+      mon_synchronize do
+        @browser.close()
+        @browser = nil
+        @cached_results = nil
+      end
     end
     
     private
@@ -62,14 +82,6 @@ module Google
           q_urls[0]
         end.
         compact
-    end
-    
-    # The Google::SearchResultURLs should be closed if they would not be used
-    # anymore.
-    def close()
-      @browser.close()
-      @browser = nil
-      @cached_results = nil
     end
     
   end
