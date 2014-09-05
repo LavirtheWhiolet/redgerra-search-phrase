@@ -1,10 +1,20 @@
+# encoding: UTF-8
 require 'expiring_hash_map'
-require 'google/search'
+require 'search_phrase'
 require 'watir'
 
-s = Google.search("QIP plugins", Watir::Browser.new(:phantomjs))[0..35]
-p s
-p s.size
+browser = Watir::Browser.new(:phantomjs)
+begin
+  # urls = Google.search("QIP plugins")
+  phrases = search_phrase("", ['http://rubydoc.info/gems/timers/4.0.0/file/README.md'], browser)
+  i = 0
+  while phrases[i] != nil
+    p phrases[i]
+    i += 1
+  end
+ensure
+  browser.close()
+end
 
 # m = ExpiringHashMap.new(5) { |x| puts "DELETED: #{x}" }
 # m["a"] = 10
@@ -15,3 +25,5 @@ p s.size
 # puts m["a"]  #=> 10
 # puts m["b"]  #=> nil
 # sleep 10
+
+# TODO: URLs and Phrases should not possess browser.

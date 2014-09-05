@@ -7,7 +7,7 @@ class Object
   # See also Object#in?().
   # 
   def not_in?(other)
-    return not self.in?(other)
+    not self.in?(other)
   end
   
 end
