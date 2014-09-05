@@ -19,6 +19,7 @@ module Google
     include MonitorMixin
     
     def initialize(browser, query)
+      super()
       # 
       @browser = browser
       # Search!
