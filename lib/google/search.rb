@@ -43,16 +43,6 @@ module Google
       end
     end
     
-    # The Google::SearchResultURLs should be closed if they would not be used
-    # anymore.
-    def close()
-      mon_synchronize do
-        @browser.close()
-        @browser = nil
-        @cached_results = nil
-      end
-    end
-    
     private
     
     # returns next search results page URL or nil.

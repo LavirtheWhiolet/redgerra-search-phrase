@@ -52,19 +52,6 @@ class Phrases
     end
   end
   
-  # 
-  # This method should be called if these Phrases will not be used anymore.
-  # 
-  def close()
-    mon_synchronize do
-      @urls = nil
-      @phrase_part = nil
-      @cached_phrases = nil
-      @browser.close()
-      @browser = nil
-    end
-  end
-  
   private
   
   WHITESPACES_REGEXP_STRING = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+"

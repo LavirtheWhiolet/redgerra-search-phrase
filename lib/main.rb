@@ -25,5 +25,3 @@ end
 # puts m["a"]  #=> 10
 # puts m["b"]  #=> nil
 # sleep 10
-
-# TODO: URLs and Phrases should not possess browser.
