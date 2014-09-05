@@ -22,7 +22,6 @@ module Google
       # 
       @browser = browser
       # Search!
-      @browser = Watir::Browser.new(:phantomjs, args: ["--ignore-ssl-errors=yes"])
       @browser.goto "google.com"
       @browser.text_field(name: "q").set(query)
       @browser.button(name: "btnG").click()
