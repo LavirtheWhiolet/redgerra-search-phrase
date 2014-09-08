@@ -1,4 +1,3 @@
-gem 'sinatra'
 require 'sinatra/base'
 
 class GoogleSearchPhraseWebApp < Sinatra::Application

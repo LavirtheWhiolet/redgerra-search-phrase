@@ -1,4 +1,3 @@
-gem 'timers'
 require 'timers'
 require 'monitor'
 require 'object/not_nil'

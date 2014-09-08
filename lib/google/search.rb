@@ -1,5 +1,3 @@
-gem 'nokogiri'
-gem 'watir'
 require 'nokogiri'
 require 'uri'
 require 'cgi'
