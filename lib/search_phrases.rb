@@ -1,5 +1,4 @@
 require 'nokogiri'
-require 'watir'
 require 'monitor'
 require 'object/not_in'
 require 'object/not_nil'

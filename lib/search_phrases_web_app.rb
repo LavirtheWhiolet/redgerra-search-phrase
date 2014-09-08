@@ -1,8 +1,12 @@
 require 'sinatra/base'
 require 'search_phrases'
 require 'expiring_hash_map'
+require 'google/search'
 
+# 
 # A web application for #search_phrase() function.
+# 
+# 
 class SearchPhrasesWebApp < Sinatra::Application
   
   begin
@@ -12,9 +16,12 @@ class SearchPhrasesWebApp < Sinatra::Application
     end
   end
   
+  def self.browser_factory=(value)
+  end
+  
   helpers do
     def search_phrases(phrase_part)
-      
+      urls_list_browser = Watir::Browser.new
     end
   end
   
