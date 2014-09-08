@@ -1,3 +1,3 @@
-require 'search_phrase_web_app'
+require 'search_phrases_web_app'
 
-run SearchPhraseWebApp
+run SearchPhrasesWebApp.new

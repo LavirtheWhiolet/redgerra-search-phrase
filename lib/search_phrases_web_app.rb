@@ -4,26 +4,9 @@ require 'expiring_hash_map'
 require 'google/search'
 
 # 
-# A web application for #search_phrase() function.
-# 
+# A web application for #search_phrases() function.
 # 
 class SearchPhrasesWebApp < Sinatra::Application
-  
-  begin
-    @@cache = ExpiringHashMap.new(5*60) do |entry|
-      entry[1].close()
-      entry[2].close()
-    end
-  end
-  
-  def self.browser_factory=(value)
-  end
-  
-  helpers do
-    def search_phrases(phrase_part)
-      urls_list_browser = Watir::Browser.new
-    end
-  end
   
   template :layout do
     <<-ERB
@@ -48,6 +31,14 @@ class SearchPhrasesWebApp < Sinatra::Application
         Phrase part: <input name="phrase-part" size="100" type="text"/> <input type="submit" value="Search"/>
       </form>
     ERB
+  end
+  
+  def test
+    "ABC"
+  end
+  
+  get '/' do
+    erb :index
   end
   
 end

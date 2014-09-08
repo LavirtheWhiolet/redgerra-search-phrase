@@ -5,7 +5,7 @@ require 'object/not_nil'
 require 'strscan'
 
 # 
-# Result of #search_phrase().
+# Result of #search_phrases().
 # 
 # This class is thread-safe.
 # 
