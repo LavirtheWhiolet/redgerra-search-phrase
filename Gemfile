@@ -1,0 +1,5 @@
+ruby '1.9.3'
+gem 'nokogiri'
+gem 'watir'
+gem 'sinatra'
+gem 'timers'
