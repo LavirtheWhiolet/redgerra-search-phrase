@@ -10,6 +10,10 @@ require 'random_accessible'
 # 
 class SearchPhrasesWebApp < Sinatra::Application
   
+  def initialize()
+    super()
+  end
+  
   template :layout do
     <<-ERB
       <!DOCTYPE html>
