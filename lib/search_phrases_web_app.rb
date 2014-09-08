@@ -33,7 +33,7 @@ class SearchPhrasesWebApp < Sinatra::Application
   
   template :index do
     <<-ERB
-      <form>
+      <form action="/found-phrases" method="post">
         Phrase part: <input name="phrase-part" size="100" type="text"/> <input type="submit" value="Search"/>
       </form>
     ERB
