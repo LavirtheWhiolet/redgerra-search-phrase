@@ -3,6 +3,7 @@ require 'monitor'
 require 'object/not_in'
 require 'object/not_nil'
 require 'strscan'
+require 'random_accessible'
 
 # 
 # Result of #search_phrases().
@@ -12,6 +13,7 @@ require 'strscan'
 class Phrases
   
   include MonitorMixin
+  include RandomAccessible
   
   def initialize(phrase_part, urls, browser)
     super()
@@ -21,33 +23,20 @@ class Phrases
     @cached_phrases = []
   end
   
-  def [](arg)
+  def [](index)
     mon_synchronize do
-      case arg
-      when Integer
-        index = arg
-        while index >= @cached_phrases.size and @urls.current != nil
-          @browser.goto @urls.current
-          text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
-            phrases_from(text_block).each do |phrase|
-              if phrase.downcase.include? @phrase_part then
-                @cached_phrases.push phrase
-              end
+      while index >= @cached_phrases.size and @urls.current != nil
+        @browser.goto @urls.current
+        text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
+          phrases_from(text_block).each do |phrase|
+            if phrase.downcase.include? @phrase_part then
+              @cached_phrases.push phrase
             end
           end
-          @urls.next!
         end
-        return @cached_phrases[index]
-      when Range
-        indexes = arg
-        result = []
-        indexes.each do |index|
-          phrase = self[index]
-          result.push phrase if phrase.not_nil?
-        end
-      else
-        raise ArgumentError.new %(#{index} must be Integer or Range of Integers)
+        @urls.next!
       end
+      return @cached_phrases[index]
     end
   end
   
@@ -149,12 +138,11 @@ class Phrases
 end
 
 # 
-# searches for phrases in pages located at specified URLs.
+# searches for phrases in pages located at specified URL's.
 # 
 # +phrase_part+ is a part of phrases being searched for.
 # 
-# +urls+ is a collection of URLs. It must respond to <tt>urls[i]</tt> either
-# with URL or with nil (if <tt>i</tt> is out of range).
+# +urls+ is a RandomAccessible of URL's.
 # 
 # +browser+ is Watir::Browser which will be used to open +urls+.
 # 

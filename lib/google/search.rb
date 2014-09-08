@@ -4,6 +4,7 @@ require 'cgi'
 require 'string/lchomp'
 require 'object/not_nil'
 require 'monitor'
+require 'random_accessible'
 
 module Google
   
@@ -15,6 +16,7 @@ module Google
   class SearchResultURLs
     
     include MonitorMixin
+    include RandomAccessible
     
     def initialize(browser, query)
       super()
