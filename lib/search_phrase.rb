@@ -19,7 +19,7 @@ class Phrases
   def initialize(phrase_part, urls, browser)
     super()
     @urls = URLs.new(urls)
-    @phrase_part = squeeze_and_strip_whitespace(phrase_part)
+    @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
     @browser = browser
     @cached_phrases = []
   end
@@ -30,7 +30,7 @@ class Phrases
         @browser.goto @urls.current
         text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
           phrases_from(text_block).each do |phrase|
-            if phrase.include? @phrase_part then
+            if phrase.downcase.include? @phrase_part then
               @cached_phrases.push phrase
             end
           end
