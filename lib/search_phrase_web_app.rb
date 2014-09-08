@@ -12,6 +12,12 @@ class SearchPhraseWebApp < Sinatra::Application
     end
   end
   
+  helpers do
+    def search_phrases(phrase_part)
+      
+    end
+  end
+  
   template :layout do
     <<-ERB
       <!DOCTYPE html>
