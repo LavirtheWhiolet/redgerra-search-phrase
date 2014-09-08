@@ -150,15 +150,15 @@ class Phrases
 end
 
 # 
-# searches for a phrase in pages located at specified URLs.
+# searches for phrases in pages located at specified URLs.
 # 
-# +phrase_part+ is a part of the phrase being searched for.
+# +phrase_part+ is a part of phrases being searched for.
 # 
 # +urls+ is a collection of URLs. It must respond to <tt>urls[i]</tt> either
 # with URL or with nil (if <tt>i</tt> is out of range).
 # 
 # +browser+ is Watir::Browser which will be used to open +urls+.
 # 
-def search_phrase(phrase_part, urls, browser)
+def search_phrases(phrase_part, urls, browser)
   return Phrases.new(phrase_part, urls, browser)
 end

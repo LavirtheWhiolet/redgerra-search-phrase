@@ -1,9 +1,9 @@
 require 'sinatra/base'
-require 'search_phrase'
+require 'search_phrases'
 require 'expiring_hash_map'
 
 # A web application for #search_phrase() function.
-class SearchPhraseWebApp < Sinatra::Application
+class SearchPhrasesWebApp < Sinatra::Application
   
   begin
     @@cache = ExpiringHashMap.new(5*60) do |entry|
