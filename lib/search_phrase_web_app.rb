@@ -1,8 +1,16 @@
 require 'sinatra/base'
 require 'search_phrase'
+require 'expiring_hash_map'
 
 # A web application for #search_phrase() function.
 class SearchPhraseWebApp < Sinatra::Application
+  
+  begin
+    @@cache = ExpiringHashMap.new(5*60) do |entry|
+      entry[1].close()
+      entry[2].close()
+    end
+  end
   
   template :layout do
     <<-ERB
@@ -14,8 +22,7 @@ class SearchPhraseWebApp < Sinatra::Application
         </head>
         <body>
           <%= yield %>
-          <p/>
-          <hr/>
+          <hr style="height: 1px"/>
           <center><small><a href="https://github.com/LavirtheWhiolet/search-phrase">Source code</a> | <a href="mailto:Lavir.th.Whiolet@gmail.com">Contact me</a></small></center>
         </body>
       </html>
@@ -25,13 +32,9 @@ class SearchPhraseWebApp < Sinatra::Application
   template :index do
     <<-ERB
       <form>
-        Phrase part: <input name="phrase-part" size="100" type="text"/> <input type="submit" value="Search"/>
+        Phrase part: <input name="phrase-part" size="100" type="text"/> <input
       </form>
     ERB
-  end
-  
-  get '/' do
-    erb :index
   end
   
 end
