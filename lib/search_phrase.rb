@@ -24,20 +24,33 @@ class Phrases
     @cached_phrases = []
   end
   
-  def [](index)
+  def [](arg)
     mon_synchronize do
-      while index >= @cached_phrases.size and @urls.current != nil
-        @browser.goto @urls.current
-        text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
-          phrases_from(text_block).each do |phrase|
-            if phrase.downcase.include? @phrase_part then
-              @cached_phrases.push phrase
+      case arg
+      when Integer
+        index = arg
+        while index >= @cached_phrases.size and @urls.current != nil
+          @browser.goto @urls.current
+          text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
+            phrases_from(text_block).each do |phrase|
+              if phrase.downcase.include? @phrase_part then
+                @cached_phrases.push phrase
+              end
             end
           end
+          @urls.next!
         end
-        @urls.next!
+        return @cached_phrases[index]
+      when Range
+        indexes = arg
+        result = []
+        indexes.each do |index|
+          phrase = self[index]
+          result.push phrase if phrase.not_nil?
+        end
+      else
+        raise ArgumentError.new %(#{index} must be Integer or Range of Integers)
       end
-      return @cached_phrases[index]
     end
   end
   
