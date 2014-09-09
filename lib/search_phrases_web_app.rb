@@ -4,7 +4,6 @@ require 'search_phrases'
 require 'expiring_hash_map'
 require 'random_accessible'
 require 'object/not_nil'
-require 'mathn'
 
 # 
 # A web application for #search_phrases() function.
@@ -108,28 +107,36 @@ class SearchPhrasesWebApp < Sinatra::Application
           </ul>
         <% end %>
         <p/>
-        <% last_page = if phrases.size_u == :unknown then page else (phrases.size_u / @results_per_page).floor end %>
-        <% if page > 0 %>
-          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page-1%>">&lt;&lt; Prev</a>
-        <% else %>
-          &lt;&lt; Prev
-        <% end %>
-        |
-        <% if page <= last_page %>
-          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page+1%>">Next &gt;&gt;</a>
-        <% else %>
-          Next &gt;&gt;
-        <% end %>
-        <br/>
-        <% for i in (0..last_page) %>
-          <% if i == page %>
-            <%=i%>
+        <% last_page =
+             if phrases.size_u == :unknown then (page + 1)
+             else (phrases.size_u.div @results_per_page)
+             end
+        %>
+        <% if phrases.size_u == :unknown or phrases.size_u > 0 then %>
+          <% if page > 0 %>
+            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page-1%>">&lt;&lt; Prev</a>
           <% else %>
-            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=i+1%></a>
+            &lt;&lt; Prev
           <% end %>
-        <% end %>
-        <% if phrases.size_u == :unknown then %>
-          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=last_page+1%>">…</a>
+          |
+          <% if page < last_page %>
+            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page+1%>">Next &gt;&gt;</a>
+          <% else %>
+            Next &gt;&gt;
+          <% end %>
+          <br/>
+          <% for i in (0..last_page) %>
+            <% label =
+                 if i == last_page and phrases.size_u == :unknown then "..."
+                 else i + 1
+                 end
+            %>
+            <% if i == page %>
+              <%=label%>
+            <% else %>
+              <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=label%></a>
+            <% end %>
+          <% end %>
         <% end %>
       <% end %>
     ERB
