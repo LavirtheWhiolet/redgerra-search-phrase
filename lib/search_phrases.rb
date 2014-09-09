@@ -65,15 +65,14 @@ class Phrases
   def get(index)
     while index >= @cached_phrases.size and @urls.current != nil
       @browser.reset!
-      @browser.goto @urls.current
-      # begin
-      #   @browser.wait()
-      # rescue Watir::Wait::TimeoutError
-      #   @urls.next!
-      #   if @urls.current.not_nil? then retry
-      #   else return nil
-      #   end
-      # end
+      begin
+        @browser.goto @urls.current
+      rescue
+        @urls.next!
+        if @urls.current.not_nil? then retry
+        else return nil
+        end
+      end
       text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
         phrases_from(text_block).each do |phrase|
           if phrase.downcase.include? @phrase_part then
