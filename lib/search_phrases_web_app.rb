@@ -3,6 +3,7 @@ require 'search_phrases'
 require 'expiring_hash_map'
 require 'random_accessible'
 require 'object/not_nil'
+require 'mathn'
 
 # 
 # A web application for #search_phrases() function.
@@ -30,6 +31,7 @@ class SearchPhrasesWebApp < Sinatra::Application
   # +:email+::                    Contact e-mail of the web application.
   # +:source_code+::              URL of the source code of the web application.
   # +:results_per_page+::         Number of search results per page.
+  #                               Default is 10.
   # 
   def initialize(config)
     super()
@@ -39,6 +41,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     cache_lifetime = config[cache_lifetime] || 5*60
     @email = get(config, :email)
     @source_code_url = get(config, :source_code)
+    @results_per_page = config[:results_per_page] || 10
     # See #search_phrases_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
@@ -86,18 +89,47 @@ class SearchPhrasesWebApp < Sinatra::Application
   
   template :index do
     <<-ERB
-      <form action="/found-phrases" method="post">
+      <form action="/" method="get">
         Phrase part: <input name="phrase-part" size="100" type="text" value="<%= Rack::Utils.escape_html(phrase_part) %>"/> <input type="submit" value="Search"/>
       </form>
       <% if phrase_part.not_nil? %>
+        <p/>
         <% phrases = search_phrases_cached(phrase_part) %>
-        <% if search_phrases_cached(phrase_part).empty? %>
+        <% current_page_phrases = phrases[(page * @results_per_page)...((page + 1) * @results_per_page)] %>
+        <% if current_page_phrases.empty? %>
           No phrases found.
         <% else %>
           Following phrases are found:
           <ul>
-          <% for i in ((page * @results_per_page)...((page + 1) * @results_per_page) %>
-          <%
+            <% for phrase in current_page_phrases %>
+              <li><%=Rack::Utils.escape_html(phrase)%></li>
+            <% end %>
+          </ul>
+        <% end %>
+        <p/>
+        <% last_page = if phrases.size_u == :unknown then page else (phrases.size_u / @results_per_page).floor end %>
+        <% if page > 0 %>
+          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page-1%>">&lt;&lt; Prev</a>
+        <% else %>
+          &lt;&lt; Prev
+        <% end %>
+        |
+        <% if page <= last_page %>
+          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page+1%>">Next &gt;&gt;</a>
+        <% else %>
+          Next &gt;&gt;
+        <% end %>
+        <br/>
+        <% for i in (0..last_page) %>
+          <% if i == page %>
+            <%=i%>
+          <% else %>
+            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=i+1%></a>
+          <% end %>
+        <% end %>
+        <% if phrases.size_u == :unknown then %>
+          <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=last_page+1%>">…</a>
+        <% end %>
       <% end %>
     ERB
   end

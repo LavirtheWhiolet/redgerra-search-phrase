@@ -23,20 +23,28 @@ class Phrases
     @cached_phrases = []
   end
   
-  def [](index)
+  # :call-seq:
+  #   phrases[i]
+  #   phrases[x..y]
+  # 
+  # In the first form it returns the phrase or nil if +i+ is out of range.
+  # In the second form it returns an Array of phrases (which may be empty
+  # if (x..y) is completely out or range).
+  # 
+  def [](arg)
     mon_synchronize do
-      while index >= @cached_phrases.size and @urls.current != nil
-        @browser.goto @urls.current
-        text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
-          phrases_from(text_block).each do |phrase|
-            if phrase.downcase.include? @phrase_part then
-              @cached_phrases.push phrase
-            end
-          end
+      case arg
+      when Integer
+        return get(i)
+      when Range
+        range = arg
+        result = []
+        for i in range
+          x = get(i)
+          result << x if x.not_nil?
         end
-        @urls.next!
+        return result
       end
-      return @cached_phrases[index]
     end
   end
   
@@ -52,6 +60,21 @@ class Phrases
   end
   
   private
+  
+  def get(i)
+    while index >= @cached_phrases.size and @urls.current != nil
+      @browser.goto @urls.current
+      text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
+        phrases_from(text_block).each do |phrase|
+          if phrase.downcase.include? @phrase_part then
+            @cached_phrases.push phrase
+          end
+        end
+      end
+      @urls.next!
+    end
+    return @cached_phrases[index]
+  end
   
   WHITESPACES_REGEXP_STRING = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+"
   WHITESPACES_REGEXP = /#{WHITESPACES_REGEXP_STRING}/
