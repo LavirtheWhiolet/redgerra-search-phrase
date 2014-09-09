@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'sinatra/base'
 require 'search_phrases'
 require 'expiring_hash_map'
@@ -81,7 +82,7 @@ class SearchPhrasesWebApp < Sinatra::Application
         <body>
           <%= yield %>
           <hr style="height: 1px"/>
-          <center><small><a href="<%=@source_code_url%>">Source code</a> | <a href="mailto:<%=email%>">Contact me</a></small></center>
+          <center><small><a href="<%=@source_code_url%>">Source code</a> | <a href="mailto:<%=@email%>">Contact me</a></small></center>
         </body>
       </html>
     ERB
@@ -90,7 +91,7 @@ class SearchPhrasesWebApp < Sinatra::Application
   template :index do
     <<-ERB
       <form action="/" method="get">
-        Phrase part: <input name="phrase-part" size="100" type="text" value="<%= Rack::Utils.escape_html(phrase_part) %>"/> <input type="submit" value="Search"/>
+        Phrase part: <input name="phrase-part" size="100" type="text" value="<%= Rack::Utils.escape_html(phrase_part || "") %>"/> <input type="submit" value="Search"/>
       </form>
       <% if phrase_part.not_nil? %>
         <p/>
@@ -135,7 +136,10 @@ class SearchPhrasesWebApp < Sinatra::Application
   end
   
   get '/' do
-    erb :index
+    erb :index, locals: {
+      page: (params[:page] || 0).to_i,
+      phrase_part: params[:'phrase-part']
+    }
   end
   
 end
