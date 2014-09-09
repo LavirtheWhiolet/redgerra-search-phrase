@@ -124,17 +124,17 @@ class SearchPhrasesWebApp < Sinatra::Application
           <% else %>
             Next &gt;&gt;
           <% end %>
-          <br/>
+          <p/>
           <% for i in (0..last_page) %>
-            <% label =
+            <% page_label =
                  if i == last_page and phrases.size_u == :unknown then "..."
                  else i + 1
                  end
             %>
             <% if i == page %>
-              <%=label%>
+              <%=page_label%>
             <% else %>
-              <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=label%></a>
+              <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=page_label%></a>
             <% end %>
           <% end %>
         <% end %>
