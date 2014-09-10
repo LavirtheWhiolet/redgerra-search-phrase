@@ -87,66 +87,73 @@ class SearchPhrasesWebApp < Sinatra::Application
     ERB
   end
   
-  template :index do
+  def search_form(phrase_part = nil)
     <<-ERB
       <form action="/" method="get">
-        Phrase part: <input name="phrase-part" size="100" type="text" value="<%= Rack::Utils.escape_html(phrase_part || "") %>"/> <input type="submit" value="Search"/>
+        Phrase part: <input name="phrase-part" size="100" type="text" value="#{Rack::Utils.escape_html(phrase_part || "")}"/> <input type="submit" value="Search"/>
       </form>
-      <% if phrase_part.not_nil? %>
-        <p/>
-        <% phrases = search_phrases_cached(phrase_part) %>
-        <% current_page_phrases = phrases[(page * @results_per_page)...((page + 1) * @results_per_page)] %>
-        <% if current_page_phrases.empty? %>
-          No phrases found.
-        <% else %>
-          Following phrases are found:
-          <ul>
-            <% for phrase in current_page_phrases %>
-              <li><%=Rack::Utils.escape_html(phrase)%></li>
-            <% end %>
-          </ul>
-        <% end %>
-        <p/>
-        <% last_page =
-             if phrases.size_u == :unknown then (page + 1)
-             else (phrases.size_u.div @results_per_page)
-             end
-        %>
-        <% if phrases.size_u == :unknown or phrases.size_u > 0 then %>
-          <% if page > 0 %>
-            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page-1%>">&lt;&lt; Prev</a>
-          <% else %>
-            &lt;&lt; Prev
+    ERB
+  end
+  
+  template :index do
+    <<-ERB
+      <%=search_form%>
+    ERB
+  end
+  
+  template :search_results do
+    <<-ERB
+      <%=search_form(phrase_part)%>
+      <p/>
+      <% if current_page_phrases.empty? %>
+        No phrases found.
+      <% else %>
+        Following phrases are found:
+        <ul>
+          <% for phrase in current_page_phrases %>
+            <li><%=Rack::Utils.escape_html(phrase)%></li>
           <% end %>
-          |
-          <% if page < last_page %>
-            <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=page+1%>">Next &gt;&gt;</a>
-          <% else %>
-            Next &gt;&gt;
-          <% end %>
-          <p/>
-          <% for i in (0..last_page) %>
-            <% page_label =
-                 if i == last_page and phrases.size_u == :unknown then "..."
-                 else i + 1
-                 end
-            %>
-            <% if i == page %>
-              <%=page_label%>
-            <% else %>
-              <a href="/?phrase-part=<%=Rack::Utils.escape(phrase_part)%>&page=<%=i%>"><%=page_label%></a>
-            <% end %>
-          <% end %>
-        <% end %>
+        </ul>
       <% end %>
+      <p/>
+      <%=page_href_if[page - 1, "&lt;&lt; Prev", page > 0]%> | <%=page_href_if[page + 1, "Next &gt;&gt;", (page < last_known_page or not all_pages_known)]%>
+      <p/>
+      <% for i in 0..last_known_page %> <%=page_href_if[i, i.to_s, i != page]%> <% end %> <% if not all_pages_known then %> <%=page_href[last_known_page + 1, "…"]%> <% end %>
     ERB
   end
   
   get '/' do
-    erb :index, locals: {
-      page: (params[:page] || 0).to_i,
-      phrase_part: params[:'phrase-part']
-    }
+    phrase_part = params[:'phrase-part']
+    if phrase_part.nil?
+      erb :index
+    else
+      phrase_part = phrase_part
+      page = (params[:page] || 0).to_i
+      phrases = search_phrases_cached(phrase_part)
+      current_page_phrases = phrases[(page * @results_per_page)...((page + 1) * @results_per_page)]
+      all_pages_known = (phrases.size_u != :unknown)
+      last_known_page =
+        if all_pages_known then phrases.size_u.div(@results_per_page)
+        else page
+        end
+      page_href = lambda do |page, html|
+        %(<a href="/?phrase-part=#{Rack::Utils.escape(phrase_part)}&page=#{page}">#{html}</a>)
+      end
+      page_href_if = lambda do |page, html, condition|
+        if condition then page_href[page, html]
+        else html
+        end
+      end
+      erb :search_results, locals: {
+        phrase_part: phrase_part,
+        page: page,
+        current_page_phrases: current_page_phrases,
+        all_pages_known: all_pages_known,
+        last_known_page: last_known_page,
+        page_href: page_href,
+        page_href_if: page_href_if
+      }
+    end
   end
   
 end
