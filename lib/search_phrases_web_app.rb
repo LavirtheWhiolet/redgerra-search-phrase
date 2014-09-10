@@ -62,7 +62,7 @@ class SearchPhrasesWebApp < Sinatra::Application
       b1 = @new_search_browser.()
       urls = @search.(%("#{phrase_part}"), b1)
       b2 = @new_search_phrases_browser.()
-      phrases = search_phrases(phrase_part, urls, b2)
+      phrases = search_phrases(phrase_part, urls, b2) { |url, phrase_found| not phrase_found }
       @cached_phrases_and_browsers[phrase_part] = [phrases, b1, b2]
       return phrases
     else
@@ -118,7 +118,7 @@ class SearchPhrasesWebApp < Sinatra::Application
       <p/>
       <%=page_href_if[page - 1, "&lt;&lt; Prev", page > 0]%> | <%=page_href_if[page + 1, "Next &gt;&gt;", (page < last_known_page or not all_pages_known)]%>
       <br/>
-      <% for p in 0..last_known_page %> <%=page_href_if[p, p.to_s, p != page]%> <% end %> <% if not all_pages_known then %> <%=page_href[last_known_page + 1, "…"]%> <% end %>
+      <% for p in 0..last_known_page %> <%=page_href_if[p, (p + 1), p != page]%> <% end %> <% if not all_pages_known then %> <%=page_href[last_known_page + 1, "…"]%> <% end %>
     ERB
   end
   

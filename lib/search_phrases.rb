@@ -15,12 +15,14 @@ class Phrases
   include MonitorMixin
   include RandomAccessible
   
-  def initialize(phrase_part, urls, browser)
+  def initialize(phrase_part, urls, browser, &need_stop)
     super()
     @urls = URLs.new(urls)
     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
     @browser = browser
     @cached_phrases = []
+    @need_stop = need_stop || lambda { |url, phrase_found| false }
+    @search_stopped = false
   end
   
   # :call-seq:
@@ -54,7 +56,7 @@ class Phrases
   # 
   def size_u
     mon_synchronize do
-      if @urls.current != nil then :unknown
+      if @urls.current != nil and not @search_stopped then :unknown
       else @cached_phrases.size
       end
     end
@@ -63,25 +65,35 @@ class Phrases
   private
   
   def get(index)
-    while index >= @cached_phrases.size and @urls.current != nil
+    while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
+      # Read page at current URL.
       @browser.reset!
       begin
         @browser.goto @urls.current
       rescue
+        # Try the next URL (if present).
         @urls.next!
         if @urls.current.not_nil? then retry
         else return nil
         end
       end
+      # Search for the phrases and puts them into @cached_phrases.
+      phrase_found = false
       text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
         phrases_from(text_block).each do |phrase|
           if phrase.downcase.include? @phrase_part then
+            phrase_found = true
             @cached_phrases.push phrase
           end
         end
       end
+      # Stop searching (if needed).
+      @search_stopped = @need_stop.(@urls.current, phrase_found)
+      break if @search_stopped
+      # 
       @urls.next!
     end
+    # 
     return @cached_phrases[index]
   end
   
@@ -178,6 +190,12 @@ end
 # 
 # +browser+ is Watir::Browser which will be used to open +urls+.
 # 
-def search_phrases(phrase_part, urls, browser)
-  return Phrases.new(phrase_part, urls, browser)
+# +need_stop+ is passed with an URL and +phrase_found+ (which is true
+# if the specified phrase if found at the URL and false otherwise). It must
+# return true if the searching must be stopped immediately (and no more +urls+
+# should be inspected) and false otherwise. It is optional, default is to
+# always return false.
+# 
+def search_phrases(phrase_part, urls, browser, &need_stop)
+  return Phrases.new(phrase_part, urls, browser, &need_stop)
 end
