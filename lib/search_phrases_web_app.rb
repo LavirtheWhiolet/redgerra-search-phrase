@@ -35,12 +35,12 @@ class SearchPhrasesWebApp < Sinatra::Application
   # 
   def initialize(config)
     super()
-    @search = get(config, :search)
-    @new_search_browser = get(config, :new_search_browser)
-    @new_search_phrases_browser = get(config, :new_search_phrases_browser)
+    @search = getopt(config, :search)
+    @new_search_browser = getopt(config, :new_search_browser)
+    @new_search_phrases_browser = getopt(config, :new_search_phrases_browser)
     cache_lifetime = config[cache_lifetime] || 5*60
-    @email = get(config, :email)
-    @source_code_url = get(config, :source_code)
+    @email = getopt(config, :email)
+    @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
     # See #search_phrases_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
@@ -51,8 +51,8 @@ class SearchPhrasesWebApp < Sinatra::Application
   
   private
   
-  def get(config, key)
-    config[key] or raise ArgumentError, %(#{key.inspect} is not specified)
+  def getopt(config, option)
+    config[option] or raise ArgumentError, %(#{option.inspect} is not specified)
   end
   
   # Cached version of ::search_phrases().
