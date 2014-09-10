@@ -97,7 +97,10 @@ class SearchPhrasesWebApp < Sinatra::Application
   
   template :index do
     <<-ERB
+      <p/>
       <%=search_form%>
+      <p/>
+      <small><strong>Note.</strong> This site may take long time to respond. Please be patient.</small>
     ERB
   end
   

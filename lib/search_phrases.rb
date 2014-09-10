@@ -66,9 +66,9 @@ class Phrases
   
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
-      # Read page at current URL.
-      @browser.reset!
       begin
+        # Read page at current URL.
+        @browser.reset!
         @browser.goto @urls.current
       rescue
         # Try the next URL (if present).
