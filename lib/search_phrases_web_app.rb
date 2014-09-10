@@ -38,7 +38,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     @search = getopt(config, :search)
     @new_search_browser = getopt(config, :new_search_browser)
     @new_search_phrases_browser = getopt(config, :new_search_phrases_browser)
-    cache_lifetime = config[cache_lifetime] || 5*60
+    cache_lifetime = config[:cache_lifetime] || 5*60
     @email = getopt(config, :email)
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
