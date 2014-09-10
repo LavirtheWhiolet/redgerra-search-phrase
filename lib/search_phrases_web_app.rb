@@ -117,7 +117,7 @@ class SearchPhrasesWebApp < Sinatra::Application
       <% end %>
       <p/>
       <%=page_href_if[page - 1, "&lt;&lt; Prev", page > 0]%> | <%=page_href_if[page + 1, "Next &gt;&gt;", (page < last_known_page or not all_pages_known)]%>
-      <p/>
+      <br/>
       <% for i in 0..last_known_page %> <%=page_href_if[i, i.to_s, i != page]%> <% end %> <% if not all_pages_known then %> <%=page_href[last_known_page + 1, "…"]%> <% end %>
     ERB
   end
