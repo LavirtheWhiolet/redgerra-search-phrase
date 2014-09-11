@@ -1,16 +1,16 @@
 # encoding: UTF-8
 require 'sinatra/base'
-require 'search_phrases'
+require 'search_phrase'
 require 'expiring_hash_map'
 require 'random_accessible'
 require 'object/not_nil'
 
 # 
-# A web application for #search_phrases() function.
+# A web application for #search_phrase() function.
 # 
 # This class is abstract.
 # 
-class SearchPhrasesWebApp < Sinatra::Application
+class SearchPhraseWebApp < Sinatra::Application
   
   # 
   # +config+ is a Hash of options which have following meanings:
@@ -50,7 +50,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
     @max_phrase_not_found_times = config[:max_phrase_not_found_times] || 10
-    # See #search_phrases_cached().
+    # See #search_phrase_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
     end
@@ -62,14 +62,14 @@ class SearchPhrasesWebApp < Sinatra::Application
     config[option] or raise ArgumentError, %(#{option.inspect} is not specified)
   end
   
-  # Cached version of ::search_phrases().
-  def search_phrases_cached(phrase_part)
+  # Cached version of ::search_phrase().
+  def search_phrase_cached(phrase_part)
     cached_phrases_and_browsers = @cached_phrases_and_browsers[phrase_part]
     if cached_phrases_and_browsers.nil?
       b1 = @new_search_browser.()
       urls = @search.(%("#{phrase_part}"), b1)
       phrase_not_found_times = 0
-      phrases = search_phrases(phrase_part, urls) do |url, phrase_found|
+      phrases = search_phrase(phrase_part, urls) do |url, phrase_found|
         if not phrase_found then phrase_not_found_times += 1
         else phrase_not_found_times = 0
         end
@@ -144,7 +144,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     else
       phrase_part = phrase_part
       page = (params[:page] || 0).to_i
-      phrases = search_phrases_cached(phrase_part)
+      phrases = search_phrase_cached(phrase_part)
       current_page_phrases = phrases[(page * @results_per_page)...((page + 1) * @results_per_page)]
       all_pages_known = (phrases.size_u != :unknown)
       last_known_page =

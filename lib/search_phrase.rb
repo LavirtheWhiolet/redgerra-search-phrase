@@ -9,7 +9,7 @@ require 'string/replace_invalid_byte_seqs'
 require 'open-uri'
 
 # 
-# Result of #search_phrases().
+# Result of #search_phrase().
 # 
 # This class is thread-safe.
 # 
@@ -194,6 +194,6 @@ end
 # should be inspected) and false otherwise. It is optional, default is to
 # always return false.
 # 
-def search_phrases(phrase_part, urls, &need_stop)
+def search_phrase(phrase_part, urls, &need_stop)
   return Phrases.new(phrase_part, urls, &need_stop)
 end
