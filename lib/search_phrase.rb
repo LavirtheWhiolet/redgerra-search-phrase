@@ -131,7 +131,9 @@ class Phrases
   # returns Array of String's.
   def text_blocks_from(element)
     text_blocks = [""]
-    start_new_text_block = lambda { text_blocks.push("") }
+    start_new_text_block = lambda do
+      text_blocks.push("") if not text_blocks.last.empty?
+    end
     this = lambda do |element|
       case element
       when Nokogiri::XML::CDATA, Nokogiri::XML::Text
