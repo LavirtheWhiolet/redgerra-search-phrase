@@ -70,7 +70,7 @@ class Phrases
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
       begin
         # Read page at current URL.
-        html = open(@urls.current).read
+        html = open(@urls.current).read.replace_invalid_byte_seqs("_")
       rescue
         # Try the next URL (if present).
         @urls.next!
@@ -78,8 +78,6 @@ class Phrases
         else return nil
         end
       end
-      # 
-      html = @browser.html.replace_invalid_byte_seqs("_")
       # Search for the phrases and puts them into @cached_phrases.
       phrase_found = false
       text_blocks_from(Nokogiri::HTML(html)).each do |text_block|
