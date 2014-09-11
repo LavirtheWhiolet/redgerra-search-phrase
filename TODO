@@ -1,0 +1,6 @@
+Phrases::text_blocks_from(): Check whether all "non-separate" tags are
+really "non-separate".
+
+Phrases::text_blocks_from(): Add "\n" or " " for such tags as <br>.
+
+Squeeze output HTML.
