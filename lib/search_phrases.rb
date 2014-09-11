@@ -5,6 +5,7 @@ require 'object/not_in'
 require 'object/not_nil'
 require 'strscan'
 require 'random_accessible'
+require 'string/replace_invalid_byte_seqs'
 
 # 
 # Result of #search_phrases().
@@ -78,9 +79,11 @@ class Phrases
         else return nil
         end
       end
+      # 
+      html = @browser.html.replace_invalid_byte_seqs("_")
       # Search for the phrases and puts them into @cached_phrases.
       phrase_found = false
-      text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
+      text_blocks_from(Nokogiri::HTML(html)).each do |text_block|
         phrases_from(text_block).each do |phrase|
           if phrase.downcase.include? @phrase_part then
             phrase_found = true
