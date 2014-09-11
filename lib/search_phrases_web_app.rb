@@ -15,26 +15,31 @@ class SearchPhrasesWebApp < Sinatra::Application
   # 
   # +config+ is a Hash of options which have following meanings:
   # 
+  # Mandatory:
+  # 
   # +:search+::                   A Proc which is passed with a query and
   #                               a Watir::Browser, sends the query to the
   #                               search engine and returns RandomAccessible
   #                               collection of URLs.
   # +:new_search_browser+::       A Proc which returns a new Watir::Browser
   #                               for passing it to +:search+ Proc.
+  # +:email+::                    Contact e-mail of the web application.
+  # +:source_code+::              URL of the source code of the web application.
+  # 
+  # Optional:
+  # 
   # +:cache_lifetime+::           How long the internal search results cache
   #                               lives (in seconds). The more this value
   #                               the more responsive the web application is
   #                               but the more memory it uses. Default is
   #                               5 minutes.
-  # +:email+::                    Contact e-mail of the web application.
-  # +:source_code+::              URL of the source code of the web application.
   # +:results_per_page+::         Number of search results per page.
   #                               Default is 10.
   # +:max_phrase_not_found_times+:: If the phrase being searched is not found in
   #                                 this number of consecutive URLs then
   #                                 the web application considers that it will
   #                                 not be found in the rest URLs as well and
-  #                                 stops searching. Default is 3.
+  #                                 stops searching. Default is 10.
   # 
   def initialize(config)
     super()
@@ -44,7 +49,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     @email = getopt(config, :email)
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
-    @max_phrase_not_found_times = config[:max_phrase_not_found_times] || 3
+    @max_phrase_not_found_times = config[:max_phrase_not_found_times] || 10
     # See #search_phrases_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
@@ -107,7 +112,7 @@ class SearchPhrasesWebApp < Sinatra::Application
       <p/>
       <%=search_form%>
       <p/>
-      <small><strong>Note.</strong> This site may take long time to respond. Please be patient.</small>
+      <strong>Note.</strong> This site may take long time to respond. Please be patient.
     ERB
   end
   
