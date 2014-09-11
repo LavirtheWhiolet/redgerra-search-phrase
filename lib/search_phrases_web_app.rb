@@ -30,7 +30,12 @@ class SearchPhrasesWebApp < Sinatra::Application
   # +:source_code+::              URL of the source code of the web application.
   # +:results_per_page+::         Number of search results per page.
   #                               Default is 10.
-  # +:max_phrase_not_found_times+:: 
+  # +:max_phrase_not_found_times+:: If the searched phrase is not found in
+  #                                 this number of consecutive URLs then
+  #                                 the web application considers that it will
+  #                                 not be found in the rest URLs as well and
+  #                                 therefore it stops searching.
+  #                                 Default is 3.
   # 
   def initialize(config)
     super()
@@ -40,6 +45,7 @@ class SearchPhrasesWebApp < Sinatra::Application
     @email = getopt(config, :email)
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
+    @max_phrase_not_found_times = config[:max_phrase_not_found_times] || 3
     # See #search_phrases_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
@@ -63,9 +69,7 @@ class SearchPhrasesWebApp < Sinatra::Application
         if not phrase_found then phrase_not_found_times += 1
         else phrase_not_found_times = 0
         end
-        if phrase_not_found_times > 10 then true
-        else false
-        end
+        need_stop = (phrase_not_found_times > @max_phrase_not_found_times)
       end
       @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
       return phrases
