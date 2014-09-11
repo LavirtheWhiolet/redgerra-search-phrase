@@ -4,6 +4,7 @@ require 'object/not_in'
 require 'object/not_nil'
 require 'strscan'
 require 'random_accessible'
+require 'open-uri'
 
 # 
 # Result of #search_phrases().
@@ -15,11 +16,10 @@ class Phrases
   include MonitorMixin
   include RandomAccessible
   
-  def initialize(phrase_part, urls, browser, &need_stop)
+  def initialize(phrase_part, urls, &need_stop)
     super()
     @urls = URLs.new(urls)
     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
-    @browser = browser
     @cached_phrases = []
     @need_stop = need_stop || lambda { |url, phrase_found| false }
     @search_stopped = false
@@ -68,8 +68,7 @@ class Phrases
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
       begin
         # Read page at current URL.
-        @browser.reset!
-        @browser.goto @urls.current
+        html = open(@urls.current).read
       rescue
         # Try the next URL (if present).
         @urls.next!
@@ -79,7 +78,7 @@ class Phrases
       end
       # Search for the phrases and puts them into @cached_phrases.
       phrase_found = false
-      text_blocks_from(Nokogiri::HTML(@browser.html)).each do |text_block|
+      text_blocks_from(Nokogiri::HTML(html)).each do |text_block|
         phrases_from(text_block).each do |phrase|
           if phrase.downcase.include? @phrase_part then
             phrase_found = true
@@ -188,14 +187,12 @@ end
 # 
 # +urls+ is a RandomAccessible of URL's.
 # 
-# +browser+ is Watir::Browser which will be used to open +urls+.
-# 
 # +need_stop+ is passed with an URL and +phrase_found+ (which is true
 # if the specified phrase if found at the URL and false otherwise). It must
 # return true if the searching must be stopped immediately (and no more +urls+
 # should be inspected) and false otherwise. It is optional, default is to
 # always return false.
 # 
-def search_phrases(phrase_part, urls, browser, &need_stop)
-  return Phrases.new(phrase_part, urls, browser, &need_stop)
+def search_phrases(phrase_part, urls, &need_stop)
+  return Phrases.new(phrase_part, urls, &need_stop)
 end
