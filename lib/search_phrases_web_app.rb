@@ -30,12 +30,11 @@ class SearchPhrasesWebApp < Sinatra::Application
   # +:source_code+::              URL of the source code of the web application.
   # +:results_per_page+::         Number of search results per page.
   #                               Default is 10.
-  # +:max_phrase_not_found_times+:: If the searched phrase is not found in
+  # +:max_phrase_not_found_times+:: If the phrase being searched is not found in
   #                                 this number of consecutive URLs then
   #                                 the web application considers that it will
   #                                 not be found in the rest URLs as well and
-  #                                 therefore it stops searching.
-  #                                 Default is 3.
+  #                                 stops searching. Default is 3.
   # 
   def initialize(config)
     super()
