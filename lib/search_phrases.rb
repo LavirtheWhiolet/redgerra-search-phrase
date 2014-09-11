@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'nokogiri'
 require 'monitor'
 require 'object/not_in'
@@ -116,12 +117,11 @@ class Phrases
     phrases = [""]
     s = StringScanner.new(str)
     while not s.eos?
-      s.scan(/ /)
-      while (p = s.scan(/[Ii]\. ?e\.|[Ee]\. ?g\.|[Ee]tc\.|\.[^ ]|[^\.]/))
-        phrases.last.concat(p)
+      if (p = s.scan(/[\.\!\?…]+( |$)/)) then
+        phrases.last.concat(p.chomp(" "))
+        phrases.push("")
       end
-      p = s.scan(/\./) and phrases.last.concat(p)
-      phrases.push("") if not phrases.last.empty?
+      p = s.getch and phrases.last.concat(p)
     end
     phrases.pop() if phrases.last.empty?
     phrases.shift() if not phrases.empty? and phrases.first.empty?
