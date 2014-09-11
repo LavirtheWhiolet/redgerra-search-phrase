@@ -1,5 +1,1 @@
-ruby '1.9.3'
-gem 'nokogiri'
-gem 'watir-webdriver'
-gem 'sinatra'
-gem 'timers'
+gemspec
