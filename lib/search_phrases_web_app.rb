@@ -21,8 +21,6 @@ class SearchPhrasesWebApp < Sinatra::Application
   #                               collection of URLs.
   # +:new_search_browser+::       A Proc which returns a new Watir::Browser
   #                               for passing it to +:search+ Proc.
-  # +:new_search_phrases_browser+:: A Proc which returns a new Watir::Browser
-  #                                 for passing it to ::search_phrases().
   # +:cache_lifetime+::           How long the internal search results cache
   #                               lives (in seconds). The more this value
   #                               the more responsive the web application is
@@ -32,20 +30,24 @@ class SearchPhrasesWebApp < Sinatra::Application
   # +:source_code+::              URL of the source code of the web application.
   # +:results_per_page+::         Number of search results per page.
   #                               Default is 10.
+  # +:max_phrase_not_found_times+:: If the phrase being searched is not found in
+  #                                 this number of consecutive URLs then
+  #                                 the web application considers that it will
+  #                                 not be found in the rest URLs as well and
+  #                                 stops searching. Default is 3.
   # 
   def initialize(config)
     super()
     @search = getopt(config, :search)
     @new_search_browser = getopt(config, :new_search_browser)
-    @new_search_phrases_browser = getopt(config, :new_search_phrases_browser)
     cache_lifetime = config[:cache_lifetime] || 5*60
     @email = getopt(config, :email)
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 10
+    @max_phrase_not_found_times = config[:max_phrase_not_found_times] || 3
     # See #search_phrases_cached().
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
-      phrases_and_browsers[2].close()
     end
   end
   
@@ -61,9 +63,14 @@ class SearchPhrasesWebApp < Sinatra::Application
     if cached_phrases_and_browsers.nil?
       b1 = @new_search_browser.()
       urls = @search.(%("#{phrase_part}"), b1)
-      b2 = @new_search_phrases_browser.()
-      phrases = search_phrases(phrase_part, urls, b2) { |url, phrase_found| not phrase_found }
-      @cached_phrases_and_browsers[phrase_part] = [phrases, b1, b2]
+      phrase_not_found_times = 0
+      phrases = search_phrases(phrase_part, urls) do |url, phrase_found|
+        if not phrase_found then phrase_not_found_times += 1
+        else phrase_not_found_times = 0
+        end
+        need_stop = (phrase_not_found_times > @max_phrase_not_found_times)
+      end
+      @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
       return phrases
     else
       return cached_phrases_and_browsers[0]
