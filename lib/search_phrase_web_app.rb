@@ -101,7 +101,7 @@ class SearchPhraseWebApp < Sinatra::Application
   
   def search_form(phrase_part = nil)
     <<-ERB
-      <form action="/" method="get">
+      <form action="#{ENV["SCRIPT_NAME"]}/" method="get">
         Phrase part: <input name="phrase-part" size="100" type="text" value="#{Rack::Utils.escape_html(phrase_part || "")}"/> <input type="submit" value="Search"/>
       </form>
     ERB
@@ -152,7 +152,7 @@ class SearchPhraseWebApp < Sinatra::Application
         else page
         end
       page_href = lambda do |page, html|
-        %(<a href="/?phrase-part=#{Rack::Utils.escape(phrase_part)}&page=#{page}">#{html}</a>)
+        %(<a href="#{ENV["SCRIPT_NAME"]}/?phrase-part=#{Rack::Utils.escape(phrase_part)}&page=#{page}">#{html}</a>)
       end
       page_href_if = lambda do |page, html, condition|
         if condition then page_href[page, html]
