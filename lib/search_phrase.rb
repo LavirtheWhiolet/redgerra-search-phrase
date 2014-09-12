@@ -66,33 +66,50 @@ class Phrases
   
   private
   
+  class PageProcessingException < Exception
+    
+    def initialize(cause)
+      super(cause.message)
+      @cause = cause
+    end
+    
+    attr_reader :cause
+    
+  end
+  
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
-      begin
-        # Read page at current URL.
-        html = open(@urls.current).read.replace_invalid_byte_seqs("_")
-      rescue
-        # Try the next URL (if present).
-        @urls.next!
-        if @urls.current.not_nil? then retry
-        else return nil
-        end
-      end
-      # Search for the phrases and puts them into @cached_phrases.
-      phrase_found = false
-      text_blocks_from(Nokogiri::HTML(html)).each do |text_block|
-        phrases_from(text_block).each do |phrase|
-          if phrase.downcase.include? @phrase_part then
-            phrase_found = true
-            @cached_phrases.push phrase
+      # 
+      page_io =
+        begin
+          open(@urls.current)
+        rescue
+          # Try the next URL (if present).
+          @urls.next!
+          if @urls.current.not_nil? then retry
+          else return nil
           end
         end
-      end
-      # Stop searching (if needed).
-      @search_stopped = @need_stop.(@urls.current, phrase_found)
-      break if @search_stopped
       # 
-      @urls.next!
+      begin
+        # Search for the phrases and puts them into @cached_phrases.
+        phrase_found = false
+        text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+          phrases_from(text_block).each do |phrase|
+            if phrase.downcase.include? @phrase_part then
+              phrase_found = true
+              @cached_phrases.push phrase
+            end
+          end
+        end
+        # Stop searching (if needed).
+        @search_stopped = @need_stop.(@urls.current, phrase_found)
+        break if @search_stopped
+        # 
+        @urls.next!
+      ensure
+        page_io.close()
+      end
     end
     # 
     return @cached_phrases[index]
@@ -130,14 +147,14 @@ class Phrases
   
   # returns Array of String's.
   def text_blocks_from(element)
-    text_blocks = [""]
+    text_blocks = []
     start_new_text_block = lambda do
-      text_blocks.push("") if not text_blocks.last.empty?
+      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
     end
     this = lambda do |element|
       case element
       when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-        text_blocks.last.concat element.content
+        text_blocks.last.concat(element.content.replace_invalid_byte_seqs("_"))
       when Nokogiri::XML::Comment
         # Do nothing.
       when Nokogiri::XML::Document, Nokogiri::XML::Element
@@ -159,7 +176,6 @@ class Phrases
       end
     end
     this.(element)
-    text_blocks.reject!(&:empty?)
     return text_blocks
   end
   
