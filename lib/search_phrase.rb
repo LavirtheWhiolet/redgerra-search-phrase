@@ -161,13 +161,15 @@ class Phrases
         if element.name.in? %W{ script style } then
           start_new_text_block.()
         else
-          element_is_separate_text_block =
-            element.name.not_in? %W{
-              a abbr acronym b bdi bdo br code del dfn em font h1 h2 h3 h4 h5 h6 i
-              ins kbd mark q rt s samp small span strike strong sub sup time tt u
-              wbr
-            }
+          element_is_separate_text_block = element.name.not_in? %W{
+            a abbr acronym b bdi bdo br code del dfn em font i ins kbd mark q
+            s samp small span strike strong sub sup time tt u wbr
+          }
+          element_introduces_newline = element.name.in? %W{
+            br
+          }
           start_new_text_block.() if element_is_separate_text_block
+          text_blocks.last.concat("\n") if element_introduces_newline
           element.children.each(&this)
           start_new_text_block.() if element_is_separate_text_block
         end
