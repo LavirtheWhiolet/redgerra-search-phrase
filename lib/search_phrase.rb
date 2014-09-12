@@ -131,14 +131,14 @@ class Phrases
   
   # returns Array of String's.
   def text_blocks_from(element)
-    text_blocks = [""]
+    text_blocks = []
     start_new_text_block = lambda do
-      text_blocks.push("") if not text_blocks.last.empty?
+      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
     end
     this = lambda do |element|
       case element
       when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-        text_blocks.last.concat element.content
+        text_blocks.last.concat(element.content.replace_invalid_byte_seqs("_"))
       when Nokogiri::XML::Comment
         # Do nothing.
       when Nokogiri::XML::Document, Nokogiri::XML::Element
@@ -160,7 +160,6 @@ class Phrases
       end
     end
     this.(element)
-    text_blocks.reject!(&:empty?)
     return text_blocks
   end
   
