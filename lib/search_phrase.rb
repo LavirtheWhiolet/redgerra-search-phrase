@@ -5,7 +5,7 @@ require 'object/not_in'
 require 'object/not_nil'
 require 'strscan'
 require 'random_accessible'
-require 'string/replace_invalid_byte_seqs'
+require 'string/scrub'
 require 'open-uri'
 
 # 
@@ -154,7 +154,7 @@ class Phrases
     this = lambda do |element|
       case element
       when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-        text_blocks.last.concat(element.content.replace_invalid_byte_seqs("_"))
+        text_blocks.last.concat(element.content.scrub("_"))
       when Nokogiri::XML::Comment
         # Do nothing.
       when Nokogiri::XML::Document, Nokogiri::XML::Element
