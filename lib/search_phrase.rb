@@ -162,14 +162,17 @@ class Phrases
           start_new_text_block.()
         else
           element_is_separate_text_block = element.name.not_in? %W{
-            a abbr acronym b bdi bdo br code del dfn em font i ins kbd mark q
-            s samp small span strike strong sub sup time tt u wbr
+            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
+            q s samp small span strike strong sub sup time tt u wbr
           }
-          element_introduces_newline = element.name.in? %W{
-            br
-          }
+          string_introduced_by_element =
+            case element.name
+            when "br" then "\n"
+            when "img" then "[image]"
+            else ""
+            end
           start_new_text_block.() if element_is_separate_text_block
-          text_blocks.last.concat("\n") if element_introduces_newline
+          text_blocks.last.concat(string_introduced_by_element)
           element.children.each(&this)
           start_new_text_block.() if element_is_separate_text_block
         end
