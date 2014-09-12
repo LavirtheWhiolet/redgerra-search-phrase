@@ -107,7 +107,6 @@ class Phrases
         break if @search_stopped
         # 
         @urls.next!
-      #
       ensure
         page_io.close()
       end
