@@ -79,36 +79,37 @@ class Phrases
   
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
-      begin
-        open(@urls.current) do |html_io|
-          begin
-            # Search for the phrases and puts them into @cached_phrases.
-            phrase_found = false
-            text_blocks_from(Nokogiri::HTML(html_io)).each do |text_block|
-              phrases_from(text_block).each do |phrase|
-                if phrase.downcase.include? @phrase_part then
-                  phrase_found = true
-                  @cached_phrases.push phrase
-                end
-              end
-            end
-            # Stop searching (if needed).
-            @search_stopped = @need_stop.(@urls.current, phrase_found)
-            break if @search_stopped
-            # 
-            @urls.next!
-          rescue Exception => e
-            raise PageProcessingException.new(e)
+      # 
+      page_io =
+        begin
+          open(@urls.current)
+        rescue
+          # Try the next URL (if present).
+          @urls.next!
+          if @urls.current.not_nil? then retry
+          else return nil
           end
         end
-      rescue PageProcessingException => e
-        raise e.cause
-      rescue
-        # Try the next URL (if present).
-        @urls.next!
-        if @urls.current.not_nil? then retry
-        else return nil
+      # 
+      begin
+        # Search for the phrases and puts them into @cached_phrases.
+        phrase_found = false
+        text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+          phrases_from(text_block).each do |phrase|
+            if phrase.downcase.include? @phrase_part then
+              phrase_found = true
+              @cached_phrases.push phrase
+            end
+          end
         end
+        # Stop searching (if needed).
+        @search_stopped = @need_stop.(@urls.current, phrase_found)
+        break if @search_stopped
+        # 
+        @urls.next!
+      #
+      ensure
+        page_io.close()
       end
     end
     # 
