@@ -10,6 +10,8 @@ class String
         end
       end
       return result
+    else
+      return self
     end
   end
   
