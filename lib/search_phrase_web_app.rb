@@ -140,7 +140,7 @@ class SearchPhraseWebApp < Sinatra::Application
   get '/' do
     phrase_part = params[:'phrase-part']
     if phrase_part.nil?
-      erb :index
+      serb :index
     else
       phrase_part = phrase_part
       page = (params[:page] || 0).to_i
@@ -159,7 +159,7 @@ class SearchPhraseWebApp < Sinatra::Application
         else html
         end
       end
-      erb :search_results, locals: {
+      serb :search_results, locals: {
         phrase_part: phrase_part,
         page: page,
         current_page_phrases: current_page_phrases,
@@ -169,6 +169,14 @@ class SearchPhraseWebApp < Sinatra::Application
         page_href_if: page_href_if
       }
     end
+  end
+  
+  # The same as #erb() but with some whitespaces removed. See source code.
+  def serb(*args, &block)
+    erb(*args, &block).
+      strip!.
+      gsub!(/\s+/, " ").
+      gsub!(/>\s*</, "><")
   end
   
 end
