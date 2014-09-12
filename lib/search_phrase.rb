@@ -69,8 +69,24 @@ class Phrases
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
       begin
-        # Read page at current URL.
-        html = open(@urls.current).read.replace_invalid_byte_seqs("_")
+        # 
+        open(@urls.current) do |html_io|
+          # Search for the phrases and puts them into @cached_phrases.
+          phrase_found = false
+          text_blocks_from(Nokogiri::HTML(html_io)).each do |text_block|
+            phrases_from(text_block).each do |phrase|
+              if phrase.downcase.include? @phrase_part then
+                phrase_found = true
+                @cached_phrases.push phrase
+              end
+            end
+          end
+          # Stop searching (if needed).
+          @search_stopped = @need_stop.(@urls.current, phrase_found)
+          break if @search_stopped
+          # 
+          @urls.next!
+        end
       rescue
         # Try the next URL (if present).
         @urls.next!
@@ -78,21 +94,6 @@ class Phrases
         else return nil
         end
       end
-      # Search for the phrases and puts them into @cached_phrases.
-      phrase_found = false
-      text_blocks_from(Nokogiri::HTML(html)).each do |text_block|
-        phrases_from(text_block).each do |phrase|
-          if phrase.downcase.include? @phrase_part then
-            phrase_found = true
-            @cached_phrases.push phrase
-          end
-        end
-      end
-      # Stop searching (if needed).
-      @search_stopped = @need_stop.(@urls.current, phrase_found)
-      break if @search_stopped
-      # 
-      @urls.next!
     end
     # 
     return @cached_phrases[index]
