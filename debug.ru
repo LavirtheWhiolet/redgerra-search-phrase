@@ -11,5 +11,6 @@ run SearchPhraseWebApp.new(
   search: lambda { |query, browser| Google.search(query, browser) },
   new_search_browser: lambda { Watir::Browser.new(:phantomjs) },
   email: 'none@example.com',
-  source_code: 'http://example.com'
+  source_code: 'http://example.com',
+  results_per_page: 10
 )

@@ -138,13 +138,16 @@ class Phrases
     str = str.gsub(WHITESPACES_REGEXP, " ")
     phrases = [""]
     s = StringScanner.new(str)
+    s.skip(/ /)
     while not s.eos?
-      if (p = s.scan(/[\.\!\?…]+( |$)/)) then
-        phrases.last.concat(p.chomp(" "))
+      p = s.scan(/[\.\!\?…]+ /) and begin
+        p.chomp!(" ")
+        phrases.last.concat(p)
         phrases.push("")
       end
-      p = s.scan(/e\.\s?g\.|etc\.|i\.\s?e\.|./) and phrases.last.concat(p)
+      p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|./) and phrases.last.concat(p)
     end
+    phrases.last.chomp!(" ")
     phrases.pop() if phrases.last.empty?
     phrases.shift() if not phrases.empty? and phrases.first.empty?
     return phrases
