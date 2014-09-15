@@ -205,7 +205,7 @@ class Phrases
 end
 
 # 
-# searches for phrases in pages located at specified URL's.
+# searches for phrases in pages located at specified URL's and returns Phrases.
 # 
 # +phrase_part+ is a part of phrases being searched for.
 # 
