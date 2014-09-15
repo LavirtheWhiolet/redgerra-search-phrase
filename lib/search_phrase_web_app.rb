@@ -32,7 +32,7 @@ class SearchPhraseWebApp < Sinatra::Application
   #                               lives (in seconds). The more this value
   #                               the more responsive the web application is
   #                               but the more memory it uses. Default is
-  #                               5 minutes.
+  #                               30 minutes.
   # +:results_per_page+::         Number of search results per page.
   #                               Default is 200.
   # +:max_phrase_not_found_times+:: If the phrase being searched is not found in
@@ -45,7 +45,7 @@ class SearchPhraseWebApp < Sinatra::Application
     super()
     @search = getopt(config, :search)
     @new_search_browser = getopt(config, :new_search_browser)
-    cache_lifetime = config[:cache_lifetime] || 5*60
+    cache_lifetime = config[:cache_lifetime] || 30*60
     @email = getopt(config, :email)
     @source_code_url = getopt(config, :source_code)
     @results_per_page = config[:results_per_page] || 200
