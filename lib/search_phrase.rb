@@ -68,17 +68,6 @@ class Phrases
   
   private
   
-  class PageProcessingException < Exception
-    
-    def initialize(cause)
-      super(cause.message)
-      @cause = cause
-    end
-    
-    attr_reader :cause
-    
-  end
-  
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
       # 
