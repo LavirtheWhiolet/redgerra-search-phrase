@@ -173,7 +173,7 @@ class Phrases
           string_introduced_by_element =
             case element.name
             when "br" then "\n"
-            when "img" then "[image]"
+            when "img" then " "
             else ""
             end
           start_new_text_block.() if element_is_separate_text_block
