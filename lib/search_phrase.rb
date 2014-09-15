@@ -137,15 +137,17 @@ class Phrases
   def phrases_from(str)
     str = str.gsub(WHITESPACES_REGEXP, " ")
     phrases = [""]
-    phrase_finished = lambda do
-      phrases.last.chomp! " "
-    end
     s = StringScanner.new(str)
+    s.skip(/ /)
     while not s.eos?
-      p = s.scan(/[\.\!\?…]+ /) and (phrases.last.concat(p); phrase_finished.())
+      p = s.scan(/[\.\!\?…]+ /) and begin
+        p.chomp!(" ")
+        phrases.last.concat(p)
+        phrases.push("")
+      end
       p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|./) and phrases.last.concat(p)
     end
-    phrase_finished.()
+    phrases.last.chomp!(" ")
     phrases.pop() if phrases.last.empty?
     phrases.shift() if not phrases.empty? and phrases.first.empty?
     return phrases
