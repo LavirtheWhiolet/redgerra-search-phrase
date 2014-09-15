@@ -7,6 +7,7 @@ require 'strscan'
 require 'random_accessible'
 require 'string/scrub'
 require 'open-uri'
+require 'set'
 
 # 
 # Result of #search_phrase().
@@ -23,6 +24,7 @@ class Phrases
     @urls = URLs.new(urls)
     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
     @cached_phrases = []
+    @cached_phrases_set = Set.new
     @need_stop = need_stop || lambda { |url, phrase_found| false }
     @search_stopped = false
   end
@@ -96,9 +98,12 @@ class Phrases
         phrase_found = false
         text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
           phrases_from(text_block).each do |phrase|
-            if phrase.downcase.include? @phrase_part then
+            if phrase.downcase.include?(@phrase_part) and
+                not @cached_phrases_set.include?(phrase) and
+                phrase !~ /[\[\]\{\}]/ then
               phrase_found = true
               @cached_phrases.push phrase
+              @cached_phrases_set.add phrase
             end
           end
         end
@@ -206,6 +211,7 @@ end
 
 # 
 # searches for phrases in pages located at specified URL's and returns Phrases.
+# Phrases containing "{", "}", "[" or "]" are omitted.
 # 
 # +phrase_part+ is a part of phrases being searched for.
 # 
