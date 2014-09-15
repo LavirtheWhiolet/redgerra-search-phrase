@@ -7,6 +7,7 @@ require 'strscan'
 require 'random_accessible'
 require 'string/scrub'
 require 'open-uri'
+require 'future'
 
 # 
 # Result of #search_phrase().
@@ -182,6 +183,14 @@ class Phrases
     end
     this.(element)
     return text_blocks
+  end
+  
+  class HTMLs
+    
+    def initialize(urls, preload_count)
+      
+    end
+    
   end
   
   class URLs
