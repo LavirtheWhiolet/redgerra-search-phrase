@@ -6,6 +6,9 @@ require 'object/not_nil'
 # A hash map with values being automatically deleted if they are not accessed
 # for a specific time period.
 # 
+# It must be #close()-d after it is used, otherwise it will not be
+# gargbage-collected.
+# 
 # This class is thread-safe.
 # 
 # Example:
@@ -18,6 +21,7 @@ require 'object/not_nil'
 #   sleep(3)
 #   puts m["a"]  #=> 10
 #   puts m["b"]  #=> nil
+#   m.close()
 # 
 class ExpiringHashMap
   
@@ -89,6 +93,10 @@ class ExpiringHashMap
     mon_synchronize do
       return @map.size
     end
+  end
+  
+  def close()
+    @deleting_thread.kill()
   end
   
 end
