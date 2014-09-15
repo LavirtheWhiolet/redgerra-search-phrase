@@ -143,7 +143,7 @@ class Phrases
         phrases.last.concat(p.chomp(" "))
         phrases.push("")
       end
-      p = s.getch and phrases.last.concat(p)
+      p = s.scan(/e\.\s?g\.|etc\.|i\.\s?e\.|./) and phrases.last.concat(p)
     end
     phrases.pop() if phrases.last.empty?
     phrases.shift() if not phrases.empty? and phrases.first.empty?
