@@ -142,7 +142,7 @@ class Phrases
     end
     s = StringScanner.new(str)
     while not s.eos?
-      p = s.scan(/[\.\!\?…]+ /) and phrase_finished.()
+      p = s.scan(/[\.\!\?…]+ /) and (phrases.last.concat(p); phrase_finished.())
       p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|./) and phrases.last.concat(p)
     end
     phrase_finished.()
