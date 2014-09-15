@@ -7,7 +7,6 @@ require 'strscan'
 require 'random_accessible'
 require 'string/scrub'
 require 'open-uri'
-require 'future'
 
 # 
 # Result of #search_phrase().
@@ -187,9 +186,18 @@ class Phrases
   
   class HTMLs
     
-    def initialize(urls, preload_count)
-      
+    private_class_method :new
+    
+    def self.load_from(urls, )
     end
+    
+    def initialize(urls, preload_count)
+      @urls = urls
+      @current_index = 0
+      @preload_count = preload_count
+    end
+    
+    
     
   end
   
