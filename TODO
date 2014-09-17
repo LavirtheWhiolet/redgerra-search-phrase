@@ -1,0 +1,3 @@
+---
+Phrase parts like "aaa * bbb" should yield in "aaa w1 bbb" or "aaa w1 w2 bbb"
+where w1 and w2 are words.
