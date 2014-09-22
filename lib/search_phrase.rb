@@ -134,7 +134,7 @@ class Phrases
         phrases.last.concat(p)
         phrases.push("")
       end
-      p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|./) and phrases.last.concat(p)
+      p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.|./) and phrases.last.concat(p)
     end
     phrases.last.chomp!(" ")
     phrases.pop() if phrases.last.empty?
