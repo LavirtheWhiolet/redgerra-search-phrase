@@ -33,7 +33,8 @@ class FixedSizeQueue
   
   # 
   # removes an item from the beginning of this FixedSizeQueue and returns
-  # the item. If this FixedSizeQueue is #empty?() then this method returns nil.
+  # the item. If this FixedSizeQueue is #empty?() then this method does nothing
+  # and returns nil.
   # 
   def pop()
     # TODO
