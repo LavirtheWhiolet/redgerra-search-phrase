@@ -1,6 +1,9 @@
 
 class FixedSizeQueue
   
+  # 
+  # +max_size+ is value for #max_size().
+  # 
   def initialize(max_size)
     # TODO
   end
