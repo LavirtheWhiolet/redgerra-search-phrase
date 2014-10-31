@@ -22,4 +22,21 @@ class FixedSizeQueue
   # Maximum of #size.
   attr_reader :max_size
   
+  # 
+  # adds +item+ to the end of this FixedSizeQueue.
+  # 
+  # It is an error to call this method if this FixedSizeQueue is #full?().
+  # 
+  def push(item)
+    # TODO
+  end
+  
+  # 
+  # removes an item from the beginning of this FixedSizeQueue and returns
+  # the item. If this FixedSizeQueue is #empty?() then this method returns nil.
+  # 
+  def pop()
+    # TODO
+  end
+  
 end
