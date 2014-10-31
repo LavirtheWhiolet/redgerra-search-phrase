@@ -20,7 +20,9 @@ class FixedSizeQueue
   end
   
   # Maximum of #size.
-  attr_reader :max_size
+  def max_size
+    @max_size
+  end
   
   # 
   # adds +item+ to the end of this FixedSizeQueue.
