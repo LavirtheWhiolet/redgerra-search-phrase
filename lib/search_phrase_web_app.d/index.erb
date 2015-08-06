@@ -95,11 +95,6 @@
         addNodeToResultsList(li);
       }
       
-      function removeLoadingSymbol() {
-        var x = document.getElementById("loadingSymbol");
-        x.parentNode.removeChild(x);
-      }
-      
       var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
       var currentIndex = 0;
       
@@ -109,7 +104,8 @@
           return responseText == "";
         }
         // Implementation.
-        moreButton.style.display = "none";
+        hide(moreButton);
+        show(loadingSymbol);
         var stopIndex = currentIndex + 10;
         function loop() {
           request(
@@ -117,14 +113,14 @@
             "phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
             /* okF = */ function(responseText) {
               if (hasNoMorePhrases(responseText)) {
-                removeLoadingSymbol();
+                hide(loadingSymbol);
               }
               else {
                 phrase = responseText;
                 addTextItemToResultsList(phrase);
                 if (currentIndex == stopIndex) {
-                  removeLoadingSymbol();
-                  moreButton.style.display = "block";
+                  hide(loadingSymbol);
+                  show(moreButton);
                 }
                 else {
                   currentIndex++;
@@ -133,7 +129,7 @@
               }
             },
             /* errorF = */ function(statusCode, responseText, isNetworkingError) {
-              removeLoadingSymbol();
+              hide(loadingSymbol);
               if (isNetworkingError) {
                 addHTMLItemToResultsList('<span class="error">Networking error</span>');
               }
