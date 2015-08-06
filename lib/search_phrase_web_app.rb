@@ -35,7 +35,7 @@ class SearchPhraseWebApp < Sinatra::Application
   set :public_folder, "#{APP_DIR}/static"
   
   get "/" do
-    redirect "index.html"
+    redirect to "index.html", false
   end
   
   get "/index.html" do
