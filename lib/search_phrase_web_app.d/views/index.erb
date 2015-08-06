@@ -29,7 +29,7 @@
     
     <script>
       
-      var pageSize = 200;
+      var RESULTS_PER_PAGE = 200;
       
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
@@ -114,7 +114,7 @@
         // Implementation.
         hide(moreButton);
         show(loadingSymbol);
-        var stopIndex = currentIndex + pageSize;
+        var stopIndex = currentIndex + RESULTS_PER_PAGE;
         function loop() {
           request(
             "GET",
