@@ -6,6 +6,9 @@
       .error {
         color: red;
       }
+      hr {
+        height: 1px;
+      }
     </style>
   </head>
   <body>
@@ -16,12 +19,15 @@
     
     <% if not phrase_part.empty? then %>
 
+    Phrases found:
     <ul id="resultsList">
       <li id="loadingSymbol"><img src="loading.gif"/></li>
     </ul>
     <a id="moreButton" href="#" class="hidden">More…</a>
     
     <script>
+      
+      var pageSize = 200;
       
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
@@ -84,7 +90,7 @@
       
       function addTextItemToResultsList(text) {
         var li = document.createElement("li");
-        var text = document.createTextNode(phrase);
+        var text = document.createTextNode(text);
         li.appendChild(text);
         addNodeToResultsList(li);
       }
@@ -106,7 +112,7 @@
         // Implementation.
         hide(moreButton);
         show(loadingSymbol);
-        var stopIndex = currentIndex + 10;
+        var stopIndex = currentIndex + pageSize;
         function loop() {
           request(
             "GET",
@@ -114,9 +120,12 @@
             /* okF = */ function(responseText) {
               if (hasNoMorePhrases(responseText)) {
                 hide(loadingSymbol);
+                if (currentIndex == 0) {
+                  addTextItemToResultsList("(none)");
+                }
               }
               else {
-                phrase = responseText;
+                var phrase = responseText;
                 addTextItemToResultsList(phrase);
                 currentIndex++;
                 if (currentIndex == stopIndex) {
@@ -152,9 +161,10 @@
     </script>
 
     <% else %>
-
-    <!-- TODO -->
-
+    
+    <hr/>
+    <center><small><a href="https://github.com/LavirtheWhiolet/search-phrase">Source code</a> | <a href="Lavir.th.Whiolet@gmail.com">Contact me</a></small></center>
+    
     <% end %>
     
   </body>

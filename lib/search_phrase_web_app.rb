@@ -10,6 +10,7 @@ require 'expiring_hash_map'
 class SearchPhraseWebApp < Sinatra::Application
   
   APP_DIR = "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
+  
   set :views, "#{APP_DIR}/views"
   set :public_folder, "#{APP_DIR}/static"
   
@@ -29,7 +30,7 @@ class SearchPhraseWebApp < Sinatra::Application
     if offset < 15
       "Phrase #{offset}"
     else
-      "" # halt 410, 'Go away!'
+      body ""
     end
   end
   
