@@ -2,6 +2,11 @@
 <html>
   <head>
     <title>Search Phrase</title>
+    <style>
+      .error {
+        color: red;
+      }
+    </style>
   </head>
   <body>
     <form action="index.html" method="get">
@@ -9,19 +14,24 @@
     </form>
     <p/>
     
-    % if not phrase_part.empty? then %
+    <% if not phrase_part.empty? then %>
 
     <ul id="resultsList">
+      <li id="loadingSymbol">…</li>
     </ul>
-    <div id="loadingSymbol">…</div>
+    <a id="moreButton" href="#" class="hidden">More…</a>
     
-    <script type="text/javascript">
+    <script>
+      
+      var resultsList = document.getElementById("resultsList");
+      var loadingSymbol = document.getElementById("loadingSymbol");
+      var moreButton = document.getElementById("moreButton");
       
       /**
        * Send request via XMLHttpRequest and process response.
        * 
        * okF: function(responseText).
-       * errorF: function().
+       * errorF: function(statusCode, responseText, isNetworkingError).
        */
       function request(method, query, okF, errorF) {
         req = (function() {
@@ -47,52 +57,74 @@
               if (req.status == 200) {
                 okF(req.responseText);
               } else {
-                errorF();
+                errorF(req.status, req.responseText, false);
               }
             }
           }
           catch( e ) {
             // Workaround for Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
             // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
-            errorF();
+            errorF(0, "", true);
           }
         };
         req.send(null);
       }
       
-      var resultsList = document.getElementById("resultsList");
+      function show(node) {
+        node.style.display = "";
+      }
+      
+      function hide(node) {
+        node.style.display = "none";
+      }
+      
+      function addNodeToResultsList(li) {
+        resultsList.insertBefore(li, loadingSymbol);
+      }
       
       function addTextItemToResultsList(text) {
         var li = document.createElement("li");
         var text = document.createTextNode(phrase);
         li.appendChild(text);
-        resultsList.appendChild(li);
+        addNodeToResultsList(li);
+      }
+      
+      function addHTMLItemToResultsList(html) {
+        var li = document.createElement("li");
+        li.innerHTML = html;
+        addNodeToResultsList(li);
       }
       
       function removeLoadingSymbol() {
         var x = document.getElementById("loadingSymbol");
-        x.parent.removeChild(x);
+        x.parentNode.removeChild(x);
       }
       
-      function run(startIndex, endIndex, phrasePartCGIEscaped) {
-        var currentIndex = startIndex;
-        function isNoMorePhrases(responseText) {
+      var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
+      var currentIndex = 0;
+      
+      function more() {
+        // Utils.
+        function hasNoMorePhrases(responseText) {
           return responseText == "";
         }
+        // Implementation.
+        moreButton.style.display = "none";
+        var stopIndex = currentIndex + 10;
         function loop() {
           request(
             "GET",
-            "get-phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
+            "phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
             /* okF = */ function(responseText) {
-              if (isNoMorePhrases(responseText) {
+              if (hasNoMorePhrases(responseText)) {
                 removeLoadingSymbol();
               }
               else {
                 phrase = responseText;
                 addTextItemToResultsList(phrase);
-                if (currentIndex == endIndex) {
+                if (currentIndex == stopIndex) {
                   removeLoadingSymbol();
-                  /* TODO: Make "More" visible. */
+                  moreButton.style.display = "block";
                 }
                 else {
                   currentIndex++;
@@ -100,24 +132,34 @@
                 }
               }
             },
-            /* errorF = */ function() {
-              /* TODO: Make error displaying better. */
-              addTextItemToResultsList("(error)");
+            /* errorF = */ function(statusCode, responseText, isNetworkingError) {
               removeLoadingSymbol();
+              if (isNetworkingError) {
+                addHTMLItemToResultsList('<span class="error">Networking error</span>');
+              }
+              else {
+                addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + ' ' + responseText + '</span>');
+              }
             }
           );
         }
+        loop();
       }
       
-      run(0, 200, "<%=Rack::Utils.escape(phrase_part)%>");
+      moreButton.onclick = function(event) {
+        more();
+        event.preventDefault();
+      }
+      
+      more();
       
     </script>
 
-    % else
+    <% else %>
 
     <!-- TODO -->
 
-    % end
+    <% end %>
     
   </body>
 </html>

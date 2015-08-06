@@ -1,4 +1,4 @@
-require 'search_phrase_web_app/app'
+require 'search_phrase_web_app'
 # require 'watir-webdriver'
 # require 'google/search'
 
