@@ -6,16 +6,18 @@
       .error {
         color: red;
       }
-      hr {
-        height: 1px;
+      .search-form {
+        padding-top: 1em;
+        /*padding-left: 1em;*/
+        /*padding-right: 1em;*/
+        padding-bottom: 2em;
       }
     </style>
   </head>
   <body>
-    <form action="index.html" method="get">
+    <form action="index.html" method="get" class="search-form">
       Phrase part: <input name="phrase-part" size="100" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/> <input type="submit" value="Search"/>
     </form>
-    <p/>
     
     <% if not phrase_part.empty? then %>
 
@@ -162,8 +164,9 @@
 
     <% else %>
     
-    <hr/>
-    <center><small><a href="https://github.com/LavirtheWhiolet/search-phrase">Source code</a> | <a href="Lavir.th.Whiolet@gmail.com">Contact me</a></small></center>
+    <div class="credits">
+      <center><small><a href="https://github.com/LavirtheWhiolet/search-phrase">Source code</a> | <a href="Lavir.th.Whiolet@gmail.com">Contact me</a></small></center>
+    </div>
     
     <% end %>
     
