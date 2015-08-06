@@ -9,7 +9,9 @@ require 'expiring_hash_map'
 
 class SearchPhraseWebApp < Sinatra::Application
   
-  set :views, "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
+  APP_DIR = "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
+  set :views, "#{APP_DIR}/views"
+  set :public_folder, "#{APP_DIR}/static"
   
   get "/" do
     redirect "index.html"
@@ -22,6 +24,7 @@ class SearchPhraseWebApp < Sinatra::Application
   end
   
   get "/phrase" do
+    sleep 1
     offset = (params[:offset] || "").to_i
     if offset < 15
       "Phrase #{offset}"
