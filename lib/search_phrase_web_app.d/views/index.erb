@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search Phrase</title>
+    <style>
+      .error {
+        color: red;
+      }
+      .search-form {
+        padding-top: 1em;
+        /*padding-left: 1em;*/
+        /*padding-right: 1em;*/
+        padding-bottom: 2em;
+      }
+    </style>
+  </head>
+  <body>
+    <form action="index.html" method="get" class="search-form">
+      Phrase part: <input name="phrase-part" size="100" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/> <input type="submit" value="Search"/>
+    </form>
+    
+    <% if not phrase_part.empty? then %>
+
+    Phrases found:
+    <ul id="resultsList">
+      <li id="loadingSymbol"><img src="loading.gif"/></li>
+    </ul>
+    <a id="moreButton" href="#" class="hidden">More…</a>
+    
+    <script>
+      
+      var RESULTS_PER_PAGE = 200;
+      
+      var resultsList = document.getElementById("resultsList");
+      var loadingSymbol = document.getElementById("loadingSymbol");
+      var moreButton = document.getElementById("moreButton");
+      
+      /**
+       * Send request via XMLHttpRequest and process response.
+       * 
+       * okF: function(responseText).
+       * errorF: function(statusCode, responseText, isNetworkingError).
+       */
+      function request(method, query, okF, errorF) {
+        req = (function() {
+          if (window.XMLHttpRequest) {
+              try {
+                  return new XMLHttpRequest();
+              } catch (e){}
+          } else if (window.ActiveXObject) {
+              try {
+                  return new ActiveXObject('Msxml2.XMLHTTP');
+              } catch (e){
+                  try {
+                      return new ActiveXObject('Microsoft.XMLHTTP');
+                  } catch (e){}
+              }
+          }
+          throw "Please update your browser";
+        })();
+        req.open(method, query, true);
+        req.onreadystatechange = function() {
+          try {
+            if (req.readyState == 4) {
+              if (req.status == 200) {
+                okF(req.responseText);
+              } else {
+                errorF(req.status, req.responseText, false);
+              }
+            }
+          }
+          catch( e ) {
+            // Workaround for Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+            errorF(0, "", true);
+          }
+        };
+        req.send(null);
+      }
+      
+      function show(node) {
+        node.style.display = "";
+      }
+      
+      function hide(node) {
+        node.style.display = "none";
+      }
+      
+      function addNodeToResultsList(li) {
+        resultsList.insertBefore(li, loadingSymbol);
+      }
+      
+      function addTextItemToResultsList(text) {
+        var li = document.createElement("li");
+        var text = document.createTextNode(text);
+        li.appendChild(text);
+        addNodeToResultsList(li);
+      }
+      
+      function addHTMLItemToResultsList(html) {
+        var li = document.createElement("li");
+        li.innerHTML = html;
+        addNodeToResultsList(li);
+      }
+      
+      var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
+      var currentIndex = 0;
+      
+      function more() {
+        // Utils.
+        function hasNoMorePhrases(responseText) {
+          return responseText == "";
+        }
+        // Implementation.
+        hide(moreButton);
+        show(loadingSymbol);
+        var stopIndex = currentIndex + RESULTS_PER_PAGE;
+        function loop() {
+          request(
+            "GET",
+            "phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
+            /* okF = */ function(responseText) {
+              if (hasNoMorePhrases(responseText)) {
+                hide(loadingSymbol);
+                if (currentIndex == 0) {
+                  addTextItemToResultsList("(none)");
+                }
+              }
+              else {
+                var phrase = responseText;
+                addTextItemToResultsList(phrase);
+                currentIndex++;
+                if (currentIndex == stopIndex) {
+                  hide(loadingSymbol);
+                  show(moreButton);
+                }
+                else {
+                  loop();
+                }
+              }
+            },
+            /* errorF = */ function(statusCode, responseText, isNetworkingError) {
+              hide(loadingSymbol);
+              if (isNetworkingError) {
+                addHTMLItemToResultsList('<span class="error">Networking error</span>');
+              }
+              else {
+                addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + ' ' + responseText + '</span>');
+              }
+            }
+          );
+        }
+        loop();
+      }
+      
+      moreButton.onclick = function(event) {
+        more();
+        event.preventDefault();
+      }
+      
+      more();
+      
+    </script>
+
+    <% else %>
+    
+    <div class="credits">
+      <center><small><a href="https://github.com/LavirtheWhiolet/search-phrase">Source code</a> | <a href="Lavir.th.Whiolet@gmail.com">Contact me</a></small></center>
+    </div>
+    
+    <% end %>
+    
+  </body>
+</html>
