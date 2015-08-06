@@ -29,6 +29,9 @@ class Phrases
     @search_stopped = false
   end
   
+  def initialize()
+  end
+  
   # :call-seq:
   #   phrases[i]
   #   phrases[x..y]
@@ -66,7 +69,7 @@ class Phrases
     end
   end
   
-  private
+#   private
   
   def get(index)
     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
@@ -107,6 +110,28 @@ class Phrases
     end
     # 
     return @cached_phrases[index]
+  end
+  
+  def phrases_from1(url)
+    # 
+    page_io =
+      begin
+        open(url)
+      rescue
+        return []
+      end
+    #
+    begin
+      result = []
+      text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+        phrases_from(text_block).each do |phrase|
+          result.push(phrase)
+        end
+      end
+      return result
+    ensure
+      page_io.close()
+    end
   end
   
   WHITESPACES_REGEXP_STRING = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+"
@@ -160,7 +185,7 @@ class Phrases
         else
           element_is_separate_text_block = element.name.not_in? %W{
             a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
-            q s samp small span strike strong sub sup time tt u wbr
+            q s samp small span strike strong time tt u wbr
           }
           string_introduced_by_element =
             case element.name
@@ -200,6 +225,8 @@ class Phrases
   end
   
 end
+
+p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
 # 
 # searches for phrases in pages located at specified URL's and returns Phrases.
