@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Search Phrase</title>
+  </head>
+  <body>
+    <form action="index.html" method="get">
+      Phrase part: <input name="phrase-part" size="100" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/> <input type="submit" value="Search"/>
+    </form>
+    <p/>
+    
+    % if not phrase_part.empty? then %
+
+    <ul id="resultsList">
+    </ul>
+    <div id="loadingSymbol">…</div>
+    
+    <script type="text/javascript">
+      
+      /**
+       * Send request via XMLHttpRequest and process response.
+       * 
+       * okF: function(responseText).
+       * errorF: function().
+       */
+      function request(method, query, okF, errorF) {
+        req = (function() {
+          if (window.XMLHttpRequest) {
+              try {
+                  return new XMLHttpRequest();
+              } catch (e){}
+          } else if (window.ActiveXObject) {
+              try {
+                  return new ActiveXObject('Msxml2.XMLHTTP');
+              } catch (e){
+                  try {
+                      return new ActiveXObject('Microsoft.XMLHTTP');
+                  } catch (e){}
+              }
+          }
+          throw "Please update your browser";
+        })();
+        req.open(method, query, true);
+        req.onreadystatechange = function() {
+          try {
+            if (req.readyState == 4) {
+              if (req.status == 200) {
+                okF(req.responseText);
+              } else {
+                errorF();
+              }
+            }
+          }
+          catch( e ) {
+            // Workaround for Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
+            // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
+            errorF();
+          }
+        };
+        req.send(null);
+      }
+      
+      var resultsList = document.getElementById("resultsList");
+      
+      function addTextItemToResultsList(text) {
+        var li = document.createElement("li");
+        var text = document.createTextNode(phrase);
+        li.appendChild(text);
+        resultsList.appendChild(li);
+      }
+      
+      function removeLoadingSymbol() {
+        var x = document.getElementById("loadingSymbol");
+        x.parent.removeChild(x);
+      }
+      
+      function run(startIndex, endIndex, phrasePartCGIEscaped) {
+        var currentIndex = startIndex;
+        function isNoMorePhrases(responseText) {
+          return responseText == "";
+        }
+        function loop() {
+          request(
+            "GET",
+            "get-phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
+            /* okF = */ function(responseText) {
+              if (isNoMorePhrases(responseText) {
+                removeLoadingSymbol();
+              }
+              else {
+                phrase = responseText;
+                addTextItemToResultsList(phrase);
+                if (currentIndex == endIndex) {
+                  removeLoadingSymbol();
+                  /* TODO: Make "More" visible. */
+                }
+                else {
+                  currentIndex++;
+                  loop();
+                }
+              }
+            },
+            /* errorF = */ function() {
+              /* TODO: Make error displaying better. */
+              addTextItemToResultsList("(error)");
+              removeLoadingSymbol();
+            }
+          );
+        }
+      }
+      
+      run(0, 200, "<%=Rack::Utils.escape(phrase_part)%>");
+      
+    </script>
+
+    % else
+
+    <!-- TODO -->
+
+    % end
+    
+  </body>
+</html>

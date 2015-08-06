@@ -9,13 +9,25 @@ require 'expiring_hash_map'
 
 class SearchPhraseWebApp < Sinatra::Application
   
-  template :index do
-    <<-HTML
-    HTML
+  set :views, File.dirname(__FILE__)
+  
+  get "/" do
+    redirect "index.html"
   end
   
-  get '/' do
-    redirect 'index.php'
+  get "/index.html" do
+    erb :index, locals: {
+      phrase_part: (params[:"phrase-part" || ""])
+    }
+  end
+  
+  get "/get-phrase" do
+    offset = (params[:offset] || "").to_i
+    if offset < 100
+      "Phrase #{offset}"
+    else
+      ""
+    end
   end
   
 end
