@@ -2,17 +2,7 @@
 require 'sinatra/base'
 require 'expiring_hash_map'
 
-#          <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
-#           <hr style="height: 1px"/>
-#           <center><small><a href="<%=@source_code_url%>">Source code</a> | <a href="mailto:<%=@email%>">Contact me</a></small></center>
-  #{env["SCRIPT_NAME"]}
-
 class SearchPhraseWebApp < Sinatra::Application
-  
-  APP_DIR = "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
-  
-  set :views, "#{APP_DIR}/views"
-  set :public_folder, "#{APP_DIR}/static"
   
   # 
   # +search+ is a Proc which is passed with a query and a Watir::Browser, sends
@@ -22,10 +12,26 @@ class SearchPhraseWebApp < Sinatra::Application
   # +new_search_browser+ is a Proc returning a new Watir::Browser for passing
   # it to +search+.
   # 
-  # +cache_lifetime+ is 
+  # +cache_lifetime+ is how long +search+ results are cached for.
   # 
   def initialize(search, new_search_browser, cache_lifetime = 30*60)
+    super()
+    @search = search
+    @new_search_browser = new_search_browser
+    @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
+      phrases_and_browsers[1].close()
+    end
   end
+  
+  private
+  
+  # If a phrase is not found this much times then the searching stops.
+  MAX_PHRASE_NOT_FOUND_TIMES = 10
+  
+  APP_DIR = "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
+  
+  set :views, "#{APP_DIR}/views"
+  set :public_folder, "#{APP_DIR}/static"
   
   get "/" do
     redirect "index.html"
@@ -38,12 +44,31 @@ class SearchPhraseWebApp < Sinatra::Application
   end
   
   get "/phrase" do
-    sleep 1
-    offset = (params[:offset] || "").to_i
-    if offset < 15
-      "Phrase #{offset}"
+    # 
+    phrase_part = params[:"phrase-part"]
+    halt 400, "Phrase part is not specified" if phrase_part.nil? or phrase_part.empty?
+    offset = (params[:offset] || "0").to_i
+    # 
+    search_phrase_cached(phrase_part)[offset] || ""
+  end
+  
+  # Cached version of ::search_phrase().
+  def search_phrase_cached(phrase_part)
+    cached_phrases_and_browsers = @cached_phrases_and_browsers[phrase_part]
+    if cached_phrases_and_browsers.nil?
+      b1 = @new_search_browser.()
+      urls = @search.(%("#{phrase_part}"), b1)
+      phrase_not_found_times = 0
+      phrases = search_phrase(phrase_part, urls) do |url, phrase_found|
+        if not phrase_found then phrase_not_found_times += 1
+        else phrase_not_found_times = 0
+        end
+        need_stop = (phrase_not_found_times > MAX_PHRASE_NOT_FOUND_TIMES)
+      end
+      @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
+      return phrases
     else
-      body ""
+      return cached_phrases_and_browsers[0]
     end
   end
   
