@@ -1,6 +1,7 @@
 # encoding: UTF-8
 require 'sinatra/base'
 require 'expiring_hash_map'
+require 'search_prase'
 
 class SearchPhraseWebApp < Sinatra::Application
   
