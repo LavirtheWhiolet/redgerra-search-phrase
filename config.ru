@@ -3,6 +3,6 @@ require 'watir-webdriver'
 require 'google/search'
 
 run SearchPhraseWebApp.new(
-  search: lambda { |query, browser| Google.search(query, browser) },
-  new_search_browser: lambda { Watir::Browser.new(:phantomjs) }
+  lambda { |query, browser| Google.search(query, browser) },
+  lambda { Watir::Browser.new(:phantomjs) }
 )
