@@ -4,18 +4,10 @@
 
 $LOAD_PATH << "#{File.dirname(__FILE__)}/lib"
 require 'search_phrase_web_app'
-# require 'watir-webdriver'
-# require 'google/search'
+require 'watir-webdriver'
+require 'google/search'
 
-# Encoding.default_external = "UTF-8"  
-
-run SearchPhraseWebApp.new()
-=begin
 run SearchPhraseWebApp.new(
   search: lambda { |query, browser| Google.search(query, browser) },
-  new_search_browser: lambda { Watir::Browser.new(:phantomjs) },
-  email: 'none@example.com',
-  source_code: 'http://example.com',
-  results_per_page: 10
+  new_search_browser: lambda { Watir::Browser.new(:phantomjs) }
 )
-=end
