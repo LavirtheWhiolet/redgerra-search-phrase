@@ -6,8 +6,8 @@ require 'object/not_nil'
 # A hash map with values being automatically deleted if they are not accessed
 # for a specific time period.
 # 
-# It must be #close()-d after it is used, otherwise it will not be
-# gargbage-collected.
+# It must be #close()-d after it is used, otherwise it may be not
+# gargbage-collectable.
 # 
 # This class is thread-safe.
 # 
