@@ -16,156 +16,174 @@ require 'set'
 # 
 class Phrases
   
-  include MonitorMixin
-  include RandomAccessible
-  
-  def initialize(phrase_part, urls, &need_stop)
-    super()
-    @urls = URLs.new(urls)
-    @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
-    @cached_phrases = []
-    @cached_phrases_set = Set.new
-    @need_stop = need_stop || lambda { |url, phrase_found| false }
-    @search_stopped = false
-  end
-  
-  def initialize()
-  end
-  
-  # :call-seq:
-  #   phrases[i]
-  #   phrases[x..y]
-  # 
-  # In the first form it returns the phrase or nil if +i+ is out of range.
-  # In the second form it returns an Array of phrases (which may be empty
-  # if (x..y) is completely out or range).
-  # 
-  def [](arg)
-    mon_synchronize do
-      case arg
-      when Integer
-        i = arg
-        return get(i)
-      when Range
-        range = arg
-        result = []
-        for i in range
-          x = get(i)
-          result << x if x.not_nil?
-        end
-        return result
-      end
-    end
-  end
-  
-  # 
-  # returns either amount of these Phrases or :unknown.
-  # 
-  def size_u
-    mon_synchronize do
-      if @urls.current != nil and not @search_stopped then :unknown
-      else @cached_phrases.size
-      end
-    end
-  end
-  
-#   private
-  
-  def get(index)
-    while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
-      # 
-      page_io =
-        begin
-          open(@urls.current)
-        rescue
-          # Try the next URL (if present).
-          @urls.next!
-          if @urls.current.not_nil? then retry
-          else return nil
-          end
-        end
-      # 
-      begin
-        # Search for the phrases and puts them into @cached_phrases.
-        phrase_found = false
-        text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
-          phrases_from(text_block).each do |phrase|
-            if phrase.downcase.include?(@phrase_part) and
-                not @cached_phrases_set.include?(phrase) and
-                phrase !~ /[\[\]\{\}]/ then
-              phrase_found = true
-              @cached_phrases.push phrase
-              @cached_phrases_set.add phrase
-            end
-          end
-        end
-        # Stop searching (if needed).
-        @search_stopped = @need_stop.(@urls.current, phrase_found)
-        break if @search_stopped
-        # 
-        @urls.next!
-      ensure
-        page_io.close()
-      end
-    end
-    # 
-    return @cached_phrases[index]
-  end
-  
-  def phrases_from1(url)
-    # 
-    page_io =
-      begin
-        open(url)
-      rescue
-        return []
-      end
-    #
-    begin
-      result = []
-      text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
-        phrases_from(text_block).each do |phrase|
-          result.push(phrase)
-        end
-      end
-      return result
-    ensure
-      page_io.close()
-    end
-  end
-  
-  WHITESPACES_REGEXP_STRING = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+"
-  WHITESPACES_REGEXP = /#{WHITESPACES_REGEXP_STRING}/
-  BORDERING_WHITESPACES_REGEXP = /^#{WHITESPACES_REGEXP_STRING}|#{WHITESPACES_REGEXP_STRING}$/
-  
-  # convers all consecutive white-space characters to " " and strips out
-  # bordering white space.
-  def squeeze_and_strip_whitespace(str)
-    str.
-      gsub(BORDERING_WHITESPACES_REGEXP, "").
-      gsub(WHITESPACES_REGEXP, " ")
-  end
-  
-  # returns phrases (Array of String's) from +str+. All phrases are processed
-  # with #squeeze_and_strip_whitespace().
-  def phrases_from(str)
-    str = str.gsub(WHITESPACES_REGEXP, " ")
-    phrases = [""]
-    s = StringScanner.new(str)
-    s.skip(/ /)
-    while not s.eos?
-      p = s.scan(/[\.\!\?…]+ /) and begin
-        p.chomp!(" ")
-        phrases.last.concat(p)
-        phrases.push("")
-      end
-      p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.|./) and phrases.last.concat(p)
-    end
-    phrases.last.chomp!(" ")
-    phrases.pop() if phrases.last.empty?
-    phrases.shift() if not phrases.empty? and phrases.first.empty?
-    return phrases
-  end
+#   include MonitorMixin
+#   include RandomAccessible
+#   
+#   def initialize(phrase_part, urls, &need_stop)
+#     super()
+#     @urls = URLs.new(urls)
+#     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
+#     @cached_phrases = []
+#     @cached_phrases_set = Set.new
+#     @need_stop = need_stop || lambda { |url, phrase_found| false }
+#     @search_stopped = false
+#   end
+#   
+#   def initialize()
+#   end
+#   
+#   # :call-seq:
+#   #   phrases[i]
+#   #   phrases[x..y]
+#   # 
+#   # In the first form it returns the phrase or nil if +i+ is out of range.
+#   # In the second form it returns an Array of phrases (which may be empty
+#   # if (x..y) is completely out or range).
+#   # 
+#   def [](arg)
+#     mon_synchronize do
+#       case arg
+#       when Integer
+#         i = arg
+#         return get(i)
+#       when Range
+#         range = arg
+#         result = []
+#         for i in range
+#           x = get(i)
+#           result << x if x.not_nil?
+#         end
+#         return result
+#       end
+#     end
+#   end
+#   
+#   # 
+#   # returns either amount of these Phrases or :unknown.
+#   # 
+#   def size_u
+#     mon_synchronize do
+#       if @urls.current != nil and not @search_stopped then :unknown
+#       else @cached_phrases.size
+#       end
+#     end
+#   end
+#   
+# #   private
+#   
+#   def get(index)
+#     while not @search_stopped and index >= @cached_phrases.size and @urls.current != nil
+#       # 
+#       page_io =
+#         begin
+#           open(@urls.current)
+#         rescue
+#           # Try the next URL (if present).
+#           @urls.next!
+#           if @urls.current.not_nil? then retry
+#           else return nil
+#           end
+#         end
+#       # 
+#       begin
+#         # Search for the phrases and puts them into @cached_phrases.
+#         phrase_found = false
+#         text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+#           phrases_from(text_block).each do |phrase|
+#             if phrase.downcase.include?(@phrase_part) and
+#                 not @cached_phrases_set.include?(phrase) and
+#                 phrase !~ /[\[\]\{\}]/ then
+#               phrase_found = true
+#               @cached_phrases.push phrase
+#               @cached_phrases_set.add phrase
+#             end
+#           end
+#         end
+#         # Stop searching (if needed).
+#         @search_stopped = @need_stop.(@urls.current, phrase_found)
+#         break if @search_stopped
+#         # 
+#         @urls.next!
+#       ensure
+#         page_io.close()
+#       end
+#     end
+#     # 
+#     return @cached_phrases[index]
+#   end
+#   
+#   def phrases_from1(url)
+#     # 
+#     page_io =
+#       begin
+#         open(url)
+#       rescue
+#         return []
+#       end
+#     #
+#     begin
+#       result = []
+#       text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+#         phrases_from(text_block).each do |phrase|
+#           result.push(phrase)
+#         end
+#       end
+#       return result
+#     ensure
+#       page_io.close()
+#     end
+#   end
+#   
+#   WHITESPACES_REGEXP_STRING = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+"
+#   WHITESPACES_REGEXP = /#{WHITESPACES_REGEXP_STRING}/
+#   BORDERING_WHITESPACES_REGEXP = /^#{WHITESPACES_REGEXP_STRING}|#{WHITESPACES_REGEXP_STRING}$/
+#   
+#   # convers all consecutive white-space characters to " " and strips out
+#   # bordering white space.
+#   def squeeze_and_strip_whitespace(str)
+#     str.
+#       gsub(BORDERING_WHITESPACES_REGEXP, "").
+#       gsub(WHITESPACES_REGEXP, " ")
+#   end
+#   
+#   # returns phrases (Array of String's) from +str+. All phrases are processed
+#   # with #squeeze_and_strip_whitespace().
+#   def phrases_from(str)
+#     str = str.gsub(WHITESPACES_REGEXP, " ")
+#     phrases = [""]
+#     s = StringScanner.new(str)
+#     s.skip(/ /)
+#     while not s.eos?
+#       p = s.scan(/[\.\!\?…]+ /) and begin
+#         p.chomp!(" ")
+#         phrases.last.concat(p)
+#         phrases.push("")
+#       end
+#       p = s.scan(/e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.|./) and phrases.last.concat(p)
+#     end
+#     phrases.last.chomp!(" ")
+#     phrases.pop() if phrases.last.empty?
+#     phrases.shift() if not phrases.empty? and phrases.first.empty?
+#     return phrases
+#   end
+#   
+#   class URLs
+#     
+#     def initialize(urls)
+#       @urls = urls
+#       @current_index = 0
+#     end
+#     
+#     def current
+#       @urls[@current_index]
+#     end
+#     
+#     def next!
+#       @current_index += 1
+#       nil
+#     end
+#     
+#   end
   
   # returns Array of String's.
   def text_blocks_from(element)
@@ -205,22 +223,23 @@ class Phrases
     this.(element)
     return text_blocks
   end
+    
+  module Grammar
+    
+    # NOTE: "CS" means "character set".
+    
+    HYPHEN_CS = "\\-\u058A\u1400\u1806\u2010\u2011\u2E17\u2E1A\u2E40\u30A0\uFE63\uFF0D"
+    WORD_CS = "a-zA-Z0-9_\u0100-\u10FFFF\\'"
+    WHITESPACE_CS = "\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000"
+    
+    WHITESPACE = ""
+    WORD = "[#{WORD_CS}]+([#{HYPHEN_CS}]+[#{WORD_CS}]+)*"
+    PUNCTUATION = "([^#{WORD_CS}]|[#{HYPHEN_CS}])+"
+    STOP_PUNCTUATION = "[\\.\\!\\?…]+"
+    
+  end
   
-  class URLs
-    
-    def initialize(urls)
-      @urls = urls
-      @current_index = 0
-    end
-    
-    def current
-      @urls[@current_index]
-    end
-    
-    def next!
-      @current_index += 1
-      nil
-    end
+  def phrases_from(str)
     
   end
   
