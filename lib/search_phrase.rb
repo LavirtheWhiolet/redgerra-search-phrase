@@ -11,6 +11,8 @@ require 'nokogiri'
 require 'string/scrub'
 require 'integer/chr_u'
 require 'strscan'
+require 'object/not_in'
+require 'object/not_empty'
 
 # 
 # Result of #search_phrase().
@@ -188,51 +190,6 @@ class Phrases
 #     
 #   end
   
-  # returns Array of String's.
-  def text_blocks_from(element)
-    text_blocks = []
-    start_new_text_block = lambda do
-      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
-    end
-    this = lambda do |element|
-      case element
-      when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-        text_blocks.last.concat(element.content.scrub("_"))
-      when Nokogiri::XML::Comment
-        # Do nothing.
-      when Nokogiri::XML::Document, Nokogiri::XML::Element
-        if element.name.in? %W{ script style } then
-          start_new_text_block.()
-        else
-          element_is_separate_text_block = element.name.not_in? %W{
-            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
-            q s samp small span strike strong sub sup time tt u wbr
-          }
-          string_introduced_by_element =
-            case element.name
-            when "br" then "\n"
-            when "img" then " "
-            else ""
-            end
-          start_new_text_block.() if element_is_separate_text_block
-          text_blocks.last.concat(string_introduced_by_element)
-          element.children.each(&this)
-          start_new_text_block.() if element_is_separate_text_block
-        end
-      else
-        start_new_text_block.()
-      end
-    end
-    this.(element)
-    return text_blocks
-  end
-  
-  def phrases_from(str)
-    phrases = []
-    s = StringScanner.new(str)
-    return phrases
-  end
-  
   class CharSet
     
     def initialize()
@@ -290,7 +247,7 @@ class Phrases
     private
     
     def escape_special_regexp_char(char)
-      if char.ord < 128 then "\\#{char}"
+      if char.in? "!\"#$%&'()*+,-./:;<=>?@[\\]^`~" then "\\#{char}"
       else char
       end
     end
@@ -301,16 +258,10 @@ class Phrases
     
   end
   
-  SENTENCE_END_PUNCTUATION = CharSet.regexp_str("SENTENCE END PUNCTUATION")
-  IN_SENTENCE_PUNCTUATION = CharSet.regexp_str("IN-SENTENCE PUNCTUATION")
-  LETTER = CharSet.regexp_str("LETTER")
-  HYPHEN = CharSet.regexp_str("HYPHEN")
-  WHITESPACE = CharSet.regexp_str("WHITESPACE")
-  
   class Phrase
     
-    def initialize(str)
-      @str = str
+    def initialize()
+      @str = ""
       @include_other_chars = false
     end
     
@@ -328,9 +279,16 @@ class Phrases
       @include_other_chars
     end
     
-    # The same as String#concat().
     def concat(str)
       @str.concat(str)
+    end
+    
+    def empty?
+      @str.empty?
+    end
+    
+    def chomp!(suffix)
+      @str.chomp!(suffix)
     end
     
     alias << concat
@@ -339,11 +297,98 @@ class Phrases
       @str
     end
     
+    def inspect
+      %(#{@str.inspect}#{if include_other_chars? then "$" end})
+    end
+    
+  end
+  
+  # returns Array of String's.
+  def text_blocks_from(element)
+    text_blocks = []
+    start_new_text_block = lambda do
+      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
+    end
+    this = lambda do |element|
+      case element
+      when Nokogiri::XML::CDATA, Nokogiri::XML::Text
+        text_blocks.last.concat(element.content.scrub("_"))
+      when Nokogiri::XML::Comment
+        # Do nothing.
+      when Nokogiri::XML::Document, Nokogiri::XML::Element
+        if element.name.in? %W{ script style } then
+          start_new_text_block.()
+        else
+          element_is_separate_text_block = element.name.not_in? %W{
+            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
+            q s samp small span strike strong sub sup time tt u wbr
+          }
+          string_introduced_by_element =
+            case element.name
+            when "br" then "\n"
+            when "img" then " "
+            else ""
+            end
+          start_new_text_block.() if element_is_separate_text_block
+          text_blocks.last.concat(string_introduced_by_element)
+          element.children.each(&this)
+          start_new_text_block.() if element_is_separate_text_block
+        end
+      else
+        start_new_text_block.()
+      end
+    end
+    this.(element)
+    return text_blocks
+  end
+  
+  SENTENCE_END_PUNCTUATION = CharSet.regexp_str("SENTENCE END PUNCTUATION")
+  IN_SENTENCE_PUNCTUATION = CharSet.regexp_str("IN-SENTENCE PUNCTUATION")
+  LETTER_OR_DIGIT = CharSet.regexp_str("LETTER OR DIGIT")
+  HYPHEN = CharSet.regexp_str("HYPHEN")
+  WHITESPACE = CharSet.regexp_str("WHITESPACE")
+  
+  WORD = "#{LETTER_OR_DIGIT}+" # +(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*"
+  
+  def phrases_from(str)
+    # 
+    str.gsub!(/#{WHITESPACE}+/, " ")
+    # Parsing DSL.
+    phrases = []
+    s = StringScanner.new(str)
+    phrase_continued = lambda do |str|
+      if phrases.empty? then phrases.push Phrase.new; end
+      phrases.last.concat str
+      true
+    end
+    phrase_end = lambda do
+      phrases.push Phrase.new
+      true
+    end
+    other_chars_included = lambda do
+      phrases.last.include_other_chars!
+      true
+    end
+    debug = lambda { |msg| puts msg; true }
+    # Parse!
+    loop do
+      (s.eos? and break) or
+      (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.scan(/ /) and phrase_continued.(x) and phrase_end.()) or
+      (x = (s.scan(/#{WORD}/) or s.scan(/#{IN_SENTENCE_PUNCTUATION}+/) or s.scan(/ /)) and phrase_continued.(x)) or
+      (x = s.getch() and phrase_continued.(x) and other_chars_included.())
+    end
+    phrases.pop() if phrases.not_empty? and phrases.last.empty?
+    # 
+    return phrases
   end
   
 end
 
-puts Phrases::IN_SENTENCE_PUNCTUATION
+p Phrases.new.phrases_from <<TEXT
+Everybody    do    the flop!!! Do the flop   — do the flop!  Everybody, do the  flop.
+Very bad © phrase
+TEXT
+p Phrases.new.phrases_from ""
 
 # p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
@@ -389,76 +434,76 @@ U+002C  IN-SENTENCE PUNCTUATION  # COMMA   ,
 U+002D  HYPHEN  # HYPHEN-MINUS    -
 U+002E  SENTENCE END PUNCTUATION  # FULL STOP       .
 U+002F  IN-SENTENCE PUNCTUATION  # SOLIDUS         /
-U+0030  LETTER  # DIGIT ZERO      0
-U+0031  LETTER  # DIGIT ONE       1
-U+0032  LETTER  # DIGIT TWO       2
-U+0033  LETTER  # DIGIT THREE     3
-U+0034  LETTER  # DIGIT FOUR      4
-U+0035  LETTER  # DIGIT FIVE      5
-U+0036  LETTER  # DIGIT SIX       6
-U+0037  LETTER  # DIGIT SEVEN     7
-U+0038  LETTER  # DIGIT EIGHT     8
-U+0039  LETTER  # DIGIT NINE      9
+U+0030  LETTER OR DIGIT  # DIGIT ZERO      0
+U+0031  LETTER OR DIGIT  # DIGIT ONE       1
+U+0032  LETTER OR DIGIT  # DIGIT TWO       2
+U+0033  LETTER OR DIGIT  # DIGIT THREE     3
+U+0034  LETTER OR DIGIT  # DIGIT FOUR      4
+U+0035  LETTER OR DIGIT  # DIGIT FIVE      5
+U+0036  LETTER OR DIGIT  # DIGIT SIX       6
+U+0037  LETTER OR DIGIT  # DIGIT SEVEN     7
+U+0038  LETTER OR DIGIT  # DIGIT EIGHT     8
+U+0039  LETTER OR DIGIT  # DIGIT NINE      9
 U+003A  IN-SENTENCE PUNCTUATION  # COLON   :
 U+003B  IN-SENTENCE PUNCTUATION  # SEMICOLON       ;
 U+003F  SENTENCE END PUNCTUATION  # QUESTION MARK   ?
 U+0040  IN-SENTENCE PUNCTUATION  # COMMERCIAL AT   @
-U+0041  LETTER  # LATIN CAPITAL LETTER A  A
-U+0042  LETTER  # LATIN CAPITAL LETTER B  B
-U+0043  LETTER  # LATIN CAPITAL LETTER C  C
-U+0044  LETTER  # LATIN CAPITAL LETTER D  D
-U+0045  LETTER  # LATIN CAPITAL LETTER E  E
-U+0046  LETTER  # LATIN CAPITAL LETTER F  F
-U+0047  LETTER  # LATIN CAPITAL LETTER G  G
-U+0048  LETTER  # LATIN CAPITAL LETTER H  H
-U+0049  LETTER  # LATIN CAPITAL LETTER I  I
-U+004A  LETTER  # LATIN CAPITAL LETTER J  J
-U+004B  LETTER  # LATIN CAPITAL LETTER K  K
-U+004C  LETTER  # LATIN CAPITAL LETTER L  L
-U+004D  LETTER  # LATIN CAPITAL LETTER M  M
-U+004E  LETTER  # LATIN CAPITAL LETTER N  N
-U+004F  LETTER  # LATIN CAPITAL LETTER O  O
-U+0050  LETTER  # LATIN CAPITAL LETTER P  P
-U+0051  LETTER  # LATIN CAPITAL LETTER Q  Q
-U+0052  LETTER  # LATIN CAPITAL LETTER R  R
-U+0053  LETTER  # LATIN CAPITAL LETTER S  S
-U+0054  LETTER  # LATIN CAPITAL LETTER T  T
-U+0055  LETTER  # LATIN CAPITAL LETTER U  U
-U+0056  LETTER  # LATIN CAPITAL LETTER V  V
-U+0057  LETTER  # LATIN CAPITAL LETTER W  W
-U+0058  LETTER  # LATIN CAPITAL LETTER X  X
-U+0059  LETTER  # LATIN CAPITAL LETTER Y  Y
-U+005A  LETTER  # LATIN CAPITAL LETTER Z  Z
+U+0041  LETTER OR DIGIT  # LATIN CAPITAL LETTER A  A
+U+0042  LETTER OR DIGIT  # LATIN CAPITAL LETTER B  B
+U+0043  LETTER OR DIGIT  # LATIN CAPITAL LETTER C  C
+U+0044  LETTER OR DIGIT  # LATIN CAPITAL LETTER D  D
+U+0045  LETTER OR DIGIT  # LATIN CAPITAL LETTER E  E
+U+0046  LETTER OR DIGIT  # LATIN CAPITAL LETTER F  F
+U+0047  LETTER OR DIGIT  # LATIN CAPITAL LETTER G  G
+U+0048  LETTER OR DIGIT  # LATIN CAPITAL LETTER H  H
+U+0049  LETTER OR DIGIT  # LATIN CAPITAL LETTER I  I
+U+004A  LETTER OR DIGIT  # LATIN CAPITAL LETTER J  J
+U+004B  LETTER OR DIGIT  # LATIN CAPITAL LETTER K  K
+U+004C  LETTER OR DIGIT  # LATIN CAPITAL LETTER L  L
+U+004D  LETTER OR DIGIT  # LATIN CAPITAL LETTER M  M
+U+004E  LETTER OR DIGIT  # LATIN CAPITAL LETTER N  N
+U+004F  LETTER OR DIGIT  # LATIN CAPITAL LETTER O  O
+U+0050  LETTER OR DIGIT  # LATIN CAPITAL LETTER P  P
+U+0051  LETTER OR DIGIT  # LATIN CAPITAL LETTER Q  Q
+U+0052  LETTER OR DIGIT  # LATIN CAPITAL LETTER R  R
+U+0053  LETTER OR DIGIT  # LATIN CAPITAL LETTER S  S
+U+0054  LETTER OR DIGIT  # LATIN CAPITAL LETTER T  T
+U+0055  LETTER OR DIGIT  # LATIN CAPITAL LETTER U  U
+U+0056  LETTER OR DIGIT  # LATIN CAPITAL LETTER V  V
+U+0057  LETTER OR DIGIT  # LATIN CAPITAL LETTER W  W
+U+0058  LETTER OR DIGIT  # LATIN CAPITAL LETTER X  X
+U+0059  LETTER OR DIGIT  # LATIN CAPITAL LETTER Y  Y
+U+005A  LETTER OR DIGIT  # LATIN CAPITAL LETTER Z  Z
 U+005B  IN-SENTENCE PUNCTUATION  # LEFT SQUARE BRACKET     [
 U+005C  IN-SENTENCE PUNCTUATION  # REVERSE SOLIDUS         \
 U+005D  IN-SENTENCE PUNCTUATION  # RIGHT SQUARE BRACKET    ]
 U+005F  IN-SENTENCE PUNCTUATION  # LOW LINE        _
-U+0061  LETTER  # LATIN SMALL LETTER A    a
-U+0062  LETTER  # LATIN SMALL LETTER B    b
-U+0063  LETTER  # LATIN SMALL LETTER C    c
-U+0064  LETTER  # LATIN SMALL LETTER D    d
-U+0065  LETTER  # LATIN SMALL LETTER E    e
-U+0066  LETTER  # LATIN SMALL LETTER F    f
-U+0067  LETTER  # LATIN SMALL LETTER G    g
-U+0068  LETTER  # LATIN SMALL LETTER H    h
-U+0069  LETTER  # LATIN SMALL LETTER I    i
-U+006A  LETTER  # LATIN SMALL LETTER J    j
-U+006B  LETTER  # LATIN SMALL LETTER K    k
-U+006C  LETTER  # LATIN SMALL LETTER L    l
-U+006D  LETTER  # LATIN SMALL LETTER M    m
-U+006E  LETTER  # LATIN SMALL LETTER N    n
-U+006F  LETTER  # LATIN SMALL LETTER O    o
-U+0070  LETTER  # LATIN SMALL LETTER P    p
-U+0071  LETTER  # LATIN SMALL LETTER Q    q
-U+0072  LETTER  # LATIN SMALL LETTER R    r
-U+0073  LETTER  # LATIN SMALL LETTER S    s
-U+0074  LETTER  # LATIN SMALL LETTER T    t
-U+0075  LETTER  # LATIN SMALL LETTER U    u
-U+0076  LETTER  # LATIN SMALL LETTER V    v
-U+0077  LETTER  # LATIN SMALL LETTER W    w
-U+0078  LETTER  # LATIN SMALL LETTER X    x
-U+0079  LETTER  # LATIN SMALL LETTER Y    y
-U+007A  LETTER  # LATIN SMALL LETTER Z    z
+U+0061  LETTER OR DIGIT  # LATIN SMALL LETTER A    a
+U+0062  LETTER OR DIGIT  # LATIN SMALL LETTER B    b
+U+0063  LETTER OR DIGIT  # LATIN SMALL LETTER C    c
+U+0064  LETTER OR DIGIT  # LATIN SMALL LETTER D    d
+U+0065  LETTER OR DIGIT  # LATIN SMALL LETTER E    e
+U+0066  LETTER OR DIGIT  # LATIN SMALL LETTER F    f
+U+0067  LETTER OR DIGIT  # LATIN SMALL LETTER G    g
+U+0068  LETTER OR DIGIT  # LATIN SMALL LETTER H    h
+U+0069  LETTER OR DIGIT  # LATIN SMALL LETTER I    i
+U+006A  LETTER OR DIGIT  # LATIN SMALL LETTER J    j
+U+006B  LETTER OR DIGIT  # LATIN SMALL LETTER K    k
+U+006C  LETTER OR DIGIT  # LATIN SMALL LETTER L    l
+U+006D  LETTER OR DIGIT  # LATIN SMALL LETTER M    m
+U+006E  LETTER OR DIGIT  # LATIN SMALL LETTER N    n
+U+006F  LETTER OR DIGIT  # LATIN SMALL LETTER O    o
+U+0070  LETTER OR DIGIT  # LATIN SMALL LETTER P    p
+U+0071  LETTER OR DIGIT  # LATIN SMALL LETTER Q    q
+U+0072  LETTER OR DIGIT  # LATIN SMALL LETTER R    r
+U+0073  LETTER OR DIGIT  # LATIN SMALL LETTER S    s
+U+0074  LETTER OR DIGIT  # LATIN SMALL LETTER T    t
+U+0075  LETTER OR DIGIT  # LATIN SMALL LETTER U    u
+U+0076  LETTER OR DIGIT  # LATIN SMALL LETTER V    v
+U+0077  LETTER OR DIGIT  # LATIN SMALL LETTER W    w
+U+0078  LETTER OR DIGIT  # LATIN SMALL LETTER X    x
+U+0079  LETTER OR DIGIT  # LATIN SMALL LETTER Y    y
+U+007A  LETTER OR DIGIT  # LATIN SMALL LETTER Z    z
 U+007B  IN-SENTENCE PUNCTUATION  # LEFT CURLY BRACKET      {
 U+007D  IN-SENTENCE PUNCTUATION  # RIGHT CURLY BRACKET     }
 U+0085  WHITESPACE  # NEXT LINE (NEL)         …
