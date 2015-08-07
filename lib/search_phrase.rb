@@ -384,7 +384,7 @@ class Phrases
     loop do
       (s.eos? and break) or
       (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and phrase_continued.(x) and phrase_end.()) or
-      (x = (s.scan(/#{WORD}/) or s.scan(/#{IN_SENTENCE_PUNCTUATION}+/) or s.scan(/ /)) and phrase_continued.(x)) or
+      (x = (s.scan(/#{WORD}/) or s.scan(/(#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN})+/) or s.scan(/ /)) and phrase_continued.(x)) or
       (x = s.getch() and phrase_continued.(x) and other_chars_included.())
     end
     phrases.pop() if phrases.not_empty? and phrases.last.empty?
@@ -409,7 +409,9 @@ class Phrases
 end
 
 p Phrases.new(nil).phrases_from <<TEXT
-Everybody  do    the flop!!! Do the flop   — do the flop!  Everybody, do the  flop.
+Everybody  do    the flop!!! Do the flop   — do the flop!
+Do the flop - do the flop-flop-flop!
+Everybody, do the  flop.
 Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
 Very bad © phrase
 TEXT
