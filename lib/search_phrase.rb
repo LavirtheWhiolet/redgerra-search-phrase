@@ -301,10 +301,11 @@ class Phrases
     
   end
   
-  SENTENCE_END_PUNCTUATION = CharSet.regexp_str("SENTENCE END PUNCTUATION");
-  IN_SENTENCE_PUNCTUATION = CharSet.regexp_str("IN-SENTENCE PUNCTUATION");
-  LETTER = CharSet.regexp_str("LETTER");
-  HYPHEN = CharSet.regexp_str("HYPHEN");
+  SENTENCE_END_PUNCTUATION = CharSet.regexp_str("SENTENCE END PUNCTUATION")
+  IN_SENTENCE_PUNCTUATION = CharSet.regexp_str("IN-SENTENCE PUNCTUATION")
+  LETTER = CharSet.regexp_str("LETTER")
+  HYPHEN = CharSet.regexp_str("HYPHEN")
+  WHITESPACE = CharSet.regexp_str("WHITESPACE")
   
   class Phrase
     
