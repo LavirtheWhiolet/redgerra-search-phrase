@@ -227,21 +227,24 @@ class Phrases
     end
     
     # Regular expression (in the form of String) which matches any character
-    # from +category+ (categories are described in this file, in "__END__"
-    # section).
+    # from +category+ from +section+ (the sections are in this file, after
+    # "__END__" keyword). If the category is +:any+ then all characters from
+    # the section are selected.
     # 
-    # The categories never overlap.
+    # The categories from the same section never overlap.
     # 
-    def self.regexp_str(category)
+    def self.regexp_str(category, section = "Character categories")
       required_category = category
       r = CharSet.new
       DATA.rewind()
+      until /^Section "#{section}"/ === DATA.gets; end
       DATA.each_line do |line|
+        break if /^End Section/ === line
         line.gsub!(/\#.*$/, "") # Remove comments.
         line.strip!
         next if line.empty?
         char_code, category = line.split(/\s+/, 2)
-        next if category != required_category
+        next unless category == :any or category == required_category
         char_code = char_code[/U+(.*)/, 1].to_i(16)
         r.add(char_code)
       end
@@ -405,12 +408,12 @@ class Phrases
   
 end
 
-p Phrases.new.phrases_from <<TEXT
-Everybody    do    the flop!!! Do the flop   — do the flop!  Everybody, do the  flop.
+p Phrases.new(nil).phrases_from <<TEXT
+Everybody  do    the flop!!! Do the flop   — do the flop!  Everybody, do the  flop.
 Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
 Very bad © phrase
 TEXT
-p Phrases.new.phrases_from ""
+p Phrases.new(nil).phrases_from ""
 
 # p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
@@ -433,6 +436,8 @@ def search_phrase(phrase_part, urls, &need_stop)
 end
 
 __END__
+
+Section "Character categories"
 
 # TODO: Use public references to mark categories "SENTENCE END PUNCTUATION" and
 #   "IN-SENTENCE PUNCTUATION".
@@ -1246,3 +1251,11 @@ U+1DA88  SENTENCE END PUNCTUATION  # SIGNWRITING FULL STOP   𝪈
 U+1DA89  IN-SENTENCE PUNCTUATION  # SIGNWRITING SEMICOLON   𝪉
 U+1DA8A  IN-SENTENCE PUNCTUATION  # SIGNWRITING COLON       𝪊
 U+1DA8B  IN-SENTENCE PUNCTUATION  # SIGNWRITING PARENTHESIS         𝪋
+
+End Section
+
+Section "Forbidden characters"
+
+U+007E  SENTENCE END PUNCTUATION  # ~
+
+End Section
