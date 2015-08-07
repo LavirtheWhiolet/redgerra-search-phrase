@@ -350,6 +350,8 @@ class Phrases
   
   WORD = "#{LETTER_OR_DIGIT}+" # +(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*"
   
+  # Returns all phrases from +str+. All whitespaces in the phrases are
+  # squeezed and converted to " ".
   def phrases_from(str)
     # 
     str.gsub!(/#{WHITESPACE}+/, " ")
