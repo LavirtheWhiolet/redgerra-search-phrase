@@ -190,10 +190,8 @@ class Phrases
 #     
 #   end
   
-  def initialize()
-#     @phrase_part_regexp = phrase_part.
-#       lowcase.
-#       gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
+  def initialize(phrase_part)
+    @phrase_part = phrase_part
   end
   
   class CharSet
@@ -399,6 +397,9 @@ class Phrases
   def fits?(phrase)
     return false if phrase.include_other_chars?
     phrase = phrase.to_s.lowcase
+    phrase_part_regexp = @phrase_part.
+      lowcase.
+      gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
     
   end
   
