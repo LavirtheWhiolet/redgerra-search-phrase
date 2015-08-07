@@ -1265,6 +1265,191 @@ End Section
 
 Section "Forbidden characters"
 
-U+007E  SENTENCE END PUNCTUATION  # ~
+# TODO: Wavy dashes are not included. Is it correct?
+
+U+0022  скобки и кавычки  # QUOTATION MARK  "
+U+0028  скобки и кавычки  # LEFT PARENTHESIS        (       
+U+0029  скобки и кавычки  # RIGHT PARENTHESIS       )       
+U+002F  косой слеш  # SOLIDUS         /
+U+003C  уголок  # LESS-THAN SIGN  <
+U+003E  уголок  # GREATER-THAN SIGN       >
+U+005B  скобки и кавычки  # LEFT SQUARE BRACKET     [       
+U+005C  косой слеш  # REVERSE SOLIDUS         \
+U+005D  скобки и кавычки  # RIGHT SQUARE BRACKET    ]       
+U+007B  скобки и кавычки  # LEFT CURLY BRACKET      {       
+U+007C  вертикальный слеш  # VERTICAL LINE   |
+U+007D  скобки и кавычки  # RIGHT CURLY BRACKET     }       
+U+00AB  скобки и кавычки  # LEFT-POINTING DOUBLE ANGLE QUOTATION MARK       «       
+U+00BB  скобки и кавычки  # RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK      »       
+U+0F3A  скобки и кавычки  # TIBETAN MARK GUG RTAGS GYON     ༺       
+U+0F3B  скобки и кавычки  # TIBETAN MARK GUG RTAGS GYAS     ༻       
+U+0F3C  скобки и кавычки  # TIBETAN MARK ANG KHANG GYON     ༼       
+U+0F3D  скобки и кавычки  # TIBETAN MARK ANG KHANG GYAS     ༽       
+U+169B  скобки и кавычки  # OGHAM FEATHER MARK      ᚛       
+U+169C  скобки и кавычки  # OGHAM REVERSED FEATHER MARK     ᚜       
+U+2012  короткое тире  # FIGURE DASH     ‒
+U+2013  короткое тире  # EN DASH         –
+U+2014  длинное тире  # EM DASH         —
+U+2018  скобки и кавычки  # LEFT SINGLE QUOTATION MARK      ‘       
+U+2019  скобки и кавычки  # RIGHT SINGLE QUOTATION MARK     ’       
+U+201A  скобки и кавычки  # SINGLE LOW-9 QUOTATION MARK     ‚       
+U+201B  скобки и кавычки  # SINGLE HIGH-REVERSED-9 QUOTATION MARK   ‛       
+U+201C  скобки и кавычки  # LEFT DOUBLE QUOTATION MARK      “       
+U+201D  скобки и кавычки  # RIGHT DOUBLE QUOTATION MARK     ”       
+U+201E  скобки и кавычки  # DOUBLE LOW-9 QUOTATION MARK     „       
+U+201F  скобки и кавычки  # DOUBLE HIGH-REVERSED-9 QUOTATION MARK   ‟       
+U+2026  многоточие  # HORIZONTAL ELLIPSIS     …
+U+2039  скобки и кавычки  # SINGLE LEFT-POINTING ANGLE QUOTATION MARK       ‹       
+U+203A  скобки и кавычки  # SINGLE RIGHT-POINTING ANGLE QUOTATION MARK      ›       
+U+2045  скобки и кавычки  # LEFT SQUARE BRACKET WITH QUILL  ⁅       
+U+2046  скобки и кавычки  # RIGHT SQUARE BRACKET WITH QUILL         ⁆       
+U+207D  скобки и кавычки  # SUPERSCRIPT LEFT PARENTHESIS    ⁽       
+U+207E  скобки и кавычки  # SUPERSCRIPT RIGHT PARENTHESIS   ⁾       
+U+208D  скобки и кавычки  # SUBSCRIPT LEFT PARENTHESIS      ₍       
+U+208E  скобки и кавычки  # SUBSCRIPT RIGHT PARENTHESIS     ₎       
+U+2308  скобки и кавычки  # LEFT CEILING    ⌈       
+U+2309  скобки и кавычки  # RIGHT CEILING   ⌉       
+U+230A  скобки и кавычки  # LEFT FLOOR      ⌊       
+U+230B  скобки и кавычки  # RIGHT FLOOR     ⌋       
+U+2329  скобки и кавычки  # LEFT-POINTING ANGLE BRACKET     〈       
+U+232A  скобки и кавычки  # RIGHT-POINTING ANGLE BRACKET    〉       
+U+2768  скобки и кавычки  # MEDIUM LEFT PARENTHESIS ORNAMENT        ❨       
+U+2769  скобки и кавычки  # MEDIUM RIGHT PARENTHESIS ORNAMENT       ❩       
+U+276A  скобки и кавычки  # MEDIUM FLATTENED LEFT PARENTHESIS ORNAMENT      ❪       
+U+276B  скобки и кавычки  # MEDIUM FLATTENED RIGHT PARENTHESIS ORNAMENT     ❫       
+U+276C  скобки и кавычки  # MEDIUM LEFT-POINTING ANGLE BRACKET ORNAMENT     ❬       
+U+276D  скобки и кавычки  # MEDIUM RIGHT-POINTING ANGLE BRACKET ORNAMENT    ❭       
+U+276E  скобки и кавычки  # HEAVY LEFT-POINTING ANGLE QUOTATION MARK ORNAMENT       ❮       
+U+276F  скобки и кавычки  # HEAVY RIGHT-POINTING ANGLE QUOTATION MARK ORNAMENT      ❯       
+U+2770  скобки и кавычки  # HEAVY LEFT-POINTING ANGLE BRACKET ORNAMENT      ❰       
+U+2771  скобки и кавычки  # HEAVY RIGHT-POINTING ANGLE BRACKET ORNAMENT     ❱       
+U+2772  скобки и кавычки  # LIGHT LEFT TORTOISE SHELL BRACKET ORNAMENT      ❲       
+U+2773  скобки и кавычки  # LIGHT RIGHT TORTOISE SHELL BRACKET ORNAMENT     ❳       
+U+2774  скобки и кавычки  # MEDIUM LEFT CURLY BRACKET ORNAMENT      ❴       
+U+2775  скобки и кавычки  # MEDIUM RIGHT CURLY BRACKET ORNAMENT     ❵       
+U+27C5  скобки и кавычки  # LEFT S-SHAPED BAG DELIMITER     ⟅       
+U+27C6  скобки и кавычки  # RIGHT S-SHAPED BAG DELIMITER    ⟆       
+U+27E6  скобки и кавычки  # MATHEMATICAL LEFT WHITE SQUARE BRACKET  ⟦       
+U+27E7  скобки и кавычки  # MATHEMATICAL RIGHT WHITE SQUARE BRACKET         ⟧       
+U+27E8  скобки и кавычки  # MATHEMATICAL LEFT ANGLE BRACKET         ⟨       
+U+27E9  скобки и кавычки  # MATHEMATICAL RIGHT ANGLE BRACKET        ⟩       
+U+27EA  скобки и кавычки  # MATHEMATICAL LEFT DOUBLE ANGLE BRACKET  ⟪       
+U+27EB  скобки и кавычки  # MATHEMATICAL RIGHT DOUBLE ANGLE BRACKET         ⟫       
+U+27EC  скобки и кавычки  # MATHEMATICAL LEFT WHITE TORTOISE SHELL BRACKET  ⟬       
+U+27ED  скобки и кавычки  # MATHEMATICAL RIGHT WHITE TORTOISE SHELL BRACKET         ⟭       
+U+27EE  скобки и кавычки  # MATHEMATICAL LEFT FLATTENED PARENTHESIS         ⟮       
+U+27EF  скобки и кавычки  # MATHEMATICAL RIGHT FLATTENED PARENTHESIS        ⟯       
+U+2983  скобки и кавычки  # LEFT WHITE CURLY BRACKET        ⦃       
+U+2984  скобки и кавычки  # RIGHT WHITE CURLY BRACKET       ⦄       
+U+2985  скобки и кавычки  # LEFT WHITE PARENTHESIS  ⦅       
+U+2986  скобки и кавычки  # RIGHT WHITE PARENTHESIS         ⦆       
+U+2987  скобки и кавычки  # Z NOTATION LEFT IMAGE BRACKET   ⦇       
+U+2988  скобки и кавычки  # Z NOTATION RIGHT IMAGE BRACKET  ⦈       
+U+2989  скобки и кавычки  # Z NOTATION LEFT BINDING BRACKET         ⦉       
+U+298A  скобки и кавычки  # Z NOTATION RIGHT BINDING BRACKET        ⦊       
+U+298B  скобки и кавычки  # LEFT SQUARE BRACKET WITH UNDERBAR       ⦋       
+U+298C  скобки и кавычки  # RIGHT SQUARE BRACKET WITH UNDERBAR      ⦌       
+U+298D  скобки и кавычки  # LEFT SQUARE BRACKET WITH TICK IN TOP CORNER     ⦍       
+U+298E  скобки и кавычки  # RIGHT SQUARE BRACKET WITH TICK IN BOTTOM CORNER         ⦎       
+U+298F  скобки и кавычки  # LEFT SQUARE BRACKET WITH TICK IN BOTTOM CORNER  ⦏       
+U+2990  скобки и кавычки  # RIGHT SQUARE BRACKET WITH TICK IN TOP CORNER    ⦐       
+U+2991  скобки и кавычки  # LEFT ANGLE BRACKET WITH DOT     ⦑       
+U+2992  скобки и кавычки  # RIGHT ANGLE BRACKET WITH DOT    ⦒       
+U+2993  скобки и кавычки  # LEFT ARC LESS-THAN BRACKET      ⦓       
+U+2994  скобки и кавычки  # RIGHT ARC GREATER-THAN BRACKET  ⦔       
+U+2995  скобки и кавычки  # DOUBLE LEFT ARC GREATER-THAN BRACKET    ⦕       
+U+2996  скобки и кавычки  # DOUBLE RIGHT ARC LESS-THAN BRACKET      ⦖       
+U+2997  скобки и кавычки  # LEFT BLACK TORTOISE SHELL BRACKET       ⦗       
+U+2998  скобки и кавычки  # RIGHT BLACK TORTOISE SHELL BRACKET      ⦘       
+U+29D8  скобки и кавычки  # LEFT WIGGLY FENCE       ⧘       
+U+29D9  скобки и кавычки  # RIGHT WIGGLY FENCE      ⧙       
+U+29DA  скобки и кавычки  # LEFT DOUBLE WIGGLY FENCE        ⧚       
+U+29DB  скобки и кавычки  # RIGHT DOUBLE WIGGLY FENCE       ⧛       
+U+29FC  скобки и кавычки  # LEFT-POINTING CURVED ANGLE BRACKET      ⧼       
+U+29FD  скобки и кавычки  # RIGHT-POINTING CURVED ANGLE BRACKET     ⧽       
+U+2E02  скобки и кавычки  # LEFT SUBSTITUTION BRACKET       ⸂       
+U+2E03  скобки и кавычки  # RIGHT SUBSTITUTION BRACKET      ⸃       
+U+2E04  скобки и кавычки  # LEFT DOTTED SUBSTITUTION BRACKET        ⸄       
+U+2E05  скобки и кавычки  # RIGHT DOTTED SUBSTITUTION BRACKET       ⸅       
+U+2E09  скобки и кавычки  # LEFT TRANSPOSITION BRACKET      ⸉       
+U+2E0A  скобки и кавычки  # RIGHT TRANSPOSITION BRACKET     ⸊       
+U+2E0C  скобки и кавычки  # LEFT RAISED OMISSION BRACKET    ⸌       
+U+2E0D  скобки и кавычки  # RIGHT RAISED OMISSION BRACKET   ⸍       
+U+2E1C  скобки и кавычки  # LEFT LOW PARAPHRASE BRACKET     ⸜       
+U+2E1D  скобки и кавычки  # RIGHT LOW PARAPHRASE BRACKET    ⸝       
+U+2E20  скобки и кавычки  # LEFT VERTICAL BAR WITH QUILL    ⸠       
+U+2E21  скобки и кавычки  # RIGHT VERTICAL BAR WITH QUILL   ⸡       
+U+2E22  скобки и кавычки  # TOP LEFT HALF BRACKET   ⸢       
+U+2E23  скобки и кавычки  # TOP RIGHT HALF BRACKET  ⸣       
+U+2E24  скобки и кавычки  # BOTTOM LEFT HALF BRACKET        ⸤       
+U+2E25  скобки и кавычки  # BOTTOM RIGHT HALF BRACKET       ⸥       
+U+2E26  скобки и кавычки  # LEFT SIDEWAYS U BRACKET         ⸦       
+U+2E27  скобки и кавычки  # RIGHT SIDEWAYS U BRACKET        ⸧       
+U+2E28  скобки и кавычки  # LEFT DOUBLE PARENTHESIS         ⸨       
+U+2E29  скобки и кавычки  # RIGHT DOUBLE PARENTHESIS        ⸩       
+U+2E3A  длинное тире  # TWO-EM DASH     ⸺
+U+2E3B  длинное тире  # THREE-EM DASH   ⸻
+U+2E42  скобки и кавычки  # DOUBLE LOW-REVERSED-9 QUOTATION MARK    ⹂       
+U+3008  скобки и кавычки  # LEFT ANGLE BRACKET      〈       
+U+3009  скобки и кавычки  # RIGHT ANGLE BRACKET     〉       
+U+300A  скобки и кавычки  # LEFT DOUBLE ANGLE BRACKET       《       
+U+300B  скобки и кавычки  # RIGHT DOUBLE ANGLE BRACKET      》       
+U+300C  скобки и кавычки  # LEFT CORNER BRACKET     「       
+U+300D  скобки и кавычки  # RIGHT CORNER BRACKET    」       
+U+300E  скобки и кавычки  # LEFT WHITE CORNER BRACKET       『       
+U+300F  скобки и кавычки  # RIGHT WHITE CORNER BRACKET      』       
+U+3010  скобки и кавычки  # LEFT BLACK LENTICULAR BRACKET   【       
+U+3011  скобки и кавычки  # RIGHT BLACK LENTICULAR BRACKET  】       
+U+3014  скобки и кавычки  # LEFT TORTOISE SHELL BRACKET     〔       
+U+3015  скобки и кавычки  # RIGHT TORTOISE SHELL BRACKET    〕       
+U+3016  скобки и кавычки  # LEFT WHITE LENTICULAR BRACKET   〖       
+U+3017  скобки и кавычки  # RIGHT WHITE LENTICULAR BRACKET  〗       
+U+3018  скобки и кавычки  # LEFT WHITE TORTOISE SHELL BRACKET       〘       
+U+3019  скобки и кавычки  # RIGHT WHITE TORTOISE SHELL BRACKET      〙       
+U+301A  скобки и кавычки  # LEFT WHITE SQUARE BRACKET       〚       
+U+301B  скобки и кавычки  # RIGHT WHITE SQUARE BRACKET      〛       
+U+301D  скобки и кавычки  # REVERSED DOUBLE PRIME QUOTATION MARK    〝       
+U+301E  скобки и кавычки  # DOUBLE PRIME QUOTATION MARK     〞       
+U+301F  скобки и кавычки  # LOW DOUBLE PRIME QUOTATION MARK         〟       
+U+FD3E  скобки и кавычки  # ORNATE LEFT PARENTHESIS         ﴾       
+U+FD3F  скобки и кавычки  # ORNATE RIGHT PARENTHESIS        ﴿       
+U+FE17  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT WHITE LENTICULAR BRACKET    ︗       
+U+FE18  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT WHITE LENTICULAR BRAKCET   ︘       
+U+FE35  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT PARENTHESIS         ︵       
+U+FE36  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT PARENTHESIS        ︶       
+U+FE37  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT CURLY BRACKET       ︷       
+U+FE38  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT CURLY BRACKET      ︸       
+U+FE39  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT TORTOISE SHELL BRACKET      ︹       
+U+FE3A  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT TORTOISE SHELL BRACKET     ︺       
+U+FE3B  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT BLACK LENTICULAR BRACKET    ︻       
+U+FE3C  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT BLACK LENTICULAR BRACKET   ︼       
+U+FE3D  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT DOUBLE ANGLE BRACKET        ︽       
+U+FE3E  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT DOUBLE ANGLE BRACKET       ︾       
+U+FE3F  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT ANGLE BRACKET       ︿       
+U+FE40  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT ANGLE BRACKET      ﹀       
+U+FE41  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT CORNER BRACKET      ﹁       
+U+FE42  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT CORNER BRACKET     ﹂       
+U+FE43  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT WHITE CORNER BRACKET        ﹃       
+U+FE44  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT WHITE CORNER BRACKET       ﹄       
+U+FE47  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT SQUARE BRACKET      ﹇       
+U+FE48  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL RIGHT SQUARE BRACKET     ﹈       
+U+FE58  длинное тире  # SMALL EM DASH   ﹘
+U+FE59  скобки и кавычки  # SMALL LEFT PARENTHESIS  ﹙       
+U+FE5A  скобки и кавычки  # SMALL RIGHT PARENTHESIS         ﹚       
+U+FE5B  скобки и кавычки  # SMALL LEFT CURLY BRACKET        ﹛       
+U+FE5C  скобки и кавычки  # SMALL RIGHT CURLY BRACKET       ﹜       
+U+FE5D  скобки и кавычки  # SMALL LEFT TORTOISE SHELL BRACKET       ﹝       
+U+FE5E  скобки и кавычки  # SMALL RIGHT TORTOISE SHELL BRACKET      ﹞       
+U+FF02  скобки и кавычки  # FULLWIDTH QUOTATION MARK        ＂
+U+FF08  скобки и кавычки  # FULLWIDTH LEFT PARENTHESIS      （       
+U+FF09  скобки и кавычки  # FULLWIDTH RIGHT PARENTHESIS     ）       
+U+FF3B  скобки и кавычки  # FULLWIDTH LEFT SQUARE BRACKET   ［       
+U+FF3D  скобки и кавычки  # FULLWIDTH RIGHT SQUARE BRACKET  ］       
+U+FF5B  скобки и кавычки  # FULLWIDTH LEFT CURLY BRACKET    ｛       
+U+FF5D  скобки и кавычки  # FULLWIDTH RIGHT CURLY BRACKET   ｝       
+U+FF5F  скобки и кавычки  # FULLWIDTH LEFT WHITE PARENTHESIS        ｟       
+U+FF60  скобки и кавычки  # FULLWIDTH RIGHT WHITE PARENTHESIS       ｠       
+U+FF62  скобки и кавычки  # HALFWIDTH LEFT CORNER BRACKET   ｢       
+U+FF63  скобки и кавычки  # HALFWIDTH RIGHT CORNER BRACKET  ｣       
 
 End Section
