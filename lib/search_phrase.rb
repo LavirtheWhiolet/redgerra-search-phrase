@@ -14,6 +14,7 @@ require 'strscan'
 require 'object/not_in'
 require 'object/not_nil'
 require 'object/not_empty'
+require 'set'
 
 # 
 # Result of #search_phrase().
@@ -190,10 +191,6 @@ class Phrases
 #     end
 #     
 #   end
-  
-  def initialize(phrase_part)
-    @phrase_part = phrase_part
-  end
   
   class CharSet
     
@@ -379,10 +376,7 @@ class Phrases
     phrase_continued = lambda { |str| current_phrase.().concat(str) }
     phrase_end = lambda { phrases.push Phrase.new }
     other_chars_included = lambda { current_phrase.().include_other_chars! }
-    forbidden_char = lambda do |char| 
-      current_phrase.().forbidden_char_pos ||= current_phrase.().length
-      current_phrase.().concat(char)
-    end
+    before_forbidden_char = lambda { current_phrase.().forbidden_char_pos ||= current_phrase.().length }
     debug = lambda { |msg| puts msg; true }
     # Parse!
     s.skip(/ /)
@@ -404,12 +398,14 @@ class Phrases
       ) or
       (
         x = s.scan(/#{HYPHEN}/) and act do
-          forbidden_char.(x)
+          before_forbidden_char.()
+          phrase_continued.(x)
         end
       ) or
       (
         x = s.scan(/#{IN_SENTENCE_PUNCTUATION}/) and act do
-          if /#{FORBIDDEN_CHAR}/ === x then forbidden_char.(x) end
+          if /#{FORBIDDEN_CHAR}/ === x then before_forbidden_char.() end
+          phrase_continued.(x)
         end
       ) or
       (
@@ -437,23 +433,52 @@ class Phrases
   # 
   def fits?(phrase)
     return false if phrase.include_other_chars?
-    phrase = phrase.to_s.lowcase
-    phrase_part_regexp = @phrase_part.
-      lowcase.
-      gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
-    
+    phrase_part_pos = (@phrase_part_regexp =~ phrase.to_s.downcase)
+    return phrase_part_pos
+    return false unless phrase_part_pos
+    if phrase.forbidden_char_pos and phrase_part_pos < phrase.forbidden_char_pos then
+      comparison_part = phrase.to_s.downcase[0...phrase.forbidden_char_pos]
+      return (!@duplicates_set.include?(comparison_part)).tap do
+        @duplicates_set.add(comparison_part)
+      end
+    else
+      comparison_part = phrase.to_s.downcase
+      return (!@duplicates_set.include?(comparison_part)).tap do
+        @duplicates_set.add(comparison_part)
+      end
+    end
+  end
+  
+  def initialize(phrase_part)
+    @phrase_part_regexp = Regexp.new(
+      phrase_part.
+        downcase.
+        split("*").map { |part| Regexp.escape(part) }.join("*").
+        gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
+    )
+    @duplicates_set = Set.new
   end
   
 end
 
-p Phrases.new(nil).phrases_from <<TEXT
+def phrase_from(str)
+  Phrases.new('').phrases_from(str).first.tap { |x| p x }
+end
+
+h = Phrases.new("do * flop")
+p h.fits?(phrase_from("Everybody do the flop!"))
+p h.fits?(phrase_from("Everybody do the flop it - first"))
+p h.fits?(phrase_from("Everybody do the flop it - second"))
+p h.fits?(phrase_from("Everybody - do the flop"))
+exit
+p Phrases.new('').phrases_from <<TEXT
 Everybody  do    the flop!!! Do the flop   — do the flop!
 Do the flop - do the flop-flop-flop!
 Everybody, do the  flop.
 Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
 Very bad © phrase
 TEXT
-p Phrases.new(nil).phrases_from ""
+p Phrases.new('').phrases_from ""
 
 # p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
