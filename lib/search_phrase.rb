@@ -369,13 +369,12 @@ class Phrases
       phrases.last.include_other_chars!
       true
     end
-    skip_opt = lambda { |regexp| s.skip(regexp); true }
     debug = lambda { |msg| puts msg; true }
     # Parse!
-    skip_opt.(/ /)
+    s.skip(/ /)
     loop do
       (s.eos? and break) or
-      (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and skip_opt.(/ /) and phrase_continued.(x) and phrase_end.()) or
+      (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and phrase_continued.(x) and phrase_end.()) or
       (x = (s.scan(/#{WORD}/) or s.scan(/#{IN_SENTENCE_PUNCTUATION}+/) or s.scan(/ /)) and phrase_continued.(x)) or
       (x = s.getch() and phrase_continued.(x) and other_chars_included.())
     end
