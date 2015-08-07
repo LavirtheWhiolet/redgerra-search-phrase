@@ -190,6 +190,12 @@ class Phrases
 #     
 #   end
   
+  def initialize(phrase_part)
+    @phrase_part_regexp = phrase_part.
+      lowcase.
+      gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
+  end
+  
   class CharSet
     
     def initialize()
@@ -367,7 +373,7 @@ class Phrases
       phrases.push Phrase.new
       true
     end
-    other_chars_included = lambda do
+    include_other_chars = lambda do
       phrases.last.include_other_chars!
       true
     end
@@ -378,11 +384,18 @@ class Phrases
       (s.eos? and break) or
       (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and phrase_continued.(x) and phrase_end.()) or
       (x = (s.scan(/#{WORD}/) or s.scan(/#{IN_SENTENCE_PUNCTUATION}+/) or s.scan(/ /)) and phrase_continued.(x)) or
-      (x = s.getch() and phrase_continued.(x) and other_chars_included.())
+      (x = s.getch() and phrase_continued.(x) and include_other_chars.())
     end
     phrases.pop() if phrases.not_empty? and phrases.last.empty?
     # 
     return phrases
+  end
+  
+  # Does +phrase+ (Phrase) fit Redgerra's requirements?
+  def fits?(phrase)
+    return false if phrase.include_other_chars?
+    phrase = phrase.to_s
+    
   end
   
 end
