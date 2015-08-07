@@ -185,7 +185,7 @@ class Phrases
         else
           element_is_separate_text_block = element.name.not_in? %W{
             a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
-            q s samp small span strike strong time tt u wbr
+            q s samp small span strike strong sub sup time tt u wbr
           }
           string_introduced_by_element =
             case element.name
