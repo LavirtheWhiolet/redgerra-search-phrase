@@ -270,6 +270,7 @@ class Phrases
     def initialize()
       @str = ""
       @include_other_chars = false
+      @forbidden_char_pos = nil
     end
     
     # Set #include_other_chars? to true.
@@ -285,6 +286,9 @@ class Phrases
     def include_other_chars?
       @include_other_chars
     end
+    
+    # Forbidden character position (if any). It may be nil.
+    attr_accessor :forbidden_char_pos
     
     def concat(str)
       @str.concat(str)
