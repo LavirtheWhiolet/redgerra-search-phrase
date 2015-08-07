@@ -1,13 +1,15 @@
 # encoding: UTF-8
+# require 'monitor'
+# require 'object/not_in'
+# require 'object/not_nil'
+# require 'strscan'
+# require 'random_accessible'
+# require 'open-uri'
+# require 'set'
+
 require 'nokogiri'
-require 'monitor'
-require 'object/not_in'
-require 'object/not_nil'
-require 'strscan'
-require 'random_accessible'
 require 'string/scrub'
-require 'open-uri'
-require 'set'
+require 'integer/chr_u'
 
 # 
 # Result of #search_phrase().
@@ -224,12 +226,6 @@ class Phrases
     return text_blocks
   end
   
-  module Char
-    
-    
-    
-  end
-  
   module Grammar
     
     # NOTE: "CS" means "character set".
@@ -245,13 +241,80 @@ class Phrases
     
   end
   
+  class CharSet
+    
+    def initialize()
+      @char_ranges = []
+    end
+    
+    # NOTE: It is optimized for monotonically increasing +char_code+-s.
+    def add(char_code)
+      char = char_code.chr_u
+      if @char_ranges.empty? then
+        @char_ranges.push(char..char)
+        return
+      end
+      if @char_ranges.last.end.succ == char then
+        @char_ranges[-1] = @char_ranges.last.begin..char
+      else
+        @char_ranges.push(char..char)
+      end
+    end
+    
+    # Returns regular expression (in the form of String) which matches this
+    # CharSet.
+    def to_regexp_str
+      s = @char_ranges.map do |range|
+        if range.begin == range.end then esc(range.begin)
+        elsif range.begin.succ == range.end then "#{esc(range.begin)}#{esc(range.end)}"
+        else "#{esc(range.begin)}-#{esc(range.end)}"
+        end
+      end
+      "[#{s.join}]"
+    end
+    
+    # Regular expression (in the form of String) which matches any character
+    # from +category+ (categories are described in this file, in "__END__"
+    # section).
+    def self.regexp_str(category)
+      required_category = category
+      r = CharSet.new
+      DATA.rewind()
+      DATA.each_line do |line|
+        next if line.strip.empty?
+        char_code, category = line.split(/\s+/, 2).map(&:strip)
+        next if category != required_category
+        char_code = char_code[/U+(.*)/, 1].to_i(16)
+        r.add(char_code)
+      end
+      return r.to_regexp_str
+    end
+    
+    private
+    
+    def escape_special_regexp_char(char)
+      if char.ord < 128 then "\\#{char}"
+      else char
+      end
+    end
+    
+    alias esc escape_special_regexp_char
+    
+  end
+
+  PUNCTUATION = CharSet.regexp_str("PUNCTUATION")
+  DELIMITER = CharSet.regexp_str("DELIMITER")
+  
   def phrases_from(str)
     
   end
   
 end
 
-p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
+puts Phrases::PUNCTUATION
+puts Phrases::DELIMITER
+
+# p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
 # 
 # searches for phrases in pages located at specified URL's and returns Phrases.
@@ -270,3 +333,17 @@ p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_expl
 def search_phrase(phrase_part, urls, &need_stop)
   return Phrases.new(phrase_part, urls, &need_stop)
 end
+
+__END__
+U+0020 DELIMITER
+U+0021 DELIMITER
+U+0022 PUNCTUATION
+U+0023 PUNCTUATION
+U+0024 PUNCTUATION
+U+0025 DELIMITER
+U+0026 PUNCTUATION
+U+0027 PUNCTUATION
+U+0028 DELIMITER
+U+0029 PUNCTUATION
+U+002A DELIMITER
+U+1FFF DELIMITER
