@@ -354,6 +354,7 @@ class Phrases
   LETTER_OR_DIGIT = CharSet.regexp_str("LETTER OR DIGIT")
   HYPHEN = CharSet.regexp_str("HYPHEN")
   WHITESPACE = CharSet.regexp_str("WHITESPACE")
+  FORBIDDEN_CHAR = CharSet.regexp_str(:any, "Forbidden characters")
   
   WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
   
