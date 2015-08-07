@@ -223,7 +223,13 @@ class Phrases
     this.(element)
     return text_blocks
   end
+  
+  module Char
     
+    
+    
+  end
+  
   module Grammar
     
     # NOTE: "CS" means "character set".
