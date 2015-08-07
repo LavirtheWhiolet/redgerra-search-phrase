@@ -190,11 +190,10 @@ class Phrases
 #     
 #   end
   
-  def initialize(phrase_part)
-    @phrase_part_regexp = phrase_part.
-      lowcase.
-      gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
-    @
+  def initialize()
+#     @phrase_part_regexp = phrase_part.
+#       lowcase.
+#       gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
   end
   
   class CharSet
@@ -355,7 +354,7 @@ class Phrases
   HYPHEN = CharSet.regexp_str("HYPHEN")
   WHITESPACE = CharSet.regexp_str("WHITESPACE")
   
-  WORD = "#{LETTER_OR_DIGIT}+" # +(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*"
+  WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
   
   # Returns all phrases from +str+ (in the form of Array of Phrase-s). All
   # whitespaces in the phrases are squeezed and converted to " ".
@@ -407,6 +406,7 @@ end
 
 p Phrases.new.phrases_from <<TEXT
 Everybody    do    the flop!!! Do the flop   — do the flop!  Everybody, do the  flop.
+Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
 Very bad © phrase
 TEXT
 p Phrases.new.phrases_from ""
