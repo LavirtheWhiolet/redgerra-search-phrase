@@ -194,6 +194,7 @@ class Phrases
     @phrase_part_regexp = phrase_part.
       lowcase.
       gsub("*", /#{WORD}( ?,? ?#{WORD})?/)
+    @
   end
   
   class CharSet
@@ -373,7 +374,7 @@ class Phrases
       phrases.push Phrase.new
       true
     end
-    include_other_chars = lambda do
+    other_chars_included = lambda do
       phrases.last.include_other_chars!
       true
     end
@@ -384,7 +385,7 @@ class Phrases
       (s.eos? and break) or
       (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and phrase_continued.(x) and phrase_end.()) or
       (x = (s.scan(/#{WORD}/) or s.scan(/#{IN_SENTENCE_PUNCTUATION}+/) or s.scan(/ /)) and phrase_continued.(x)) or
-      (x = s.getch() and phrase_continued.(x) and include_other_chars.())
+      (x = s.getch() and phrase_continued.(x) and other_chars_included.())
     end
     phrases.pop() if phrases.not_empty? and phrases.last.empty?
     # 
@@ -392,9 +393,13 @@ class Phrases
   end
   
   # Does +phrase+ (Phrase) fit Redgerra's requirements?
+  # 
+  # This method is not idempotent, it also returns false on "duplicate" phrases
+  # (as specified by Redgerra).
+  # 
   def fits?(phrase)
     return false if phrase.include_other_chars?
-    phrase = phrase.to_s
+    phrase = phrase.to_s.lowcase
     
   end
   
@@ -442,7 +447,7 @@ U+0022  IN-SENTENCE PUNCTUATION  # QUOTATION MARK  "
 U+0023  IN-SENTENCE PUNCTUATION  # NUMBER SIGN     #
 U+0025  IN-SENTENCE PUNCTUATION  # PERCENT SIGN    %
 U+0026  IN-SENTENCE PUNCTUATION  # AMPERSAND       &
-U+0027  IN-SENTENCE PUNCTUATION  # APOSTROPHE      '
+U+0027  LETTER  # APOSTROPHE      '     # In words like “let's“.
 U+0028  IN-SENTENCE PUNCTUATION  # LEFT PARENTHESIS        (
 U+0029  IN-SENTENCE PUNCTUATION  # RIGHT PARENTHESIS       )
 U+002A  IN-SENTENCE PUNCTUATION  # ASTERISK        *
@@ -462,6 +467,9 @@ U+0038  LETTER OR DIGIT  # DIGIT EIGHT     8
 U+0039  LETTER OR DIGIT  # DIGIT NINE      9
 U+003A  IN-SENTENCE PUNCTUATION  # COLON   :
 U+003B  IN-SENTENCE PUNCTUATION  # SEMICOLON       ;
+U+003C  IN-SENTENCE PUNCTUATION  # LESS-THAN SIGN  <
+U+003D  IN-SENTENCE PUNCTUATION  # EQUALS SIGN     =
+U+003E  IN-SENTENCE PUNCTUATION  # GREATER-THAN SIGN       >
 U+003F  SENTENCE END PUNCTUATION  # QUESTION MARK   ?
 U+0040  IN-SENTENCE PUNCTUATION  # COMMERCIAL AT   @
 U+0041  LETTER OR DIGIT  # LATIN CAPITAL LETTER A  A
@@ -521,6 +529,7 @@ U+0078  LETTER OR DIGIT  # LATIN SMALL LETTER X    x
 U+0079  LETTER OR DIGIT  # LATIN SMALL LETTER Y    y
 U+007A  LETTER OR DIGIT  # LATIN SMALL LETTER Z    z
 U+007B  IN-SENTENCE PUNCTUATION  # LEFT CURLY BRACKET      {
+U+007C  IN-SENTENCE PUNCTUATION  # VERTICAL LINE   |
 U+007D  IN-SENTENCE PUNCTUATION  # RIGHT CURLY BRACKET     }
 U+0085  WHITESPACE  # NEXT LINE (NEL)         …
 U+00A0  WHITESPACE  # NO-BREAK SPACE
@@ -533,7 +542,7 @@ U+00BB  IN-SENTENCE PUNCTUATION  # RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK   
 U+00BF  IN-SENTENCE PUNCTUATION  # INVERTED QUESTION MARK  ¿
 U+037E  IN-SENTENCE PUNCTUATION  # GREEK QUESTION MARK     ;
 U+0387  IN-SENTENCE PUNCTUATION  # GREEK ANO TELEIA        ·
-U+055A  IN-SENTENCE PUNCTUATION  # ARMENIAN APOSTROPHE     ՚
+U+055A  LETTER  # ARMENIAN APOSTROPHE     ՚     # In words like “let's“.
 U+055B  IN-SENTENCE PUNCTUATION  # ARMENIAN EMPHASIS MARK  ՛
 U+055C  SENTENCE END PUNCTUATION  # ARMENIAN EXCLAMATION MARK       ՜
 U+055D  IN-SENTENCE PUNCTUATION  # ARMENIAN COMMA  ՝
@@ -1088,7 +1097,7 @@ U+FF02  IN-SENTENCE PUNCTUATION  # FULLWIDTH QUOTATION MARK        ＂
 U+FF03  IN-SENTENCE PUNCTUATION  # FULLWIDTH NUMBER SIGN   ＃
 U+FF05  IN-SENTENCE PUNCTUATION  # FULLWIDTH PERCENT SIGN  ％
 U+FF06  IN-SENTENCE PUNCTUATION  # FULLWIDTH AMPERSAND     ＆
-U+FF07  IN-SENTENCE PUNCTUATION  # FULLWIDTH APOSTROPHE    ＇
+U+FF07  LETTER  # FULLWIDTH APOSTROPHE    ＇     # In words like “let's“.
 U+FF08  IN-SENTENCE PUNCTUATION  # FULLWIDTH LEFT PARENTHESIS      （
 U+FF09  IN-SENTENCE PUNCTUATION  # FULLWIDTH RIGHT PARENTHESIS     ）
 U+FF0A  IN-SENTENCE PUNCTUATION  # FULLWIDTH ASTERISK      ＊
