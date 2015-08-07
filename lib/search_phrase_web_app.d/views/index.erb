@@ -65,7 +65,7 @@
               if (req.status == 200) {
                 okF(req.responseText);
               } else {
-                errorF(req.status, req.responseText, false);
+                errorF(req.status, req.response, req.status == 0);
               }
             }
           }
