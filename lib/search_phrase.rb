@@ -444,6 +444,8 @@ Section "Character categories"
 # TODO: Use public references to mark categories "SENTENCE END PUNCTUATION" and
 #   "IN-SENTENCE PUNCTUATION".
 
+# TODO: See commit 90ae0df9b2f275a9cab0f946dbaa3c11a224e8df.
+
 U+0009  WHITESPACE  # CHARACTER TABULATION
 U+000A  WHITESPACE  # LINE FEED (LF)
 U+000B  WHITESPACE  # LINE TABULATION         
