@@ -12,6 +12,7 @@ require 'string/scrub'
 require 'integer/chr_u'
 require 'strscan'
 require 'object/not_in'
+require 'object/not_nil'
 require 'object/not_empty'
 
 # 
@@ -244,7 +245,7 @@ class Phrases
         line.strip!
         next if line.empty?
         char_code, category = line.split(/\s+/, 2)
-        next unless category == :any or category == required_category
+        next unless required_category == :any or category == required_category
         char_code = char_code[/U+(.*)/, 1].to_i(16)
         r.add(char_code)
       end
@@ -270,6 +271,7 @@ class Phrases
     def initialize()
       @str = ""
       @include_other_chars = false
+      @forbidden_char_pos = nil
     end
     
     # Set #include_other_chars? to true.
@@ -286,6 +288,9 @@ class Phrases
       @include_other_chars
     end
     
+    # Forbidden character position (if any). It may be nil.
+    attr_accessor :forbidden_char_pos
+    
     def concat(str)
       @str.concat(str)
     end
@@ -298,6 +303,10 @@ class Phrases
       @str.chomp!(suffix)
     end
     
+    def length
+      @str.length
+    end
+    
     alias << concat
     
     def to_s
@@ -305,7 +314,7 @@ class Phrases
     end
     
     def inspect
-      %(#{@str.inspect}#{if include_other_chars? then "$" end})
+      %(#{@str.inspect} (#{if include_other_chars? then "!" else "_" end} #{forbidden_char_pos or "_"}))
     end
     
   end
@@ -364,33 +373,61 @@ class Phrases
     # 
     str.gsub!(/#{WHITESPACE}+/, " ")
     # Parsing DSL.
-    phrases = []
+    phrases = [Phrase.new]
     s = StringScanner.new(str)
-    phrase_continued = lambda do |str|
-      if phrases.empty? then phrases.push Phrase.new; end
-      phrases.last.concat str
-      true
-    end
-    phrase_end = lambda do
-      phrases.push Phrase.new
-      true
-    end
-    other_chars_included = lambda do
-      phrases.last.include_other_chars!
-      true
+    current_phrase = lambda { phrases.last }
+    phrase_continued = lambda { |str| current_phrase.().concat(str) }
+    phrase_end = lambda { phrases.push Phrase.new }
+    other_chars_included = lambda { current_phrase.().include_other_chars! }
+    forbidden_char = lambda do |char| 
+      current_phrase.().forbidden_char_pos ||= current_phrase.().length
+      current_phrase.().concat(char)
     end
     debug = lambda { |msg| puts msg; true }
     # Parse!
     s.skip(/ /)
     loop do
-      (s.eos? and break) or
-      (x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and phrase_continued.(x) and phrase_end.()) or
-      (x = (s.scan(/#{WORD}/) or s.scan(/(#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN})+/) or s.scan(/ /)) and phrase_continued.(x)) or
-      (x = s.getch() and phrase_continued.(x) and other_chars_included.())
+      (
+        s.eos? and
+          break
+      ) or
+      (
+        x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and act do
+          phrase_continued.(x)
+          phrase_end.()
+        end
+      ) or
+      (
+        x = s.scan(/#{WORD}| /) and act do
+          phrase_continued.(x)
+        end
+      ) or
+      (
+        x = s.scan(/#{HYPHEN}/) and act do
+          forbidden_char.(x)
+        end
+      ) or
+      (
+        x = s.scan(/#{IN_SENTENCE_PUNCTUATION}/) and act do
+          if /#{FORBIDDEN_CHAR}/ === x then forbidden_char.(x) end
+        end
+      ) or
+      (
+        x = s.getch() and act do
+          other_chars_included.()
+          phrase_continued.(x)
+        end
+      )
     end
     phrases.pop() if phrases.not_empty? and phrases.last.empty?
     # 
     return phrases
+  end
+  
+  # Calls +f+ and returns true.
+  def act(&f)
+    f.()
+    true
   end
   
   # Does +phrase+ (Phrase) fit Redgerra's requirements?
