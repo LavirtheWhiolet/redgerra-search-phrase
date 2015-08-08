@@ -16,6 +16,8 @@ require 'object/not_in'
 require 'object/not_nil'
 require 'object/not_empty'
 require 'set'
+require 'monitor'
+require 'random_accessible'
 
 # 
 # Result of #search_phrase().
@@ -174,6 +176,17 @@ class Phrases
 #     phrases.shift() if not phrases.empty? and phrases.first.empty?
 #     return phrases
 #   end
+  
+  include MonitorMixin
+  include RandomAccessible
+  
+  def [](index)
+    mon_synchronize do
+      
+    end
+  end
+  
+  private
   
   class URLs
     
@@ -495,6 +508,7 @@ class Phrases
   end
   
   def initialize(phrase_part, urls)
+    super()
     @phrase_part_regexp = Regexp.new(
       phrase_part.
         downcase.
@@ -510,26 +524,8 @@ class Phrases
 end
 
 def phrase_from(str)
-  Phrases.new('').phrases_from(str).first.tap { |x| p x }
+  Phrases.new('', []).phrases_from(str).first.tap { |x| p x }
 end
-
-h = Phrases.new("    do *   flop     ")
-p h.fits?(phrase_from("Everybody do the, flop!"))
-p h.fits?(phrase_from("Everybody do the flop it - first"))
-p h.fits?(phrase_from("Everybody do the flop it - second"))
-p h.fits?(phrase_from("Everybody - do the flop"))
-p h.fits?(phrase_from("Everybody - do the flop"))
-p h.fits?(phrase_from("Everybody - do the flop!"))
-p Phrases.new('').phrases_from <<TEXT
-Everybody  do    the flop!!! Do the flop   — do the flop!
-Do the flop - do the flop-flop-flop!
-Everybody, do the  flop.
-Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
-Very bad © phrase
-TEXT
-p Phrases.new('').phrases_from ""
-
-# p Phrases.new.phrases_from1("https://en.wikipedia.org/wiki/2013_Rosario_gas_explosion");
 
 # 
 # searches for phrases in pages located at specified URL's and returns Phrases.
@@ -548,6 +544,22 @@ p Phrases.new('').phrases_from ""
 def search_phrase(phrase_part, urls, &need_stop)
   return Phrases.new(phrase_part, urls, &need_stop)
 end
+
+# h = Phrases.new("    do *   flop     ", [])
+# p h.fits?(phrase_from("Everybody do the, flop!"))
+# p h.fits?(phrase_from("Everybody do the flop it - first"))
+# p h.fits?(phrase_from("Everybody do the flop it - second"))
+# p h.fits?(phrase_from("Everybody - do the flop"))
+# p h.fits?(phrase_from("Everybody - do the flop"))
+# p h.fits?(phrase_from("Everybody - do the flop!"))
+# p Phrases.new('', []).phrases_from <<TEXT
+# Everybody  do    the flop!!! Do the flop   — do the flop!
+# Do the flop - do the flop-flop-flop!
+# Everybody, do the  flop.
+# Everybody should sing "do-the-flop"! And smb. should definitely sing "do-the-flop"!
+# Very bad © phrase
+# TEXT
+# p Phrases.new('', []).phrases_from ""
 
 __END__
 
