@@ -455,14 +455,15 @@ class Phrases
   
   # Does +phrase+ (Phrase) fit Redgerra's requirements?
   # 
-  # This method is not idempotent, it also returns false on "duplicate" phrases
-  # (as specified by Redgerra).
+  # This method is not idempotent, it also returns false on duplicate phrases.
   # 
   def fits?(phrase)
     #
     return false if phrase.include_other_chars?
     # 
     return false if /\[\]\{\}/o === phrase.to_s  # TODO: Is it correct?
+    # 
+    return false if phrase.word_count > 20
     #
     downcase_phrase = phrase.to_s.downcase
     phrase_part_pos = (@phrase_part_regexp =~ downcase_phrase)
