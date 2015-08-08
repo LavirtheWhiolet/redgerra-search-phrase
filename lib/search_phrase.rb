@@ -450,6 +450,7 @@ class Phrases
     @phrase_part_regexp = Regexp.new(
       phrase_part.
         downcase.
+        gsub(/#{WHITESPACE}+/, " ").strip.
         split("*").map { |part| Regexp.escape(part) }.join("*").
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
     )
@@ -462,13 +463,14 @@ def phrase_from(str)
   Phrases.new('').phrases_from(str).first.tap { |x| p x }
 end
 
-h = Phrases.new("do * flop")
+h = Phrases.new("    do *   flop     ")
 p h.fits?(phrase_from("Everybody do the, flop!"))
 p h.fits?(phrase_from("Everybody do the flop it - first"))
 p h.fits?(phrase_from("Everybody do the flop it - second"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop!"))
+exit
 p Phrases.new('').phrases_from <<TEXT
 Everybody  do    the flop!!! Do the flop   — do the flop!
 Do the flop - do the flop-flop-flop!
