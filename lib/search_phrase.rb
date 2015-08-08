@@ -180,9 +180,22 @@ class Phrases
   include MonitorMixin
   include RandomAccessible
   
+  # If the phrase is not found at this number of the consecutive URL-s then
+  # the searching stops.
+  MAX_PHRASE_NOT_FOUND_TIMES = 10
+  
   def [](index)
     mon_synchronize do
-      
+      phrase_not_found_times = 0
+      until @cached_phrases[index].not_nil? or
+          @urls.current.nil? or 
+          phrase_not_found_times > MAX_PHRASE_NOT_FOUND_TIMES
+        next_phrases = phrases_from1(@urls.current).select { |x| fits?(x) }
+        @cached_phrases.concat(next_phrases)
+        if next_phrases.empty? then phrase_not_found_times += 1 end
+        @urls.next!
+      end
+      return @cached_phrases[index]
     end
   end
   
