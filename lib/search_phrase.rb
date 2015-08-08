@@ -432,20 +432,23 @@ class Phrases
   # (as specified by Redgerra).
   # 
   def fits?(phrase)
+    #
     return false if phrase.include_other_chars?
-    phrase_part_pos = (@phrase_part_regexp =~ phrase.to_s.downcase)
-    return phrase_part_pos
+    # 
+    return false if /\[\]\{\}/ === phrase.to_s  # TODO: Is it correct?
+    #
+    downcase_phrase = phrase.to_s.downcase
+    phrase_part_pos = (@phrase_part_regexp =~ downcase_phrase)
     return false unless phrase_part_pos
-    if phrase.forbidden_char_pos and phrase_part_pos < phrase.forbidden_char_pos then
-      comparison_part = phrase.to_s.downcase[0...phrase.forbidden_char_pos]
-      return (!@duplicates_set.include?(comparison_part)).tap do
-        @duplicates_set.add(comparison_part)
+    # Duplicate check.
+    comparison_part =
+      if phrase.forbidden_char_pos and phrase_part_pos < phrase.forbidden_char_pos then
+        downcase_phrase[0...phrase.forbidden_char_pos]
+      else
+        downcase_phrase
       end
-    else
-      comparison_part = phrase.to_s.downcase
-      return (!@duplicates_set.include?(comparison_part)).tap do
-        @duplicates_set.add(comparison_part)
-      end
+    return (not @duplicates_set.include?(comparison_part)).tap do
+      @duplicates_set.add(comparison_part)
     end
   end
   
@@ -466,10 +469,12 @@ def phrase_from(str)
 end
 
 h = Phrases.new("do * flop")
-p h.fits?(phrase_from("Everybody do the flop!"))
+p h.fits?(phrase_from("Everybody do the, flop!"))
 p h.fits?(phrase_from("Everybody do the flop it - first"))
 p h.fits?(phrase_from("Everybody do the flop it - second"))
 p h.fits?(phrase_from("Everybody - do the flop"))
+p h.fits?(phrase_from("Everybody - do the flop"))
+p h.fits?(phrase_from("Everybody - do the flop!"))
 exit
 p Phrases.new('').phrases_from <<TEXT
 Everybody  do    the flop!!! Do the flop   — do the flop!
@@ -1329,6 +1334,8 @@ End Section
 Section "Forbidden characters"
 
 # TODO: Wavy dashes are not included. Is it correct?
+
+# TODO: дефисы сюда же.
 
 U+0022  скобки и кавычки  # QUOTATION MARK  "
 U+0028  скобки и кавычки  # LEFT PARENTHESIS        (       
