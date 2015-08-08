@@ -368,7 +368,7 @@ class Phrases
   # whitespaces in the phrases are squeezed and converted to " ".
   def phrases_from(str)
     # 
-    str.gsub!(/#{WHITESPACE}+/, " ")
+    str.gsub!(/#{WHITESPACE}+/o, " ")
     # Parsing DSL.
     phrases = [Phrase.new]
     s = StringScanner.new(str)
@@ -386,19 +386,19 @@ class Phrases
           break
       ) or
       (
-        x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/) and s.skip(/ ?/) and act do
+        x = s.scan(/#{SENTENCE_END_PUNCTUATION}+/o) and s.skip(/ ?/) and act do
           phrase_continued.(x)
           phrase_end.()
         end
       ) or
       (
-        x = s.scan(/#{WORD}| /) and act do
+        x = s.scan(/#{WORD}| /o) and act do
           phrase_continued.(x)
         end
       ) or
       (
-        x = s.scan(/#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN}/) and act do
-          if /#{FORBIDDEN_CHAR}/ === x then before_forbidden_char.() end
+        x = s.scan(/#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN}/o) and act do
+          if /#{FORBIDDEN_CHAR}/o === x then before_forbidden_char.() end
           phrase_continued.(x)
         end
       ) or
@@ -429,7 +429,7 @@ class Phrases
     #
     return false if phrase.include_other_chars?
     # 
-    return false if /\[\]\{\}/ === phrase.to_s  # TODO: Is it correct?
+    return false if /\[\]\{\}/o === phrase.to_s  # TODO: Is it correct?
     #
     downcase_phrase = phrase.to_s.downcase
     phrase_part_pos = (@phrase_part_regexp =~ downcase_phrase)
@@ -464,7 +464,7 @@ class Phrases
     @phrase_part_regexp = Regexp.new(
       phrase_part.
         downcase.
-        gsub(/#{WHITESPACE}+/, " ").strip.
+        gsub(/#{WHITESPACE}+/o, " ").strip.
         split("*").map { |part| Regexp.escape(part) }.join("*").
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
     )
