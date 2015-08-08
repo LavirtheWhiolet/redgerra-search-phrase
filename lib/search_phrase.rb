@@ -8,6 +8,7 @@
 # require 'set'
 
 require 'nokogiri'
+require 'open-uri'
 require 'string/scrub'
 require 'integer/chr_u'
 require 'strscan'
@@ -314,6 +315,30 @@ class Phrases
       %(#{@str.inspect} (#{if include_other_chars? then "!" else "_" end} #{forbidden_char_pos or "_"}))
     end
     
+  end
+  
+  # Returns all phrases from page at +url+ (in the form of Array of Phrase-s).
+  # All whitespaces in the phrases are squeezed and converted to " ".
+  def phrases_from1(url)
+    # 
+    page_io =
+      begin
+        open(url)
+      rescue
+        return []
+      end
+    #
+    begin
+      result = []
+      text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
+        phrases_from(text_block).each do |phrase|
+          result.push(phrase)
+        end
+      end
+      return result
+    ensure
+      page_io.close()
+    end
   end
   
   # returns Array of String's.
