@@ -270,6 +270,7 @@ class Phrases
       @str = ""
       @include_other_chars = false
       @forbidden_char_pos = nil
+      @word_count = 0
     end
     
     # Set #include_other_chars? to true.
@@ -288,6 +289,9 @@ class Phrases
     
     # Forbidden character position (if any). It may be nil.
     attr_accessor :forbidden_char_pos
+    
+    # Number of words in this Phrase. Initially it is 0.
+    attr_accessor :word_count
     
     def concat(str)
       @str.concat(str)
@@ -312,7 +316,7 @@ class Phrases
     end
     
     def inspect
-      %(#{@str.inspect} (#{if include_other_chars? then "!" else "_" end} #{forbidden_char_pos or "_"}))
+      %(#{@str.inspect} (#{if include_other_chars? then "!" else "_" end} #{forbidden_char_pos or "_"} #{word_count}))
     end
     
   end
@@ -417,9 +421,13 @@ class Phrases
         end
       ) or
       (
-        x = s.scan(/#{WORD}| /o) and act do
+        x = s.scan(/#{WORD}/o) and act do
           phrase_continued.(x)
+          current_phrase.().word_count += 1
         end
+      ) or
+      (
+        x = s.scan(/ /) and act { phrase_continued.(x) }
       ) or
       (
         x = s.scan(/#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN}/o) and act do
@@ -509,7 +517,6 @@ p h.fits?(phrase_from("Everybody do the flop it - second"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop!"))
-exit
 p Phrases.new('').phrases_from <<TEXT
 Everybody  do    the flop!!! Do the flop   — do the flop!
 Do the flop - do the flop-flop-flop!
