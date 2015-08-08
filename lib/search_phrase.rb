@@ -174,24 +174,24 @@ class Phrases
 #     phrases.shift() if not phrases.empty? and phrases.first.empty?
 #     return phrases
 #   end
-#   
-#   class URLs
-#     
-#     def initialize(urls)
-#       @urls = urls
-#       @current_index = 0
-#     end
-#     
-#     def current
-#       @urls[@current_index]
-#     end
-#     
-#     def next!
-#       @current_index += 1
-#       nil
-#     end
-#     
-#   end
+  
+  class URLs
+    
+    def initialize(urls)
+      @urls = urls
+      @current_index = 0
+    end
+    
+    def current
+      @urls[@current_index]
+    end
+    
+    def next!
+      @current_index += 1
+      nil
+    end
+    
+  end
   
   class CharSet
     
@@ -494,7 +494,7 @@ class Phrases
     end
   end
   
-  def initialize(phrase_part)
+  def initialize(phrase_part, urls)
     @phrase_part_regexp = Regexp.new(
       phrase_part.
         downcase.
@@ -503,6 +503,8 @@ class Phrases
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
     )
     @mentioned_before_memory = Set.new
+    @cached_phrases = []
+    @urls = URLs.new(urls)
   end
   
 end
