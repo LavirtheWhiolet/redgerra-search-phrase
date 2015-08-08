@@ -435,14 +435,28 @@ class Phrases
     phrase_part_pos = (@phrase_part_regexp =~ downcase_phrase)
     return false unless phrase_part_pos
     # Duplicate check.
-    comparison_part =
-      if phrase.forbidden_char_pos and phrase_part_pos < phrase.forbidden_char_pos then
-        downcase_phrase[0...phrase.forbidden_char_pos]
-      else
-        downcase_phrase
-      end
-    return (not @duplicates_set.include?(comparison_part)).tap do
-      @duplicates_set.add(comparison_part)
+    if phrase.forbidden_char_pos and phrase_part_pos < phrase.forbidden_char_pos then
+      mentioned_before? downcase_phrase[0...phrase.forbidden_char_pos]
+    else
+      mentioned_before? downcase_phrase
+    end
+  end
+  
+  # 
+  # Returns true for any +obj+ only once.
+  # 
+  # Example:
+  # 
+  #   mentioned_before? "blah"  #=> true
+  #   mentioned_before? "blah"  #=> false
+  #   mentioned_before? "yup"   #=> true
+  # 
+  def mentioned_before?(obj)
+    if @mentioned_before_memory.include? obj then
+      return false
+    else
+      @mentioned_before_memory.add obj
+      return true
     end
   end
   
@@ -454,7 +468,7 @@ class Phrases
         split("*").map { |part| Regexp.escape(part) }.join("*").
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
     )
-    @duplicates_set = Set.new
+    @mentioned_before_memory = Set.new
   end
   
 end
