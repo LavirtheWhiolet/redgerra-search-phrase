@@ -500,8 +500,13 @@ end
 
 __END__
 
+# 
 # Keep sections below sorted, otherwise optimization in CharSet#add() will not
-# be used!
+# be used! You may use following script to sort them:
+# 
+# DATA.read.lines.sort_by { |l| (l[/U\+([^ ]+)/, 1] || "").to_i(16) }.
+#   each { |l| puts l }
+# 
 
 Section "Character categories"
 
