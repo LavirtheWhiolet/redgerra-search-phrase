@@ -507,6 +507,9 @@ end
 
 __END__
 
+# Keep sections below sorted, otherwise optimization in CharSet#add() will not
+# be used!
+
 Section "Character categories"
 
 # TODO: Use public references to mark categories "SENTENCE END PUNCTUATION" and
