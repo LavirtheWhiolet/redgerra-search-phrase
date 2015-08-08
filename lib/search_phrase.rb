@@ -397,13 +397,7 @@ class Phrases
         end
       ) or
       (
-        x = s.scan(/#{HYPHEN}/) and act do
-          before_forbidden_char.()
-          phrase_continued.(x)
-        end
-      ) or
-      (
-        x = s.scan(/#{IN_SENTENCE_PUNCTUATION}/) and act do
+        x = s.scan(/#{IN_SENTENCE_PUNCTUATION}|#{HYPHEN}/) and act do
           if /#{FORBIDDEN_CHAR}/ === x then before_forbidden_char.() end
           phrase_continued.(x)
         end
@@ -475,7 +469,6 @@ p h.fits?(phrase_from("Everybody do the flop it - second"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop"))
 p h.fits?(phrase_from("Everybody - do the flop!"))
-exit
 p Phrases.new('').phrases_from <<TEXT
 Everybody  do    the flop!!! Do the flop   — do the flop!
 Do the flop - do the flop-flop-flop!
@@ -1338,11 +1331,10 @@ Section "Forbidden characters"
 
 # TODO: Wavy dashes are not included. Is it correct?
 
-# TODO: дефисы сюда же.
-
 U+0022  скобки и кавычки  # QUOTATION MARK  "
 U+0028  скобки и кавычки  # LEFT PARENTHESIS        (       
 U+0029  скобки и кавычки  # RIGHT PARENTHESIS       )       
+U+002D  дефис  # HYPHEN-MINUS    -
 U+002F  косой слеш  # SOLIDUS         /
 U+003C  уголок  # LESS-THAN SIGN  <
 U+003E  уголок  # GREATER-THAN SIGN       >
@@ -1354,12 +1346,17 @@ U+007C  вертикальный слеш  # VERTICAL LINE   |
 U+007D  скобки и кавычки  # RIGHT CURLY BRACKET     }       
 U+00AB  скобки и кавычки  # LEFT-POINTING DOUBLE ANGLE QUOTATION MARK       «       
 U+00BB  скобки и кавычки  # RIGHT-POINTING DOUBLE ANGLE QUOTATION MARK      »       
+U+058A  дефис  # ARMENIAN HYPHEN         ֊
 U+0F3A  скобки и кавычки  # TIBETAN MARK GUG RTAGS GYON     ༺       
 U+0F3B  скобки и кавычки  # TIBETAN MARK GUG RTAGS GYAS     ༻       
 U+0F3C  скобки и кавычки  # TIBETAN MARK ANG KHANG GYON     ༼       
 U+0F3D  скобки и кавычки  # TIBETAN MARK ANG KHANG GYAS     ༽       
+U+1400  дефис  # CANADIAN SYLLABICS HYPHEN       ᐀
 U+169B  скобки и кавычки  # OGHAM FEATHER MARK      ᚛       
 U+169C  скобки и кавычки  # OGHAM REVERSED FEATHER MARK     ᚜       
+U+1806  дефис  # MONGOLIAN TODO SOFT HYPHEN      ᠆
+U+2010  дефис  # HYPHEN  ‐
+U+2011  дефис  # NON-BREAKING HYPHEN     ‑
 U+2012  короткое тире  # FIGURE DASH     ‒
 U+2013  короткое тире  # EN DASH         –
 U+2014  длинное тире  # EM DASH         —
@@ -1448,6 +1445,7 @@ U+2E09  скобки и кавычки  # LEFT TRANSPOSITION BRACKET      ⸉
 U+2E0A  скобки и кавычки  # RIGHT TRANSPOSITION BRACKET     ⸊       
 U+2E0C  скобки и кавычки  # LEFT RAISED OMISSION BRACKET    ⸌       
 U+2E0D  скобки и кавычки  # RIGHT RAISED OMISSION BRACKET   ⸍       
+U+2E1A  дефис  # HYPHEN WITH DIAERESIS   ⸚
 U+2E1C  скобки и кавычки  # LEFT LOW PARAPHRASE BRACKET     ⸜       
 U+2E1D  скобки и кавычки  # RIGHT LOW PARAPHRASE BRACKET    ⸝       
 U+2E20  скобки и кавычки  # LEFT VERTICAL BAR WITH QUILL    ⸠       
@@ -1462,6 +1460,7 @@ U+2E28  скобки и кавычки  # LEFT DOUBLE PARENTHESIS         ⸨
 U+2E29  скобки и кавычки  # RIGHT DOUBLE PARENTHESIS        ⸩       
 U+2E3A  длинное тире  # TWO-EM DASH     ⸺
 U+2E3B  длинное тире  # THREE-EM DASH   ⸻
+U+2E40  дефис  # DOUBLE HYPHEN   ⹀
 U+2E42  скобки и кавычки  # DOUBLE LOW-REVERSED-9 QUOTATION MARK    ⹂       
 U+3008  скобки и кавычки  # LEFT ANGLE BRACKET      〈       
 U+3009  скобки и кавычки  # RIGHT ANGLE BRACKET     〉       
@@ -1484,6 +1483,7 @@ U+301B  скобки и кавычки  # RIGHT WHITE SQUARE BRACKET      〛
 U+301D  скобки и кавычки  # REVERSED DOUBLE PRIME QUOTATION MARK    〝       
 U+301E  скобки и кавычки  # DOUBLE PRIME QUOTATION MARK     〞       
 U+301F  скобки и кавычки  # LOW DOUBLE PRIME QUOTATION MARK         〟       
+U+30A0  дефис  # KATAKANA-HIRAGANA DOUBLE HYPHEN         ゠
 U+FD3E  скобки и кавычки  # ORNATE LEFT PARENTHESIS         ﴾       
 U+FD3F  скобки и кавычки  # ORNATE RIGHT PARENTHESIS        ﴿       
 U+FE17  скобки и кавычки  # PRESENTATION FORM FOR VERTICAL LEFT WHITE LENTICULAR BRACKET    ︗       
@@ -1513,9 +1513,11 @@ U+FE5B  скобки и кавычки  # SMALL LEFT CURLY BRACKET        ﹛
 U+FE5C  скобки и кавычки  # SMALL RIGHT CURLY BRACKET       ﹜       
 U+FE5D  скобки и кавычки  # SMALL LEFT TORTOISE SHELL BRACKET       ﹝       
 U+FE5E  скобки и кавычки  # SMALL RIGHT TORTOISE SHELL BRACKET      ﹞       
+U+FE63  дефис  # SMALL HYPHEN-MINUS      ﹣
 U+FF02  скобки и кавычки  # FULLWIDTH QUOTATION MARK        ＂
 U+FF08  скобки и кавычки  # FULLWIDTH LEFT PARENTHESIS      （       
 U+FF09  скобки и кавычки  # FULLWIDTH RIGHT PARENTHESIS     ）       
+U+FF0D  дефис  # FULLWIDTH HYPHEN-MINUS  －
 U+FF3B  скобки и кавычки  # FULLWIDTH LEFT SQUARE BRACKET   ［       
 U+FF3D  скобки и кавычки  # FULLWIDTH RIGHT SQUARE BRACKET  ］       
 U+FF5B  скобки и кавычки  # FULLWIDTH LEFT CURLY BRACKET    ｛       
