@@ -16,10 +16,10 @@
   </head>
   <body>
     <form action="index.html" method="get" class="search-form">
-      Phrase part: <input name="phrase-part" size="100" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/> <input type="submit" value="Search"/>
+      Phrase part: <input name="sloch" size="100" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/> <input type="submit" value="Search"/>
     </form>
     
-    <% if not phrase_part.empty? then %>
+    <% if not sloch.empty? then %>
 
     Phrases found:
     <ul id="resultsList">
@@ -30,7 +30,7 @@
     <script>
       
       var resultsPerPage = <%=@results_per_page%>;
-      var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
+      var slochCGIEscaped = "<%=Rack::Utils.escape(sloch)%>";
       
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
@@ -118,7 +118,7 @@
         function loop() {
           request(
             "GET",
-            "phrase?phrase-part=" + phrasePartCGIEscaped + "&offset=" + currentIndex.toString(),
+            "phrase?sloch=" + slochCGIEscaped + "&offset=" + currentIndex.toString(),
             /* okF = */ function(responseText) {
               if (hasNoMorePhrases(responseText)) {
                 hide(loadingSymbol);

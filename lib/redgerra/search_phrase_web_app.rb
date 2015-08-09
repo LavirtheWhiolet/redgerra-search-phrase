@@ -47,32 +47,32 @@ module Redgerra
     
     get "/index.html" do
       erb :index, locals: {
-        phrase_part: (params[:"phrase-part"] || ""),
+        sloch: (params[:"sloch"] || ""),
         
       }
     end
     
     get "/phrase" do
       # 
-      phrase_part = params[:"phrase-part"]
-      halt 400, "Phrase part is not specified" if phrase_part.nil? or phrase_part.empty?
+      sloch = params[:"sloch"]
+      halt 400, "Phrase part is not specified" if sloch.nil? or sloch.empty?
       offset = (params[:offset] || "0").to_i
       # 
       begin
-        search_phrase_cached(phrase_part)[offset] || ""
+        search_phrase_cached(sloch)[offset] || ""
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
     end
     
     # Cached version of Redgerra::search_phrase().
-    def search_phrase_cached(phrase_part)
-      cached_phrases_and_browsers = @cached_phrases_and_browsers[phrase_part]
+    def search_phrase_cached(sloch)
+      cached_phrases_and_browsers = @cached_phrases_and_browsers[sloch]
       if cached_phrases_and_browsers.nil?
         b1 = @new_web_search_browser.()
-        web_search_results = @search_web.(%("#{phrase_part}"), b1)
-        phrases = Redgerra::search_phrase(phrase_part, web_search_results)
-        @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
+        web_search_results = @search_web.(%("#{sloch}"), b1)
+        phrases = Redgerra::search_phrase(sloch, web_search_results)
+        @cached_phrases_and_browsers[sloch] = [phrases, b1]
         return phrases
       else
         return cached_phrases_and_browsers[0]

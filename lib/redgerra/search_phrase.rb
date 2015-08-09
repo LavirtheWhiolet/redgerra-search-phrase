@@ -22,10 +22,10 @@ module Redgerra
     include MonitorMixin
     include RandomAccessible
     
-    def initialize(phrase_part, web_search_results)
+    def initialize(sloch, web_search_results)
       super()
       @urls = URLs.new(web_search_results)
-      @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
+      @sloch = squeeze_and_strip_whitespace(sloch).downcase
       @cached_phrases = []
       @cached_phrases_set = Set.new
       @search_stopped = false
@@ -89,7 +89,7 @@ module Redgerra
           phrase_found = false
           text_blocks_from(Nokogiri::HTML(page_io)).each do |text_block|
             phrases_from(text_block).each do |phrase|
-              if phrase.downcase.include?(@phrase_part) and
+              if phrase.downcase.include?(@sloch) and
                   not @cached_phrases_set.include?(phrase) and
                   phrase !~ /[\[\]\{\}]/ then
                 phrase_found = true
@@ -204,12 +204,12 @@ module Redgerra
   # searches for phrases in pages located at specified URL's and returns Phrases.
   # Phrases containing "{", "}", "[" or "]" are omitted.
   # 
-  # +phrase_part+ is a part of phrases being searched for.
+  # +sloch+ is a part of phrases being searched for.
   # 
   # +web_search_results+ is a RandomAccessible of WebSearchResult-s.
   # 
-  def search_phrase(phrase_part, web_search_results)
-    return Phrases.new(phrase_part, web_search_results)
+  def search_phrase(sloch, web_search_results)
+    return Phrases.new(sloch, web_search_results)
   end
   
   module_function :search_phrase
