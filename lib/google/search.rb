@@ -1,11 +1,11 @@
 # Used by Google::search() only.
-# require 'nokogiri'
-# require 'uri'
-# require 'cgi'
-# require 'string/lchomp'
-# require 'object/not_nil'
+require 'nokogiri'
+require 'uri'
+require 'cgi'
+require 'string/lchomp'
+require 'object/not_nil'
 require 'monitor'
-# require 'random_accessible'
+require 'random_accessible'
 # End.
 
 require 'nokogiri'
@@ -234,18 +234,3 @@ module Google
   module_function :search2
   
 end
-
-require 'watir-webdriver'
-b = Watir::Browser.new(:phantomjs, args: ['--disk-cache=false', '--load-images=false'])
-begin
-  s = Google::search2(%("do the flop"), b)
-  i = 0
-  loop do
-    break if s[i].nil?
-    puts s[i]
-    i += 1
-  end
-ensure
-  b.close()
-end
-
