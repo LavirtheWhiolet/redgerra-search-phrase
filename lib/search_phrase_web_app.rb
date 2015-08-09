@@ -5,7 +5,7 @@ require 'search_phrase'
 require 'web_search_error'
 
 # 
-# 
+# Web-interface for #search_phrase().
 # 
 class SearchPhraseWebApp < Sinatra::Application
   
