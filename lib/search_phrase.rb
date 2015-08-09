@@ -8,6 +8,7 @@ require 'random_accessible'
 require 'string/scrub'
 require 'open-uri'
 require 'set'
+require 'web_search/result'
 
 # 
 # Result of #search_phrase().
@@ -19,9 +20,9 @@ class Phrases
   include MonitorMixin
   include RandomAccessible
   
-  def initialize(phrase_part, urls)
+  def initialize(phrase_part, web_search_results)
     super()
-    @urls = URLs.new(urls)
+    @urls = URLs.new(web_search_results)
     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
     @cached_phrases = []
     @cached_phrases_set = Set.new
@@ -179,13 +180,13 @@ class Phrases
   
   class URLs
     
-    def initialize(urls)
-      @urls = urls
+    def initialize(web_search_results)
+      @web_search_results = web_search_results
       @current_index = 0
     end
     
     def current
-      @urls[@current_index]
+      @web_search_results[@current_index].url
     end
     
     def next!
@@ -203,8 +204,8 @@ end
 # 
 # +phrase_part+ is a part of phrases being searched for.
 # 
-# +urls+ is a RandomAccessible of URL's.
+# +web_search_results+ is a RandomAccessible of WebSearch::Result-s.
 # 
-def search_phrase(phrase_part, urls)
-  return Phrases.new(phrase_part, urls)
+def search_phrase(phrase_part, web_search_results)
+  return Phrases.new(phrase_part, web_search_results)
 end
