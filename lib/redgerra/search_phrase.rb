@@ -13,7 +13,7 @@ require 'web_search_result'
 module Redgerra
 
   # 
-  # Result of #search_phrase().
+  # Result of Redgerra::search_phrase().
   # 
   # This class is thread-safe.
   # 
