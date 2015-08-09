@@ -16,7 +16,7 @@
   </head>
   <body>
     <form action="index.html" method="get" class="search-form">
-      Phrase part: <input name="sloch" size="100" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/> <input type="submit" value="Search"/>
+      Sloch: <input name="sloch" size="100" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/> <input type="submit" value="Search"/>
     </form>
     
     <% if not sloch.empty? then %>

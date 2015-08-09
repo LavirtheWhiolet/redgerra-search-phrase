@@ -55,7 +55,7 @@ module Redgerra
     get "/phrase" do
       # 
       sloch = params[:"sloch"]
-      halt 400, "Phrase part is not specified" if sloch.nil? or sloch.empty?
+      halt 400, "Sloch is not specified" if sloch.nil? or sloch.empty?
       offset = (params[:offset] || "0").to_i
       # 
       begin
