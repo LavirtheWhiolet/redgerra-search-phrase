@@ -54,7 +54,6 @@ class SearchPhraseWebApp < Sinatra::Application
     offset = (params[:offset] || "0").to_i
     # 
     begin
-      if offset > 5 then raise WebSearchError.new("Web search engine failed"); end
       search_phrase_cached(phrase_part)[offset] || ""
     rescue WebSearchError => e
       halt 503, e.user_readable_message
