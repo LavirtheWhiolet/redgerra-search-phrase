@@ -26,9 +26,6 @@ class SearchPhraseWebApp < Sinatra::Application
   
   private
   
-  # If a phrase is not found this much times then the searching stops.
-  MAX_PHRASE_NOT_FOUND_TIMES = 10
-  
   APP_DIR = "#{File.dirname(__FILE__)}/search_phrase_web_app.d"
   
   set :views, "#{APP_DIR}/views"
@@ -59,13 +56,7 @@ class SearchPhraseWebApp < Sinatra::Application
     if cached_phrases_and_browsers.nil?
       b1 = @new_search_browser.()
       urls = @search.(%("#{phrase_part}"), b1)
-      phrase_not_found_times = 0
-      phrases = search_phrase(phrase_part, urls) do |url, phrase_found|
-        if not phrase_found then phrase_not_found_times += 1
-        else phrase_not_found_times = 0
-        end
-        need_stop = (phrase_not_found_times > MAX_PHRASE_NOT_FOUND_TIMES)
-      end
+      phrases = search_phrase(phrase_part, urls)
       @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
       return phrases
     else

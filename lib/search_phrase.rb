@@ -19,13 +19,12 @@ class Phrases
   include MonitorMixin
   include RandomAccessible
   
-  def initialize(phrase_part, urls, &need_stop)
+  def initialize(phrase_part, urls)
     super()
     @urls = URLs.new(urls)
     @phrase_part = squeeze_and_strip_whitespace(phrase_part).downcase
     @cached_phrases = []
     @cached_phrases_set = Set.new
-    @need_stop = need_stop || lambda { |url, phrase_found| false }
     @search_stopped = false
   end
   
@@ -96,9 +95,6 @@ class Phrases
             end
           end
         end
-        # Stop searching (if needed).
-        @search_stopped = @need_stop.(@urls.current, phrase_found)
-        break if @search_stopped
         # 
         @urls.next!
       ensure
@@ -209,12 +205,6 @@ end
 # 
 # +urls+ is a RandomAccessible of URL's.
 # 
-# +need_stop+ is passed with an URL and +phrase_found+ (which is true
-# if the specified phrase if found at the URL and false otherwise). It must
-# return true if the searching must be stopped immediately (and no more +urls+
-# should be inspected) and false otherwise. It is optional, default is to
-# always return false.
-# 
-def search_phrase(phrase_part, urls, &need_stop)
-  return Phrases.new(phrase_part, urls, &need_stop)
+def search_phrase(phrase_part, urls)
+  return Phrases.new(phrase_part, urls)
 end
