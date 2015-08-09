@@ -2,6 +2,7 @@
 require 'sinatra/base'
 require 'expiring_hash_map'
 require 'search_phrase'
+require 'web_search_error'
 
 class SearchPhraseWebApp < Sinatra::Application
   
@@ -52,7 +53,12 @@ class SearchPhraseWebApp < Sinatra::Application
     halt 400, "Phrase part is not specified" if phrase_part.nil? or phrase_part.empty?
     offset = (params[:offset] || "0").to_i
     # 
-    search_phrase_cached(phrase_part)[offset] || ""
+    begin
+      if offset > 5 then raise WebSearchError.new("Web search engine failed"); end
+      search_phrase_cached(phrase_part)[offset] || ""
+    rescue WebSearchError => e
+      halt 503, e.user_readable_message
+    end
   end
   
   # Cached version of ::search_phrase().
