@@ -8,7 +8,7 @@ require 'random_accessible'
 require 'string/scrub'
 require 'open-uri'
 require 'set'
-require 'web_search/result'
+require 'web_search_result'
 
 # 
 # Result of #search_phrase().
@@ -204,7 +204,7 @@ end
 # 
 # +phrase_part+ is a part of phrases being searched for.
 # 
-# +web_search_results+ is a RandomAccessible of WebSearch::Result-s.
+# +web_search_results+ is a RandomAccessible of WebSearchResult-s.
 # 
 def search_phrase(phrase_part, web_search_results)
   return Phrases.new(phrase_part, web_search_results)
