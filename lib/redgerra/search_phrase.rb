@@ -211,5 +211,7 @@ module Redgerra
   def search_phrase(phrase_part, web_search_results)
     return Phrases.new(phrase_part, web_search_results)
   end
+  
+  module_function :search_phrase
 
 end

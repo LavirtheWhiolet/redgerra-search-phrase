@@ -7,7 +7,7 @@ require 'web_search_error'
 module Redgerra
 
   # 
-  # Web-interface for #search_phrase().
+  # Web-interface for Redgerra::search_phrase().
   # 
   class SearchPhraseWebApp < Sinatra::Application
     
@@ -65,13 +65,13 @@ module Redgerra
       end
     end
     
-    # Cached version of ::search_phrase().
+    # Cached version of Redgerra::search_phrase().
     def search_phrase_cached(phrase_part)
       cached_phrases_and_browsers = @cached_phrases_and_browsers[phrase_part]
       if cached_phrases_and_browsers.nil?
         b1 = @new_web_search_browser.()
         web_search_results = @search_web.(%("#{phrase_part}"), b1)
-        phrases = search_phrase(phrase_part, web_search_results)
+        phrases = Redgerra::search_phrase(phrase_part, web_search_results)
         @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
         return phrases
       else
