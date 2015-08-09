@@ -7,23 +7,23 @@ require 'web_search_error'
 class SearchPhraseWebApp < Sinatra::Application
   
   # 
-  # +search+ is a Proc which is passed with a query and a Watir::Browser, sends
-  # the query to the search engine and returns RandomAccessible collection of
-  # URLs.
+  # +search_web+ is a Proc which is passed with a query and a Watir::Browser,
+  # sends the query to the web search engine and returns something which
+  # can be passed to #search_phrase() (as the second argument).
   # 
-  # +new_search_browser+ is a Proc returning a new Watir::Browser for passing
-  # it to +search+.
+  # +new_web_search_browser+ is a Proc returning a new Watir::Browser eligible
+  # for passing it to +search_web+.
   # 
   # +results_per_page+ is number of results to be shown until "More..."
   # button is displayed.
   # 
   # +cache_lifetime+ is how long +search+ results are cached for.
   # 
-  def initialize(search, new_search_browser, results_per_page = 200, cache_lifetime = 30*60)
+  def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60)
     super()
-    @search = search
+    @search_web = search_web
+    @new_web_search_browser = new_web_search_browser
     @results_per_page = results_per_page
-    @new_search_browser = new_search_browser
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
     end
@@ -65,9 +65,9 @@ class SearchPhraseWebApp < Sinatra::Application
   def search_phrase_cached(phrase_part)
     cached_phrases_and_browsers = @cached_phrases_and_browsers[phrase_part]
     if cached_phrases_and_browsers.nil?
-      b1 = @new_search_browser.()
-      urls = @search.(%("#{phrase_part}"), b1)
-      phrases = search_phrase(phrase_part, urls)
+      b1 = @new_web_search_browser.()
+      web_search_results = @search_web.(%("#{phrase_part}"), b1)
+      phrases = search_phrase(phrase_part, web_search_results)
       @cached_phrases_and_browsers[phrase_part] = [phrases, b1]
       return phrases
     else
