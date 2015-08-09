@@ -1,7 +1,3 @@
 
-module WebSearch
-  
-  class Result < Struct.new :url, :page_title, :page_excerpt
-  end
-  
+class WebSearchResult < Struct.new :url, :page_title, :page_excerpt
 end
