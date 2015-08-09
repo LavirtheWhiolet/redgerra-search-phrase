@@ -13,11 +13,15 @@ class SearchPhraseWebApp < Sinatra::Application
   # +new_search_browser+ is a Proc returning a new Watir::Browser for passing
   # it to +search+.
   # 
+  # +results_per_page+ is number of results to be shown until "More..."
+  # button is displayed.
+  # 
   # +cache_lifetime+ is how long +search+ results are cached for.
   # 
-  def initialize(search, new_search_browser, cache_lifetime = 30*60)
+  def initialize(search, new_search_browser, results_per_page = 200, cache_lifetime = 30*60)
     super()
     @search = search
+    @results_per_page = results_per_page
     @new_search_browser = new_search_browser
     @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
       phrases_and_browsers[1].close()
@@ -37,7 +41,8 @@ class SearchPhraseWebApp < Sinatra::Application
   
   get "/index.html" do
     erb :index, locals: {
-      phrase_part: (params[:"phrase-part"] || "")
+      phrase_part: (params[:"phrase-part"] || ""),
+      
     }
   end
   

@@ -29,7 +29,8 @@
     
     <script>
       
-      var RESULTS_PER_PAGE = 200;
+      var resultsPerPage = <%=@results_per_page%>;
+      var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
       
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
@@ -103,7 +104,6 @@
         addNodeToResultsList(li);
       }
       
-      var phrasePartCGIEscaped = "<%=Rack::Utils.escape(phrase_part)%>";
       var currentIndex = 0;
       
       function more() {
@@ -114,7 +114,7 @@
         // Implementation.
         hide(moreButton);
         show(loadingSymbol);
-        var stopIndex = currentIndex + RESULTS_PER_PAGE;
+        var stopIndex = currentIndex + resultsPerPage;
         function loop() {
           request(
             "GET",

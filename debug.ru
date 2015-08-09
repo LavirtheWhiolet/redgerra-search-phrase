@@ -9,5 +9,6 @@ require 'google/search'
 
 run SearchPhraseWebApp.new(
   lambda { |query, browser| Google.search(query, browser) },
-  lambda { Watir::Browser.new(:phantomjs) }
+  lambda { Watir::Browser.new(:phantomjs) },
+  10
 )
