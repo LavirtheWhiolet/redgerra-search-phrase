@@ -110,8 +110,19 @@ module Google
       mon_synchronize do
         until @cached_results[index].not_nil? or @no_more_results
           current_page_html = Nokogiri::HTML(@browser.html)
-          # Check if Google asks for captcha.
-          if 
+          # Check if Google asks captcha.
+          if current_page_html.xpath("//form[@action='CaptchaRedirect']").not_empty? then
+            raise WebSearch::Error.new("Google thinks you are a bot and asks to solve a captcha")
+          end
+          #
+          @cached_results.concat results_from current_page_html
+          # Go to next page.
+          next_page_url = next_page_url_from current_page_html
+          if next_page_url.nil? then
+            @no_more_results = true
+          else
+            @browser.goto next_page_url
+          end
         end
         return @cached_results[index]
       end
@@ -119,7 +130,7 @@ module Google
     
     private
     
-    def web_search_results_from(html)
+    def results_from(html)
       html.
         xpath("//div[@id='ires']/ol/li").
         map do |node|
@@ -221,3 +232,18 @@ module Google
   module_function :search2
   
 end
+
+require 'watir-webdriver'
+b = Watir::Browser.new(:phantomjs, args: ['--disk-cache=false', '--load-images=false'])
+begin
+  s = Google::search2(%("do the flop"), b)
+  i = 0
+  loop do
+    break if s[i].nil?
+    puts s[i]
+    i += 1
+  end
+ensure
+  b.close()
+end
+
