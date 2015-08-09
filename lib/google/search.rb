@@ -1,8 +1,8 @@
 require 'nokogiri'
 require 'cgi'
 require 'random_accessible'
-require 'web_search/result'
-require 'web_search/error'
+require 'web_search_result'
+require 'web_search_error'
 require 'object/not_nil'
 require 'object/not_empty'
 require 'object/in'
@@ -28,16 +28,16 @@ module Google
     end
     
     # 
-    # returns WebSearch::Result or nil if +index+ is out of range.
+    # returns WebSearchResult or nil if +index+ is out of range.
     # 
-    # It may raise WebSearch::Error.
+    # It may raise WebSearchError.
     # 
     def [](index)
       until @cached_results[index].not_nil? or @no_more_results
         current_page_html = Nokogiri::HTML(@browser.html)
         # Check if Google asks captcha.
         if current_page_html.xpath("//form[@action='CaptchaRedirect']").not_empty? then
-          raise WebSearch::Error.new("Google thinks you are a bot and asks to solve a captcha")
+          raise WebSearchError.new("Google thinks you are a bot and asks to solve a captcha")
         end
         #
         @cached_results.concat results_from current_page_html
@@ -77,7 +77,7 @@ module Google
         end.
         compact.
         map do |raw_result|
-          WebSearch::Result.new(
+          WebSearchResult.new(
             source_page_url_from(raw_result.url_node.value),
             text_from(raw_result.page_title_node),
             text_from(
