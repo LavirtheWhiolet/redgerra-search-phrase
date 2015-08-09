@@ -1,18 +1,22 @@
 # Used by Google::search() only.
-require 'nokogiri'
-require 'uri'
-require 'cgi'
-require 'string/lchomp'
-require 'object/not_nil'
+# require 'nokogiri'
+# require 'uri'
+# require 'cgi'
+# require 'string/lchomp'
+# require 'object/not_nil'
 require 'monitor'
-require 'random_accessible'
+# require 'random_accessible'
 # End.
 
+require 'nokogiri'
+require 'cgi'
 require 'random_accessible'
 require 'web_search/result'
 require 'web_search/error'
 require 'object/not_nil'
 require 'object/not_empty'
+require 'object/in'
+require 'string/lchomp'
 
 module Google
   
@@ -107,25 +111,23 @@ module Google
     # It may raise WebSearch::Error.
     # 
     def [](index)
-      mon_synchronize do
-        until @cached_results[index].not_nil? or @no_more_results
-          current_page_html = Nokogiri::HTML(@browser.html)
-          # Check if Google asks captcha.
-          if current_page_html.xpath("//form[@action='CaptchaRedirect']").not_empty? then
-            raise WebSearch::Error.new("Google thinks you are a bot and asks to solve a captcha")
-          end
-          #
-          @cached_results.concat results_from current_page_html
-          # Go to next page.
-          next_page_url = next_page_url_from current_page_html
-          if next_page_url.nil? then
-            @no_more_results = true
-          else
-            @browser.goto next_page_url
-          end
+      until @cached_results[index].not_nil? or @no_more_results
+        current_page_html = Nokogiri::HTML(@browser.html)
+        # Check if Google asks captcha.
+        if current_page_html.xpath("//form[@action='CaptchaRedirect']").not_empty? then
+          raise WebSearch::Error.new("Google thinks you are a bot and asks to solve a captcha")
         end
-        return @cached_results[index]
+        #
+        @cached_results.concat results_from current_page_html
+        # Go to next page.
+        next_page_url = next_page_url_from current_page_html
+        if next_page_url.nil? then
+          @no_more_results = true
+        else
+          @browser.goto next_page_url
+        end
       end
+      return @cached_results[index]
     end
     
     private
