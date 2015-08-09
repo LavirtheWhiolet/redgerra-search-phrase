@@ -2,7 +2,7 @@
 require 'sinatra/base'
 require 'expiring_hash_map'
 require 'search_phrase'
-require 'web_search_error'
+require 'web_search/error'
 
 class SearchPhraseWebApp < Sinatra::Application
   
@@ -55,7 +55,7 @@ class SearchPhraseWebApp < Sinatra::Application
     # 
     begin
       search_phrase_cached(phrase_part)[offset] || ""
-    rescue WebSearchError => e
+    rescue WebSearch::Error => e
       halt 503, e.user_readable_message
     end
   end
