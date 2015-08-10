@@ -12,11 +12,31 @@
         /*padding-right: 1em;*/
         padding-bottom: 2em;
       }
+      .search-form table {
+        white-space: nowrap;
+        border: 0;
+        padding: 0;
+        margin: 0;
+        border-spacing: 0;
+        vertical-align: middle;
+      }
+      .search-form .input-col {
+        padding-left: 0.4em;
+        padding-right: 0.2em;
+      }
+      .search-form input[type=text] {
+        width: 100%;
+        box-sizing: border-box;         /* Opera/IE 8+ */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
+      }
     </style>
   </head>
   <body>
     <form action="index.html" method="get" class="search-form">
-      Phrase part: <input name="phrase-part" size="100" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/> <input type="submit" value="Search"/>
+      <table>
+        <tr> <td>Phrase part:</td> <td class="input-col" width="100%"><input name="phrase-part" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
+      </table>
     </form>
     
     <% if not phrase_part.empty? then %>
