@@ -2,6 +2,13 @@ require 'object/not_nil'
 
 module RandomAccessible
   
+  unless RUBY_VERSION >= "2.0.0"
+    # Prepend this module to Array (old style).
+    class Array
+      include RandomAccessible
+    end
+  end
+  
   include Enumerable
   
   # 
@@ -23,29 +30,8 @@ module RandomAccessible
   
 end
 
-p RandomAccessible.instance_methods
-__END__
-
-class Array
-  
-  if RUBY_VERSION >= "2.0.0" then
+if RUBY_VERSION >= "2.0.0"
+  class Array
     prepend RandomAccessible
-  else
-    # [method, __old_alias__]
-    ms = begin
-      i = 0
-      instance_methods.
-        reject { |method| 
-        map { |method| [method, :"__old_method_#{i.tap { i+= 1}}__"] }
-    end
-    # Store Array methods.
-    ms.each { |method, old_alias| alias_method(old_alias, method) }
-    # 
-    include RandomAccessible
-    # Restore Array methods.
-    ms.each { |method, old_alias| alias_method(method, old_alias) }
   end
-  
 end
-
-p [1,2,3].methods
