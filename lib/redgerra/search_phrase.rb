@@ -9,6 +9,7 @@ require 'string/scrub'
 require 'open-uri'
 require 'set'
 require 'web_search_result'
+require 'web_search_error'
 
 module Redgerra
 
@@ -201,12 +202,16 @@ module Redgerra
   end
 
   # 
-  # searches for phrases in +web_search_results+ which include +sloch+.
+  # searches for phrases in Web which include +sloch+.
   # 
-  # +web_search_results+ is a RandomAccessible of WebSearchResult-s.
+  # +web_search+ is a Proc which is passed with a query and +browser+,
+  # passes the query to a web search engine and returns RandomAccessible
+  # collection of WebSearchResult-s.
   # 
-  def search_phrase(sloch, web_search_results)
-    return Phrases.new(sloch, web_search_results)
+  # It may raise WebSearchError.
+  # 
+  def search_phrase(sloch, web_search, browser)
+    return Phrases.new(sloch, web_search.(%("#{sloch}"), browser))
   end
   
   module_function :search_phrase
