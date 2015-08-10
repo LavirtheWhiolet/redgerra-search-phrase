@@ -42,19 +42,32 @@ module RandomAccessible
     
     include RandomAccessible
     
-    def initialize(source, &filter_f)
+    def initialize(source, &f)
       @source = source
-      @filter_f = filter_f
+      @f = f
       @cached_results = []
       @current_source_index = 0
     end
     
     def [](index)
       until (x = @cached_results[index]).not_nil? or (y = @source[@current_source_index]).nil?
-        @cached_results.concat(@filter_f.(y))
+        @cached_results.concat(@f.(y))
         @current_source_index += 1
       end
+      p @cached_results
       return @cached_results[index]
+    end
+    
+    def filter(&f2)
+      # Optimization.
+      Filtered.new(@source, &Filtered.f1_then_filter_f2(@f, f2))
+    end
+    
+    private
+    
+    # It is used to reduce context of lambdas.
+    def self.f1_then_filter_f2(f1, f2)
+      lambda { |item| f1.(item).filter(&f2) }
     end
     
   end
