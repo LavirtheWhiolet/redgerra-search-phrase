@@ -60,30 +60,32 @@ module RandomAccessible
     
     def lazy_filter(&f2)
       # Optimization.
-      LazyFiltered.new(@source, &Filtered.f1_then_lazy_filter_f2(@f, f2))
+      LazyFiltered.new(@source, &LazyFiltered.f1_then_filter_f2(@f, f2))
     end
     
     private
     
     # It is used to reduce context of lambdas.
-    def self.f1_then_lazy_filter_f2(f1, f2)
-      lambda { |item| f1.(item).lazy_filter(&f2) }
+    def self.f1_then_filter_f2(f1, f2)
+      lambda { |item| f1.(item).filter(&f2) }
     end
     
   end
   
 end
 
-# class ArrayAsRandomAccessible
-#   
-#   include RandomAccessible
-#   
-#   def initialize(array)
-#     @array = array
-#   end
-#   
-#   def [](index)
-#     @array[index]
-#   end
-#   
-# end
+class ArrayAsRandomAccessible
+  
+  include RandomAccessible
+  
+  def initialize(array)
+    @array = array
+  end
+  
+  def [](index)
+    @array[index]
+  end
+  
+end
+
+p ArrayAsRandomAccessible.new([1,2,3]).lazy_filter { |i| [i, i] }.lazy_filter { |i| [i, i] }.to_a
