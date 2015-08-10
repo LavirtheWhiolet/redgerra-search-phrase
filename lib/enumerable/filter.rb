@@ -19,7 +19,7 @@ module Enumerable
   def filter(&f)
     r = []
     for item in self
-      r.concat(f.(item).to_a)
+      r.concat(f.(item))
     end
     return r
   end
