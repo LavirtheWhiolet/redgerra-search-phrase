@@ -228,7 +228,7 @@ module Redgerra
 #       end.
     ["Once upon a time", "the girl lived in a wood. The wolf has came to her, and then they played, lol."].
       # Split the text blocks to phrases.
-      lazy_filter do |text_block|
+      lazy_cached_filter do |text_block|
         p text_block
         r = text_block.scan(/([a-zA-Z0-9\,\-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
         p r
