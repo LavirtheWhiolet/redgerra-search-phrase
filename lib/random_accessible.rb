@@ -62,7 +62,9 @@ module RandomAccessible
       until (x = @cached_results[index]).not_nil? or (y = @source[@current_source_index]).nil?
         @cached_results.concat(@f.(y))
         @current_source_index += 1
+        puts "in LazyCachedFiltered: #{@current_source_index}"
       end
+      puts "in LazyCachedFiltered: #{@cached_results.inspect}"
       return @cached_results[index]
     end
     
@@ -90,4 +92,9 @@ if RUBY_VERSION >= "2.0.0"
     
   end
   
+end
+
+s = [1,2,3].lazy_cached_filter { |x| [x, x] }.lazy_cached_filter { |x| [x, x] }
+for i in 0..10
+  puts s[i]
 end
