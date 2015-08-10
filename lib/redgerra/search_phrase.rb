@@ -230,7 +230,7 @@ module Redgerra
       # Split the text blocks to phrases.
       lazy_cached_filter do |text_block|
         p text_block
-        r = text_block.scan(/([a-zA-Z0-9\,\-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
+        r = text_block.scan(/([a-zA-Z0-9\,\-]+|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
         p r
       end
   end
