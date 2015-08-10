@@ -93,8 +93,3 @@ if RUBY_VERSION >= "2.0.0"
   end
   
 end
-
-s = [1,2,3].lazy_cached_filter { |x| [x, x] }.lazy_cached_filter { |x| [x, x] }
-for i in 0..10
-  puts s[i]
-end
