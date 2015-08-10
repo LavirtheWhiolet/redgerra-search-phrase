@@ -201,10 +201,7 @@ module Redgerra
   end
 
   # 
-  # searches for phrases in pages located at specified URL's and returns Phrases.
-  # Phrases containing "{", "}", "[" or "]" are omitted.
-  # 
-  # +sloch+ is a part of phrases being searched for.
+  # searches for phrases in +web_search_results+ which include +sloch+.
   # 
   # +web_search_results+ is a RandomAccessible of WebSearchResult-s.
   # 
