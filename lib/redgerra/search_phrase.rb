@@ -17,6 +17,8 @@ require 'random_accessible'
 
 require 'open-uri'
 require 'nokogiri'
+require 'object/not_in'
+require 'string/scrub'
 
 module Redgerra
 
@@ -222,17 +224,31 @@ module Redgerra
     web_search.(%("#{sloch}"), browser).
       # Read page content and split it to text blocks.
       lazy_filter do |r|
-        p r
-        open(r.url) { |io| text_blocks_from(Nokogiri::HTML(io)) } rescue []
+        text_blocks_from_page_at r.url
       end.
       # Split the text blocks to phrases.
       lazy_filter do |text_block|
-        p text_block
         text_block.scan(/([a-zA-Z0-9,-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
       end
   end
   
   private
+  
+  def self.text_blocks_from_page_at(uri)
+    #
+    page_io =
+      begin
+        open(uri)
+      rescue
+        return []
+      end
+    #
+    begin
+      text_blocks_from(Nokogiri::HTML(page_io))
+    ensure
+      page_io.close()
+    end
+  end
   
   # returns Array of String's.
   def self.text_blocks_from(element)
