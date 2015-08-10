@@ -30,6 +30,9 @@ module RandomAccessible
   # Enumerable-s from +f+, concatenates those Enumerable-s and returns
   # them in the form of RandomAccessible.
   # 
+  # The resultant RandomAccessible requires O(i) of memory where i is an index
+  # for #[].
+  # 
   # Examples:
   # 
   #   ["a", "b", "c"].filter { |l| [l, l+l, l+l+l] }
