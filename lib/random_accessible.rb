@@ -54,7 +54,6 @@ module RandomAccessible
         @cached_results.concat(@f.(y))
         @current_source_index += 1
       end
-      p @cached_results
       return @cached_results[index]
     end
     
@@ -74,18 +73,16 @@ module RandomAccessible
   
 end
 
-class ArrayAsRandomAccessible
-  
-  include RandomAccessible
-  
-  def initialize(array)
-    @array = array
-  end
-  
-  def [](index)
-    @array[index]
-  end
-  
-end
-
-p ArrayAsRandomAccessible.new([1,2,3]).lazy_filter { |i| [i, i] }.lazy_filter { |i| [i, i] }.to_a
+# class ArrayAsRandomAccessible
+#   
+#   include RandomAccessible
+#   
+#   def initialize(array)
+#     @array = array
+#   end
+#   
+#   def [](index)
+#     @array[index]
+#   end
+#   
+# end
