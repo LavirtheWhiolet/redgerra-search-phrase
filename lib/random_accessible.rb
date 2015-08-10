@@ -23,18 +23,29 @@ module RandomAccessible
   
 end
 
+p RandomAccessible.instance_methods
+__END__
+
 class Array
   
   if RUBY_VERSION >= "2.0.0" then
     prepend RandomAccessible
   else
-    module PrependedRandomAccessible
-      include RandomAccessible
-      Array.instance_methods.each do |method|
-        self.undefine_method method
-      end
+    # [method, __old_alias__]
+    ms = begin
+      i = 0
+      instance_methods.
+        reject { |method| 
+        map { |method| [method, :"__old_method_#{i.tap { i+= 1}}__"] }
     end
-    include PrependedRandomAccessible
+    # Store Array methods.
+    ms.each { |method, old_alias| alias_method(old_alias, method) }
+    # 
+    include RandomAccessible
+    # Restore Array methods.
+    ms.each { |method, old_alias| alias_method(method, old_alias) }
   end
   
 end
+
+p [1,2,3].methods
