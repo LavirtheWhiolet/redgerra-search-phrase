@@ -48,9 +48,18 @@ module RandomAccessible
     
     include RandomAccessible
     
-    def initialize(source, &filter)
+    def initialize(source, &filter_f)
       @source = source
-      @filter = filter
+      @filter_f = filter_f
+      @cached_results = []
+      @current_source_index = 0
+    end
+    
+    def [](index)
+      until (x = @cached_results[index]).not_nil? or (y = @source[@current_source_index]).nil?
+        @cached_results.concat(@filter_f.(y))
+      end
+      return @cached_results[index]
     end
     
   end
