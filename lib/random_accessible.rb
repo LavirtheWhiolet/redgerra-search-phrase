@@ -60,3 +60,17 @@ module RandomAccessible
   end
   
 end
+
+# class ArrayAsRandomAccessible
+#   
+#   include RandomAccessible
+#   
+#   def initialize(array)
+#     @array = array
+#   end
+#   
+#   def [](index)
+#     @array[index]
+#   end
+#   
+# end
