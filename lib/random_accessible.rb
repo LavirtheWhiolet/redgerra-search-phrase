@@ -39,10 +39,10 @@ module RandomAccessible
   # :call-seq:
   #   lazy_cached_filter() { |item| ... } → RandomAccessible
   # 
-  # Lazy and cached version of Enumerable#filter(). It returns RandomAccessible.
+  # Lazy, cached version of Enumerable#filter(). It returns RandomAccessible.
   # 
   def lazy_cached_filter(&f)
-    
+    LazyCachedFiltered.new(self, &f)
   end
   
   private
