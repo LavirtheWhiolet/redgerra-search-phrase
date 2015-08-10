@@ -1,5 +1,6 @@
 # encoding: UTF-8
 require 'object/not_nil'
+require 'enumerable/filter'
 
 module RandomAccessible
   
@@ -24,26 +25,18 @@ module RandomAccessible
   
   # 
   # :call-seq:
-  #   filter() { |item| ... → Enumerable } → RandomAccessible
+  #   filter() { |item| ... → Array } → RandomAccessible
   # 
-  # It passes +f+ with each item from this RandomAccessible, receives
-  # Enumerable-s from +f+, concatenates those Enumerable-s and returns
-  # them in the form of RandomAccessible.
+  # The same as Enumerable#filter() but returns RandomAccessible.
   # 
   # The resultant RandomAccessible requires O(i) of memory where i is an index
   # for #[].
   # 
-  # Examples:
-  # 
-  #   ["a", "b", "c"].filter { |l| [l, l+l, l+l+l] }
-  #     #=> ["a", "aa", "aaa", "b", "bb", "bbb", "c", "cc", "ccc"]
-  #   
-  #   [1, 2, 3, 4].filter { |x| if x.odd? then [x] else [] end }
-  #     #=> [1, 3]
-  # 
   def filter(&f)
     Filtered.new(self, &f)
   end
+  
+  private
   
   class Filtered
     
@@ -59,6 +52,7 @@ module RandomAccessible
     def [](index)
       until (x = @cached_results[index]).not_nil? or (y = @source[@current_source_index]).nil?
         @cached_results.concat(@filter_f.(y))
+        @current_source_index += 1
       end
       return @cached_results[index]
     end
@@ -66,5 +60,3 @@ module RandomAccessible
   end
   
 end
-
-
