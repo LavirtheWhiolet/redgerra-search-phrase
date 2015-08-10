@@ -41,4 +41,15 @@ module RandomAccessible
   def filter(&f)
   end
   
+  class Filtered
+    
+    include RandomAccessible
+    
+    def initialize(source, &filter)
+      @source = source
+      @filter = filter
+    end
+    
+  end
+  
 end
