@@ -3,10 +3,12 @@ require 'object/not_nil'
 module RandomAccessible
   
   unless RUBY_VERSION >= "2.0.0"
-    # Prepend this module to Array (old style).
+    
+    # Prepend this module to Array.
     class Array
       include RandomAccessible
     end
+    
   end
   
   include Enumerable
@@ -31,7 +33,11 @@ module RandomAccessible
 end
 
 if RUBY_VERSION >= "2.0.0"
+  
   class Array
+    
     prepend RandomAccessible
+    
   end
+  
 end
