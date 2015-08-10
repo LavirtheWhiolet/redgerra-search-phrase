@@ -246,7 +246,7 @@ module Redgerra
       lazy_cached_filter do |text_block|
         text_block.
           #
-          gsub(/#{WHITESPACE}+/o, " ").
+          gsub(/#{WHITESPACE}+/o, " ").dump.
           # 
           scan(/#{PHRASE}/o).map { |x| x.first }.
           #
@@ -268,6 +268,15 @@ module Redgerra
   end
   
   private
+  
+  class Object
+    
+    def dump
+      p self
+      return self
+    end
+    
+  end
   
   WHITESPACE = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]"
   
