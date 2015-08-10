@@ -14,6 +14,7 @@
 require 'web_search_result'
 require 'web_search_error'
 require 'random_accessible'
+require 'set'
 
 require 'open-uri'
 require 'nokogiri'
@@ -228,23 +229,31 @@ module Redgerra
         split("*").map { |part| Regexp.escape(part) }.join("*").
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
     )
+    m = Memory.new
     #
 #     web_search.(%("#{sloch}"), browser).
 #       # Read page content and split it to text blocks.
 #       lazy_filter do |r|
 #         text_blocks_from_page_at r.url
 #       end.
-    ["Once upon a time", "the girl lived in a wood. The were-wolf has came to her, and then they played, lol."].
+    [
+      "Once    upon   a\n\ntime",
+      "the girl lived in a  forest.
+      The were-wolf has came to her, and then they played, lol."
+    ].
       lazy_cached_filter do |text_block|
         text_block.
-          gsub(
-          scan(/#{PHRASE}/o).map { |p| p.first }.
-          map { |phrase| phrase.gsub(
+          gsub(/#{WHITESPACE}+/o, " ").
+          scan(/#{PHRASE}/o).map { |x| x.first }.
+          select do |phrase|
+            m.not_mentioned_before?(phrase.downcase) and
+            
       end
   end
   
   private
   
+  WHITESPACE = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]"
   LETTER_OR_DIGIT = "[a-zA-Z0-9\\'\\$]"
   HYPHEN = "\\-"
   WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
@@ -303,6 +312,31 @@ module Redgerra
     end
     this.(element)
     return text_blocks
+  end
+  
+  class Memory
+    
+    def initialize()
+      @impl = Set.new
+    end
+    
+    # 
+    # returns false once for every +x+. In other cases it returns true.
+    # 
+    def mentioned_before?(x)
+      if @impl.include? x then
+        @impl.add x
+        return false
+      else
+        return true
+      end
+    end
+    
+    # Inversion of #mentioned_before?().
+    def not_mentioned_before?(x)
+      not mentioned_before?(x)
+    end
+    
   end
   
 end
