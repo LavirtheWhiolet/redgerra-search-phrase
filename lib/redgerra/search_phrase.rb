@@ -221,16 +221,25 @@ module Redgerra
   # 
   def self.search_phrase(sloch, web_search, browser)
     # 
-    # Find URLs of pages where sloch is encountered.
+    sloch = Regexp.new(
+      sloch.
+        downcase.
+        gsub(/#{WHITESPACE}+/o, " ").strip.
+        split("*").map { |part| Regexp.escape(part) }.join("*").
+        gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
+    )
+    #
 #     web_search.(%("#{sloch}"), browser).
 #       # Read page content and split it to text blocks.
 #       lazy_filter do |r|
 #         text_blocks_from_page_at r.url
 #       end.
     ["Once upon a time", "the girl lived in a wood. The were-wolf has came to her, and then they played, lol."].
-      # Split the text blocks to phrases.
       lazy_cached_filter do |text_block|
-        text_block.scan(/#{PHRASE}/o).map { |m| m.first }
+        text_block.
+          gsub(
+          scan(/#{PHRASE}/o).map { |p| p.first }.
+          map { |phrase| phrase.gsub(
       end
   end
   
