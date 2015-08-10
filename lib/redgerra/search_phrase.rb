@@ -222,11 +222,13 @@ module Redgerra
     web_search.(%("#{sloch}"), browser).
       # Read page content and split it to text blocks.
       lazy_filter do |r|
+        p r
         open(r.url) { |io| text_blocks_from(Nokogiri::HTML(io)) } rescue []
       end.
       # Split the text blocks to phrases.
       lazy_filter do |text_block|
-        text_block.scan(/[a-zA-Z0-9,-]+/)
+        p text_block
+        text_block.scan(/([a-zA-Z0-9,-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
       end
   end
   
