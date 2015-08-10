@@ -217,14 +217,58 @@ module Redgerra
   # 
   # It may raise WebSearchError.
   # 
-  def search_phrase(sloch, web_search, browser)
+  def self.search_phrase(sloch, web_search, browser)
     # Find URLs of pages where sloch is encountered.
     web_search.(%("#{sloch}"), browser).
+      # Read page content and split it to text blocks.
       lazy_filter do |r|
-        read
+        open(r.url) { |io| text_blocks_from(Nokogiri::HTML(io)) } rescue []
+      end.
+      # Split the text blocks to phrases.
+      lazy_filter do |text|
+        text.scan(/[a-zA-Z0-9,-]+/)
       end
   end
   
-  module_function :search_phrase
+  private
+  
+  # returns Array of String's.
+  def self.text_blocks_from(element)
+    text_blocks = []
+    start_new_text_block = lambda do
+      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
+    end
+    this = lambda do |element|
+      case element
+      when Nokogiri::XML::CDATA, Nokogiri::XML::Text
+        text_blocks.last.concat(element.content.scrub("_"))
+      when Nokogiri::XML::Comment
+        # Do nothing.
+      when Nokogiri::XML::Document, Nokogiri::XML::Element
+        if element.name.in? %W{ script style } then
+          start_new_text_block.()
+        else
+          element_is_separate_text_block = element.name.not_in? %W{
+            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
+            q s samp small span strike strong sub sup time tt u wbr
+          }
+          string_introduced_by_element =
+            case element.name
+            when "br" then "\n"
+            when "img" then " "
+            else ""
+            end
+          start_new_text_block.() if element_is_separate_text_block
+          text_blocks.last.concat(string_introduced_by_element)
+          element.children.each(&this)
+          start_new_text_block.() if element_is_separate_text_block
+        end
+      else
+        start_new_text_block.()
+      end
+    end
+    this.(element)
+    return text_blocks
+  end
   
 end
