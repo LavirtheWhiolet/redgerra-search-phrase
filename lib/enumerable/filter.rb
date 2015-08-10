@@ -3,11 +3,10 @@ module Enumerable
   
   # 
   # :call-seq:
-  #   filter() { |item| ... → [] } → []
+  #   filter() { |item| ... → Array } → Array
   # 
   # It passes +f+ with each item from this Enumerable, receives
-  # Enumerable-s from +f+, concatenates those Enumerable-s and returns
-  # them in the form of new Enumerable.
+  # Array-s from +f+ and returns their concatenation.
   # 
   # Examples:
   # 
