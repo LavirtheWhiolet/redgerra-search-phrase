@@ -18,17 +18,24 @@
         padding: 0;
         margin: 0;
         border-spacing: 0;
+        vertical-align: middle;
+      }
+      .search-form .input-col {
+        padding-left: 0.2em;
+        padding-right: 0.2em;
       }
       .search-form input[type=text] {
         width: 100%;
-        
+        box-sizing: border-box;         /* Opera/IE 8+ */
+        -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
+        -moz-box-sizing: border-box;    /* Firefox, other Gecko */
       }
     </style>
   </head>
   <body>
     <form action="index.html" method="get" class="search-form">
       <table>
-        <tr> <td>Phrase part:</td> <td width="100%"><input name="phrase-part" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
+        <tr> <td>Phrase part:</td> <td class="input-col" width="100%"><input name="phrase-part" type="text" value="<%=Rack::Utils.escape_html(phrase_part)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
       </table>
     </form>
     
