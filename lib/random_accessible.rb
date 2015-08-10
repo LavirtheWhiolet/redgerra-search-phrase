@@ -22,3 +22,19 @@ module RandomAccessible
   end
   
 end
+
+class Array
+  
+  if RUBY_VERSION >= "2.0.0" then
+    prepend RandomAccessible
+  else
+    module PrependedRandomAccessible
+      include RandomAccessible
+      Array.instance_methods.each do |method|
+        self.undefine_method method
+      end
+    end
+    include PrependedRandomAccessible
+  end
+  
+end
