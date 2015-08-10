@@ -233,31 +233,51 @@ module Redgerra
     #
 #     web_search.(%("#{sloch}"), browser).
 #       # Read page content and split it to text blocks.
-#       lazy_filter do |r|
+#       lazy_cached_filter do |r|
 #         text_blocks_from_page_at r.url
 #       end.
     [
-      "Once    upon   a\n\ntime",
-      "the girl lived in a  forest.
-      The were-wolf has came to her, and then they played, lol."
+      "Everybody do the flop!"
     ].
       lazy_cached_filter do |text_block|
         text_block.
+          #
           gsub(/#{WHITESPACE}+/o, " ").
+          # 
           scan(/#{PHRASE}/o).map { |x| x.first }.
+          #
           select do |phrase|
-            m.not_mentioned_before?(phrase.downcase) and
-            
+            words = phrase.scan(/#{WORD}/o)
+            phrase_downcase = phrase.downcase
+            #
+            m.not_mentioned_before?(phrase_downcase) and
+            # 
+            words.size <= 20 and
+            # 
+            not words.all? { |word| upcase?(word) } and
+            # the phrase includes sloch
+            true and # optimized: a check below already does it
+            # two words must be before and after sloch
+            /#{WORD}#{PUNCTUATION_OR_WS}#{WORD}#{SLOCH_PLACEHOLDER}#{WORD}#{PUNCTUATION_OR_WS}#{WORD}/o =~ phrase_downcase.sub(sloch, SLOCH_PLACEHOLDER)
+          end
       end
   end
   
   private
   
   WHITESPACE = "[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]"
+  
+  DOWNCASE_LETTER = "[a-z]"
   LETTER_OR_DIGIT = "[a-zA-Z0-9\\'\\$]"
   HYPHEN = "\\-"
   WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
-  PHRASE = "(#{WORD}([, ]+#{WORD})*)"
+  PUNCTUATION_OR_WS = "[, ]"
+  PHRASE = "(#{WORD}(#{PUNCTUATION_OR_WS}+#{WORD})*)"
+  SLOCH_PLACEHOLDER = "\u2980"
+  
+  def upcase?(word)
+    /#{DOWNCASE_LETTER}/o !~ word
+  end
   
   def self.text_blocks_from_page_at(uri)
     #
