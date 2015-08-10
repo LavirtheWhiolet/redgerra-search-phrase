@@ -12,9 +12,7 @@ module Redgerra
   class SearchPhraseWebApp < Sinatra::Application
     
     # 
-    # +search_web+ is a Proc which is passed with a query and a Watir::Browser,
-    # sends the query to the web search engine and returns something which
-    # can be passed to Redgerra::search_phrase() (as the second argument).
+    # +search_web+ is +search_web+ argument for Redgerra::search_phrase().
     # 
     # +new_web_search_browser+ is a Proc returning a new Watir::Browser eligible
     # for passing it to +search_web+.
@@ -70,8 +68,7 @@ module Redgerra
       cached_phrases_and_browsers = @cached_phrases_and_browsers[sloch]
       if cached_phrases_and_browsers.nil?
         b1 = @new_web_search_browser.()
-        web_search_results = @search_web.(%("#{sloch}"), b1)
-        phrases = Redgerra::search_phrase(sloch, web_search_results)
+        phrases = Redgerra::search_phrase(sloch, @search_web, b1)
         @cached_phrases_and_browsers[sloch] = [phrases, b1]
         return phrases
       else
