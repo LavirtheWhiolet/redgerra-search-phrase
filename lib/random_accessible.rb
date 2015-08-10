@@ -1,3 +1,4 @@
+# encoding: UTF-8
 require 'object/not_nil'
 
 module RandomAccessible
@@ -19,6 +20,25 @@ module RandomAccessible
       i += 1
     end
     return self
+  end
+  
+  # 
+  # :call-seq:
+  #   filter :: RandomAccessible of A → (A → Enumerable of B) → RandomAccessible of B
+  # 
+  # It passes +f+ with each item from this RandomAccessible, receives
+  # Enumerable-s from +f+, concatenates those Enumerable-s and returns
+  # them in the form of new RandomAccessible.
+  # 
+  # Examples:
+  # 
+  #   ["a", "b", "c"].filter { |l| [l, l+l, l+l+l] }
+  #     #=> ["a", "aa", "aaa", "b", "bb", "bbb", "c", "cc", "ccc"]
+  #   
+  #   [1, 2, 3, 4].filter { |x| if x.odd? then [x] else [] end }
+  #     #=> [1, 3]
+  # 
+  def filter(&f)
   end
   
 end
