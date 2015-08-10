@@ -236,9 +236,13 @@ module Redgerra
 #       lazy_cached_filter do |r|
 #         text_blocks_from_page_at r.url
 #       end.
-    [
-      "Everybody do the flop!"
-    ].
+    ["Everybody do the flop!
+      o-ne t$w'o, do it, aga'in flop three - fo-ur.
+      ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
+      ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
+      Very very very very very very very very very very very very very 
+      very very very very very long phrase, do the flop included anyway.
+    "].
       lazy_cached_filter do |text_block|
         text_block.
           #
@@ -255,10 +259,10 @@ module Redgerra
             words.size <= 20 and
             # 
             not words.all? { |word| upcase?(word) } and
-            # the phrase includes sloch
-            true and # optimized: a check below already does it
+            # 
+            sloch =~ phrase_downcase and
             # two words must be before and after sloch
-            /#{WORD}#{PUNCTUATION_OR_WS}#{WORD}#{SLOCH_PLACEHOLDER}#{WORD}#{PUNCTUATION_OR_WS}#{WORD}/o =~ phrase_downcase.sub(sloch, SLOCH_PLACEHOLDER)
+            phrase_downcase.split(sloch).every? { |part| part.scan(/#{WORD}/o) }.size >= 2
           end
       end
   end
@@ -271,9 +275,8 @@ module Redgerra
   LETTER_OR_DIGIT = "[a-zA-Z0-9\\'\\$]"
   HYPHEN = "\\-"
   WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
-  PUNCTUATION_OR_WS = "[, ]"
+  PUNCTUATION_OR_WS = "[,\\- ]"
   PHRASE = "(#{WORD}(#{PUNCTUATION_OR_WS}+#{WORD})*)"
-  SLOCH_PLACEHOLDER = "\u2980"
   
   def upcase?(word)
     /#{DOWNCASE_LETTER}/o !~ word
