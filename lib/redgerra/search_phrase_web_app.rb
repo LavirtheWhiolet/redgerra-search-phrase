@@ -14,7 +14,7 @@ module Redgerra
     # 
     # +search_web+ is a Proc which is passed with a query and a Watir::Browser,
     # sends the query to the web search engine and returns something which
-    # can be passed to #search_phrase() (as the second argument).
+    # can be passed to Redgerra::search_phrase() (as the second argument).
     # 
     # +new_web_search_browser+ is a Proc returning a new Watir::Browser eligible
     # for passing it to +search_web+.
