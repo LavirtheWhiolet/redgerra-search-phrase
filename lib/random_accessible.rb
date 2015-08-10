@@ -29,8 +29,9 @@ module RandomAccessible
   # 
   # The same as Enumerable#filter() but returns RandomAccessible.
   # 
-  # This method requires O(1) of time. The resultant RandomAccessible requires
-  # O(i_max) of memory where i_max is a maximum index passed to #[].
+  # This method requires O(1) of time. #[] of the resultant RandomAccessible
+  # requires O(i_max) of time and memory where i_max is the maximum index
+  # passed to #[].
   # 
   def filter(&f)
     Filtered.new(self, &f)
