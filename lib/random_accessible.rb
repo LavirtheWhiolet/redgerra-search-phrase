@@ -42,6 +42,7 @@ module RandomAccessible
   #     #=> [1, 3]
   # 
   def filter(&f)
+    Filtered.new(self, &f)
   end
   
   class Filtered
@@ -65,3 +66,5 @@ module RandomAccessible
   end
   
 end
+
+
