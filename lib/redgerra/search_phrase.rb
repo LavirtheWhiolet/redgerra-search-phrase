@@ -225,8 +225,8 @@ module Redgerra
         open(r.url) { |io| text_blocks_from(Nokogiri::HTML(io)) } rescue []
       end.
       # Split the text blocks to phrases.
-      lazy_filter do |text|
-        text.scan(/[a-zA-Z0-9,-]+/)
+      lazy_filter do |text_block|
+        text_block.scan(/[a-zA-Z0-9,-]+/)
       end
   end
   
