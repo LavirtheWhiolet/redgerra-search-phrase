@@ -229,13 +229,14 @@ module Redgerra
     ["Once upon a time", "the girl lived in a wood. The wolf has came to her, and then they played, lol."].
       # Split the text blocks to phrases.
       lazy_cached_filter do |text_block|
-        p text_block
-        r = text_block.scan(/([a-zA-Z0-9\,\-]+|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
-        p r
+        text_block.scan(/([a-zA-Z0-9\,\- ]+|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
       end
   end
   
   private
+  
+  LETTER = "[a-zA-Z0-9\\'\\$]"
+  WORD = "(#{LETTER}+(\\-#{LETTER}+)*|)"
   
   def self.text_blocks_from_page_at(uri)
     #
@@ -293,3 +294,5 @@ module Redgerra
   end
   
 end
+
+p Redgerra::search_phrase("abc", nil, nil).to_a
