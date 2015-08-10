@@ -220,23 +220,26 @@ module Redgerra
   # It may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
+    # 
     # Find URLs of pages where sloch is encountered.
 #     web_search.(%("#{sloch}"), browser).
 #       # Read page content and split it to text blocks.
 #       lazy_filter do |r|
 #         text_blocks_from_page_at r.url
 #       end.
-    ["Once upon a time", "the girl lived in a wood. The wolf has came to her, and then they played, lol."].
+    ["Once upon a time", "the girl lived in a wood. The were-wolf has came to her, and then they played, lol."].
       # Split the text blocks to phrases.
       lazy_cached_filter do |text_block|
-        text_block.scan(/([a-zA-Z0-9\,\- ]+|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
+        text_block.scan(/#{PHRASE}/o).map { |m| m.first }
       end
   end
   
   private
   
-  LETTER = "[a-zA-Z0-9\\'\\$]"
-  WORD = "(#{LETTER}+(\\-#{LETTER}+)*|)"
+  LETTER_OR_DIGIT = "[a-zA-Z0-9\\'\\$]"
+  HYPHEN = "\\-"
+  WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
+  PHRASE = "(#{WORD}([, ]+#{WORD})*)"
   
   def self.text_blocks_from_page_at(uri)
     #
