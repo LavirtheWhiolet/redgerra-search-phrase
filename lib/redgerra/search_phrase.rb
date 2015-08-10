@@ -221,14 +221,17 @@ module Redgerra
   # 
   def self.search_phrase(sloch, web_search, browser)
     # Find URLs of pages where sloch is encountered.
-    web_search.(%("#{sloch}"), browser).
-      # Read page content and split it to text blocks.
-      lazy_filter do |r|
-        text_blocks_from_page_at r.url
-      end.
+#     web_search.(%("#{sloch}"), browser).
+#       # Read page content and split it to text blocks.
+#       lazy_filter do |r|
+#         text_blocks_from_page_at r.url
+#       end.
+    ["Once upon a time", "the girl lived in a wood. The wolf has came to her, and then they played, lol."].
       # Split the text blocks to phrases.
       lazy_filter do |text_block|
-        text_block.scan(/([a-zA-Z0-9,-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
+        p text_block
+        r = text_block.scan(/([a-zA-Z0-9\,\-]|e\. ?g\.|etc\.|i\. ?e\.|smb\.|smth\.)+/)
+        p r
       end
   end
   
