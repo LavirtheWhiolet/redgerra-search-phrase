@@ -28,7 +28,7 @@ module RandomAccessible
   # 
   # It passes +f+ with each item from this RandomAccessible, receives
   # Enumerable-s from +f+, concatenates those Enumerable-s and returns
-  # them in the form of new RandomAccessible.
+  # them in the form of RandomAccessible.
   # 
   # Examples:
   # 
