@@ -25,19 +25,20 @@ module RandomAccessible
   
   # 
   # :call-seq:
-  #   filter() { |item| ... → Array } → RandomAccessible
+  #   lazy_filter() { |item| ... → Array } → RandomAccessible
   # 
-  # The same as Enumerable#filter() but returns RandomAccessible.
+  # Lazy version of Enumerable#filter(). It returns RandomAccessible.
   # 
+  # The returned RandomAccessible requires O(i_max) of memory where
+  # i_max is maximum +index+ passed to its #[].
   # 
-  # 
-  def filter(&f)
-    Filtered.new(self, &f)
+  def lazy_filter(&f)
+    LazyFiltered.new(self, &f)
   end
   
   private
   
-  class Filtered
+  class LazyFiltered
     
     include RandomAccessible
     
@@ -57,16 +58,16 @@ module RandomAccessible
       return @cached_results[index]
     end
     
-    def filter(&f2)
+    def lazy_filter(&f2)
       # Optimization.
-      Filtered.new(@source, &Filtered.f1_then_filter_f2(@f, f2))
+      LazyFiltered.new(@source, &Filtered.f1_then_lazy_filter_f2(@f, f2))
     end
     
     private
     
     # It is used to reduce context of lambdas.
-    def self.f1_then_filter_f2(f1, f2)
-      lambda { |item| f1.(item).filter(&f2) }
+    def self.f1_then_lazy_filter_f2(f1, f2)
+      lambda { |item| f1.(item).lazy_filter(&f2) }
     end
     
   end
