@@ -228,7 +228,7 @@ module Redgerra
         gsub(/#{WHITESPACE}+/o, " ").strip.
         split("*").map { |part| Regexp.escape(part) }.join("*").
         gsub("*", "#{WORD}(( ?,? ?)#{WORD})?")
-    )
+    ).d
     m = Memory.new
     #
 #     web_search.(%("#{sloch}"), browser).
@@ -237,7 +237,7 @@ module Redgerra
 #         text_blocks_from_page_at r.url
 #       end.
     ["Everybody do the flop!
-      o-ne t$w'o, do it, aga'in flop three - fo-ur.
+      o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
       Very very very very very very very very very very very very very 
@@ -246,33 +246,33 @@ module Redgerra
       lazy_cached_filter do |text_block|
         text_block.
           #
-          gsub(/#{WHITESPACE}+/o, " ").dump.
+          gsub(/#{WHITESPACE}+/o, " ").
           # 
-          scan(/#{PHRASE}/o).map { |x| x.first }.
+          scan(/(#{WORD}(#{PUNCTUATION_OR_WS}+#{WORD})+)/o).map { |x| x.first }.
           #
           select do |phrase|
-            words = phrase.scan(/#{WORD}/o)
+            words = phrase.d.scan(/#{WORD}/o).map { |x| x.first }
             phrase_downcase = phrase.downcase
             #
-            m.not_mentioned_before?(phrase_downcase) and
+            m.not_mentioned_before?(phrase_downcase).d and
             # 
-            words.size <= 20 and
+            (words.size <= 20).d and
             # 
-            not words.all? { |word| upcase?(word) } and
+            (not words.all? { |word| upcase?(word) }).d and
             # 
-            sloch =~ phrase_downcase and
+            (sloch =~ phrase_downcase).d and
             # two words must be before and after sloch
-            phrase_downcase.split(sloch).every? { |part| part.scan(/#{WORD}/o) }.size >= 2
+            (phrase_downcase.split(sloch).all? { |part| part.scan(/#{WORD}/o).size >= 2 }).d
           end
       end
   end
   
   private
   
-  class Object
+  class ::Object
     
-    def dump
-      p self
+    def d(msg = nil)
+      puts "#{if msg then "#{msg}: " else "" end}#{self.inspect}"
       return self
     end
     
@@ -285,9 +285,8 @@ module Redgerra
   HYPHEN = "\\-"
   WORD = "([Ee]\\. ?g\\.|etc\\.|i\\. ?e\\.|[Ss]mb\\.|[Ss]mth\\.|(#{LETTER_OR_DIGIT}+(#{HYPHEN}+#{LETTER_OR_DIGIT}+)*))"
   PUNCTUATION_OR_WS = "[,\\- ]"
-  PHRASE = "(#{WORD}(#{PUNCTUATION_OR_WS}+#{WORD})*)"
   
-  def upcase?(word)
+  def self.upcase?(word)
     /#{DOWNCASE_LETTER}/o !~ word
   end
   
@@ -358,9 +357,9 @@ module Redgerra
     def mentioned_before?(x)
       if @impl.include? x then
         @impl.add x
-        return false
-      else
         return true
+      else
+        return false
       end
     end
     
@@ -373,4 +372,4 @@ module Redgerra
   
 end
 
-p Redgerra::search_phrase("abc", nil, nil).to_a
+Redgerra::search_phrase("do * flop", nil, nil).to_a.d("Result")
