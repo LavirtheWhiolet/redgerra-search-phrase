@@ -24,7 +24,7 @@ module RandomAccessible
   
   # 
   # :call-seq:
-  #   filter :: RandomAccessible of A → (A → Enumerable of B) → RandomAccessible of B
+  #   filter() { |item| ... → Enumerable } → RandomAccessible
   # 
   # It passes +f+ with each item from this RandomAccessible, receives
   # Enumerable-s from +f+, concatenates those Enumerable-s and returns
