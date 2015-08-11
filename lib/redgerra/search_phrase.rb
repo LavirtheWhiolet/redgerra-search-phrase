@@ -37,10 +37,13 @@ module Redgerra
       lazy_cached_filter do |text_block|
         text_block = squeeze_whitespace(text_block)
         text_block = words_to_ids(text_block)
-        phrases = text_block.scan(/(#{WORD_ID}|[\,\-\ ])/o).map(&:first).
+        phrases =
+          text_block.scan(/(#{WORD_ID}|[\,\-\ ])/o).map(&:first).
           map(&:strip)
         phrases.select do |phrase|
-          
+          phrase_downcase = words_to_ids(ids_to_words(phrase).downcase)
+          (
+          )
         end
       end
   end
