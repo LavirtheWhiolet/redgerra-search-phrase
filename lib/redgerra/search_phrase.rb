@@ -28,21 +28,10 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-#     web_search.(%("#{sloch}"), browser).
-#       lazy_cached_filter do |web_search_result|
-#         [web_search_result.page_excerpt]
-#       end.
-    ["Everybody do the flop!
-      o-ne t$w'o, do it, again flop three - fo-ur.
-      ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
-      ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
-      One two undo the floppy disk three.
-      Very very very very very very very very very very very very very 
-      very very very very very long phrase, do the flop included anyway.
-      One two three, do the flop, four five-six!
-      Let's load file from www.soundcloud.com, do the flop is still included.
-      Yet another phrase.
-    "].
+    web_search.(%("#{sloch}"), browser).
+      lazy_cached_filter do |web_search_result|
+        [web_search_result.page_excerpt]
+      end.
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
@@ -310,8 +299,6 @@ module Redgerra
     end
     
   end
-  
-  1000.times { search_phrase("  do    *   flop ", nil, nil).to_a }
   
 end
 
