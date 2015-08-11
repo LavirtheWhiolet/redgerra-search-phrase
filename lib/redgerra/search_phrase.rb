@@ -51,6 +51,7 @@ module Redgerra
             not phrase.upcase? and
             phrase.words_count <= 20 and
             phrase.include?(sloch) and
+            not phrase.words.any?(&:proper_name_with_dot?) and
             # There must be at least 2 words before and after sloch.
             phrase.downcase.split(sloch).all? { |part| part.words_count >= 2 }
           end.
