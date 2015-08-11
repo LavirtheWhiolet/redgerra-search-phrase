@@ -224,7 +224,7 @@ module Redgerra
     
     def to_encoded_string
       r = "W#{if proper_name_with_dot? then "X" else "O" end}"
-      str.each_codepoint do |code|
+      @str.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
       end
