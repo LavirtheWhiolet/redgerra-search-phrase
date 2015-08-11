@@ -185,6 +185,10 @@ module Redgerra
       self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).size
     end
     
+    def downcase
+      Text.new(@str.downcase)
+    end
+    
     def split(sloch)
       self.to_encoded_string.
         # Split by <tt>sloch.to_encoded_regexp</tt>.
@@ -294,7 +298,7 @@ module Redgerra
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
     ".squeeze_unicode_whitespace)
-    p t.split(s)
+    p t.downcase.split(s)
     
 end
 
