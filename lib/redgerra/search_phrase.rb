@@ -142,10 +142,10 @@ module Redgerra
       s = StringScanner.new(@str)
       until s.eos?
         (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-          result << Word.parse(abbr).to_encoded_string
+          result << Word.new(abbr).to_encoded_string
         end) or
         (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-          result << Word.parse(word).to_encoded_string
+          result << Word.new(word).to_encoded_string
         end) or
         (other = s.getch and act do
           result << other
