@@ -290,6 +290,7 @@ module Redgerra
     /#{DOWNCASE_LETTER}/o !~ word
   end
   
+  # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
     #
     page_io =
