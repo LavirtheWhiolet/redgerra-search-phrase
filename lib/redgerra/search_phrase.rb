@@ -5,6 +5,7 @@ require 'web_search_result'
 require 'web_search_error'
 require 'random_accessible'
 require 'set'
+require 'string/squeeze_unicode_whitespace'
 
 require 'open-uri'
 require 'nokogiri'
@@ -25,7 +26,7 @@ module Redgerra
   def self.search_phrase(sloch, web_search, browser)
     #
     sloch_regexp = begin
-      r = squeeze_whitespace(sloch).strip
+      r = sloch.squeeze_unicode_whitespace.strip
       r = words_to_ids(r)
       r.gsub!("*", "#{WORD_ID}( ?,? ?#{WORD_ID})?")
       Regexp.new(r)
@@ -37,7 +38,7 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        text_block = squeeze_whitespace(text_block)
+        text_block = text_block.squeeze_unicode_whitespace
         text_block_parsed = words_to_ids(text_block)
         phrases_parsed = text_block_parsed.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
         phrases_parsed.
@@ -126,7 +127,7 @@ module Redgerra
   class Text
     
     # 
-    # +str+ must be ::squeeze_whitespace()-ed.
+    # +str+ must be String#squeeze_unicode_whitespace()-ed.
     # 
     def self.parse(str)
       encoded_str = ""
@@ -241,7 +242,7 @@ module Redgerra
     
     def self.parse(str)
       encoded_regexp =
-        Text.parse(squeeze_whitespace(str).downcase).to_encoded_string.
+        Text.parse(str.squeeze_unicode_whitespace.strip.downcase).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       return Sloch.new(Regexp.new(encoded_regexp))
     end
@@ -285,14 +286,14 @@ module Redgerra
   end
   
     s = Sloch.parse("do * flop")
-    t = Text.parse(squeeze_whitespace("Everybody do the flop!
+    t = Text.parse("Everybody do the flop!
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
-    "))
+    ".squ)
     p t.split(s)
     
 end
