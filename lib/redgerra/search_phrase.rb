@@ -268,6 +268,7 @@ module Redgerra
     # +str+ must be String#squeeze_unicode_whitespace()-ed.
     # 
     def initialize(str)
+      @str = str
       @encoded_regexp = Regexp.new(
         Text.new(str).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
@@ -276,6 +277,10 @@ module Redgerra
     
     def to_encoded_regexp
       @encoded_regexp
+    end
+    
+    def to_s
+      @str
     end
     
   end
