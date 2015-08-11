@@ -89,6 +89,11 @@ module Redgerra
     return result
   end
   
+  # converts all consecutive white-space characters to " ".
+  def self.squeeze_whitespace(str)
+    str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
+  end
+  
 #   WORD_ID = "W\\h+W"
 #   
 #   # returns IDs from +str+.
@@ -97,11 +102,6 @@ module Redgerra
 #   # 
 #   def self.word_ids(str)
 #     str.scan(/#{WORD_ID}/o)
-#   end
-#   
-#   # converts all consecutive white-space characters to " ".
-#   def self.squeeze_whitespace(str)
-#     str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
 #   end
 #   
 #   def self.upcase?(word)
@@ -216,7 +216,7 @@ module Redgerra
     
     class << self
       
-      alias new []
+      alias [] new
       
     end
     
@@ -230,6 +230,10 @@ module Redgerra
     
     def to_s
       @str
+    end
+    
+    def inspect
+      "[:#{type}, #{to_s.inspect}, #{proper_name_with_dot?.inspect}]"
     end
     
     def proper_name_with_dot?
