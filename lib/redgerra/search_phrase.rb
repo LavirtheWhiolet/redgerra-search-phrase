@@ -122,15 +122,27 @@ module Redgerra
   
   class Text
     
-    # 
-    # +str+ must be String#squeeze_unicode_whitespace()-ed.
-    # 
-    def initialize(str)
-      @str = str
+    class << self
+      
+      # Private.
+      alias __original_new__ new
+      
+      # 
+      # +str+ must be String#squeeze_unicode_whitespace()-ed.
+      # 
+      def new(str)
+        __original_new__(str, nil)
+      end
+      
+      def from_encoded_string(encoded_string)
+        __original_new__(nil, encoded_string)
+      end
+    
     end
     
     def to_s
-      @str
+      @str ||= begin
+      end
     end
     
     def to_encoded_string
@@ -203,6 +215,10 @@ module Redgerra
     end
     
     private
+    
+    def initialize(str, encoded_str)  # :not-new:
+      @str = str
+    end
     
     # calls +f+ and returns true.
     def act(&f)
