@@ -35,6 +35,7 @@ module Google
     def [](index)
       until @cached_results[index].not_nil? or @no_more_results
         current_page_html = Nokogiri::HTML(@browser.html)
+        File.write("res.html", @browser.html)
         # Check if Google asks captcha.
         if current_page_html.xpath("//form[@action='CaptchaRedirect']").not_empty? then
           raise WebSearchError.new("Google thinks you are a bot and asks to solve a captcha")
@@ -56,20 +57,31 @@ module Google
     
     def results_from(html)
       html.
-        xpath("//div[@id='ires']/ol/li").
+        xpath("//div[@id='ires']/ol").
         map do |node|
+          # For PhantomJS.
+          li = node.xpath("li")
           r = RawResult.new(
-            node.xpath("h3/a/@href").first,
-            node.xpath("h3/a").first,
-            node.xpath("div/span").first
+            li.xpath("h3/a/@href").first,
+            li.xpath("h3/a").first,
+            li.xpath("div/span").first
           )
+          # For PhantomJS (another version).
           if r.any_property_nil? then
+            li = node.xpath("li")
             r = RawResult.new(
-              node.xpath("table/tbody/tr/td/h3/a/@href").first,
-              node.xpath("table/tbody/tr/td/h3/a").first,
-              node.xpath("table/tbody/tr/td/span[@class='st']").first
+              li.xpath("table/tbody/tr/td/h3/a/@href").first,
+              li.xpath("table/tbody/tr/td/h3/a").first,
+              li.xpath("table/tbody/tr/td/span[@class='st']").first
             )
           end
+#           # For Firefox.
+#           if r.any_property_nil? then
+#             srg = node.xpath("div[class='srg']/div")
+#             r = RawResult.new(
+#               node.xpath("div/div/h3")
+#             )
+#           end
           if r.any_property_nil? or r.url_node.value.start_with?("/images") then
             r = nil
           end
