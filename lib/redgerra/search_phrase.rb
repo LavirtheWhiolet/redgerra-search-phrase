@@ -311,7 +311,7 @@ module Redgerra
     
   end
   
-  p search_phrase("  do    *   flop ", nil, nil).to_a
+  1000.times { search_phrase("  do    *   flop ", nil, nil).to_a }
   
 end
 
