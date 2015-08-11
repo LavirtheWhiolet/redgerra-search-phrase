@@ -224,6 +224,10 @@ module Redgerra
       @is_proper_name_with_dot = is_proper_name_with_dot
     end
     
+    def inspect
+      "#{@str.inspect}#{if proper_name_with_dot? then "(.)" else "" end}"
+    end
+    
     def to_s
       @str
     end
@@ -302,6 +306,7 @@ module Redgerra
     ".squeeze_unicode_whitespace)
     p t.phrases
     p t.downcase.split(s)
+    p t.words
     
 end
 
