@@ -142,6 +142,9 @@ module Redgerra
     
     def to_s
       @str ||= begin
+        @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
+          Word.from_encoded_string(encoded_word).to_s
+        end
       end
     end
     
