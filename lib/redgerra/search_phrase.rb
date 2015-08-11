@@ -50,7 +50,7 @@ module Redgerra
               word_ids(phrase_parsed).size <= 20 and
               sloch_regexp === phrase_downcase_parsed and
               # There must be at least 2 words before and after sloch.
-              phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).all? { |part| word_ids(part).d.size >= 2 }
+              phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).all? { |part| word_ids(part).size >= 2 }
             )
           end.
           map { |phrase_parsed, phrase| phrase }
