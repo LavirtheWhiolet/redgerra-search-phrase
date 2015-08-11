@@ -39,6 +39,7 @@ module Redgerra
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
+      One two three, do the flop, four five-six!
     "].
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
@@ -292,7 +293,7 @@ module Redgerra
     
   end
   
-  p search_phrase("  do    *   flop ", nil, nil).to_a
+  p search_phrase("  do    the   flop ", nil, nil).to_a
   
 end
 
