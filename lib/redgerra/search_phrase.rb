@@ -60,6 +60,11 @@ module Redgerra
   
   private
   
+  # 
+  # returns Array of Token-s.
+  # 
+  # +text+ must by #squeeze_whitespace()-ed.
+  # 
   def self.parse(text)
     # Parse!
     result = []
@@ -72,8 +77,13 @@ module Redgerra
         result << Token[:word, word, true]
       end) or
       (other = s.getch and act do
-        if other == "," then result << Token[:comma, other]
-        else result << Token[:other, other]
+        result << (
+          case other
+          when "," then Token[:comma, other]
+          when " " then Token[:whitespace, other]
+          else Token[:other, other]
+          end
+        )
       end)
     end
     return result
