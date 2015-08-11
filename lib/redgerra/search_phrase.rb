@@ -69,10 +69,11 @@ module Redgerra
         result << Token[:word, abbr]
       end) or
       (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-        result << to_id.(word)
+        result << Token[:word, word, true]
       end) or
       (other = s.getch and act do
-        result << other
+        if other == "," then result << Token[:comma, other]
+        else result << Token[:other, other]
       end)
     end
     return result
