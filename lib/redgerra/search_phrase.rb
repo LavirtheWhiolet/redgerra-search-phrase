@@ -30,7 +30,7 @@ module Redgerra
   # +text+ must be #squeeze_whitespace()-ed.
   # 
   def self.words_to_ids(text)
-    # Utils.
+    # 
     to_id = lambda do |word|
       r = ""
       word.each_codepoint do |code|
@@ -39,11 +39,11 @@ module Redgerra
       end
       r
     end
-    # Implementation.
+    # Parse!
     result = ""
     s = StringScanner.new(text)
     until s.eos?
-      (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./o) and act do
+      (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
         result << to_id.(abbr)
       end) or
       (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
