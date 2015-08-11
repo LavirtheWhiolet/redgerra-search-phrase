@@ -32,12 +32,12 @@ module Redgerra
   def self.words_to_ids(text)
     # Utils.
     to_id = lambda do |word|
-      word.chars.map do |char|
-        code = char.ord
+      r = ""
+      word.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-        code.to_s(16)
-      end.
-      join()
+        r << code.to_s(16)
+      end
+      r
     end
     # Implementation.
     result = ""
@@ -58,7 +58,7 @@ module Redgerra
   
   # Inverse function of ::words_to_ids().
   def self.ids_to_words(text)
-    text.gsub(/\h\h/) { |code| code.to_i(16).chr }
+    text.gsub(/\h\h/) { |code| code.hex.chr }
   end
   
   # calls +f+ and returns true.
