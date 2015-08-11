@@ -43,12 +43,24 @@ module Redgerra
         phrases.select do |phrase|
           phrase_downcase = words_to_ids(ids_to_words(phrase).downcase)
           (
+            m.not_mentioned_before?(phrase) and
+            word_ids(phrase).size <= 20 and
+            sloch =~ phrase_downcase and
+            phrase_downcase.split(sloch, -1).all? { |part| word_ids(part).size >= 2 }
           )
         end
       end
   end
   
   WORD_ID = "\\h+"
+  
+  # returns IDs from +str+.
+  # 
+  # +str+ is a String processed with ::words_to_ids().
+  # 
+  def self.word_ids(str)
+    phrase.scan
+  end
   
   # converts all consecutive white-space characters to " ".
   def self.squeeze_whitespace(str)
@@ -99,15 +111,6 @@ module Redgerra
     return true
   end
   
-  class ::Object
-    
-    def d(msg = nil)
-      puts "#{if msg then "#{msg}: " else "" end}#{self.inspect}"
-      return self
-    end
-    
-  end
-
   class Memory
     
     def initialize()
@@ -133,7 +136,16 @@ module Redgerra
     
   end
   
-#   search_phrase("do * flop", nil, nil).to_a.d("Result")  
+  class ::Object
+    
+    def d(msg = nil)
+      puts "#{if msg then "#{msg}: " else "" end}#{self.inspect}"
+      return self
+    end
+    
+  end
+  
+  search_phrase("do * flop", nil, nil).to_a.d("Result")  
   
 end
 
