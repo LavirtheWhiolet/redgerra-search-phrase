@@ -44,14 +44,12 @@ module Redgerra
           map { |phrase_parsed| [phrase_parsed, ids_to_words(phrase_parsed)] }.
           select do |phrase_parsed, phrase|
             phrase_downcase_parsed = words_to_ids(phrase.downcase)
-            phrase.d("Phrase")
-            phrase_downcase_parsed.d("Phrase parsed")
             (
-              m.not_mentioned_before?(phrase).d(1) and
-              (word_ids(phrase_parsed).size <= 20).d(2) and
-              (sloch_regexp === phrase_downcase_parsed).d(3) and
+              m.not_mentioned_before?(phrase) and
+              word_ids(phrase_parsed).size <= 20 and
+              sloch_regexp === phrase_downcase_parsed and
               # There must be at least 2 words before and after sloch.
-              (phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).d.all? { |part| word_ids(part).d.size >= 2 }).d(4)
+              phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).all? { |part| word_ids(part).d.size >= 2 }
             )
           end.
           map { |phrase_parsed, phrase| phrase }
