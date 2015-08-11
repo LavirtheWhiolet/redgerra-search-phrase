@@ -80,7 +80,7 @@ module Redgerra
     end
     
     def to_s
-      text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| Word.new(parsed_word) }
+      text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| Word[parsed_word] }
     end
     
     # Accessible to Sloch, Word, Text only.
@@ -114,6 +114,11 @@ module Redgerra
     ENCODED_REGEXP = "W[OX]\\h+W"
     
     # Accessible to Sloch, Word, Text only.
+    def self.[](encoded_str)
+      new(encoded_str)
+    end
+    
+    # Accessible to Sloch, Word, Text only.
     def self.parse(str, is_proper_name_with_dot)
       encoded_str = "W#{is_proper_name_with_dot ? "X" : "O"}"
       word.each_codepoint do |code|
@@ -121,7 +126,7 @@ module Redgerra
         encoded_str << code.to_s(16)
       end
       encoded_str << "W"
-      return Word.new(encoded_str)
+      return Word[encoded_str]
     end
     
     # Accessible to Sloch, Text only.
