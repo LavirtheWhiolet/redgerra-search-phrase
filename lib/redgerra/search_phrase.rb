@@ -46,6 +46,7 @@ module Redgerra
             phrase_downcase_parsed = words_to_ids(phrase.downcase)
             (
               m.not_mentioned_before?(phrase) and
+              not upcase?(phrase) and
               word_ids(phrase_parsed).size <= 20 and
               sloch_regexp === phrase_downcase_parsed and
               # There must be at least 2 words before and after sloch.
@@ -69,6 +70,10 @@ module Redgerra
   # converts all consecutive white-space characters to " ".
   def self.squeeze_whitespace(str)
     str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
+  end
+  
+  def self.upcase?(word)
+    /[a-z]/ !~ word
   end
   
   # 
