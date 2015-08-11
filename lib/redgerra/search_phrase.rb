@@ -74,7 +74,7 @@ module Redgerra
   
   # 
   # replaces words in +text+ with IDs. WORD_ID matches the IDs, it never
-  # matches anything else and never matches a part of the ID.
+  # matches anything else or a part of the ID.
   # 
   # +text+ must be #squeeze_whitespace()-ed.
   # 
