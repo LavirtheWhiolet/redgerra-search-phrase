@@ -34,7 +34,7 @@ module Redgerra
     # 
     web_search.(%("#{sloch}"), browser).
       lazy_cached_filter do |web_search_result|
-        text_blocks_from_page_at(web_search_result.url)
+        [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
         text_block = squeeze_whitespace(text_block)
