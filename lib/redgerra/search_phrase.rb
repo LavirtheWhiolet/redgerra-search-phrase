@@ -40,6 +40,8 @@ module Redgerra
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
       One two three, do the flop, four five-six!
+      Let's load file from www.soundcloud.com, do the flop is still included.
+      Yet another phrase.
     "].
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
@@ -49,6 +51,7 @@ module Redgerra
             not phrase.upcase? and
             phrase.words_count <= 20 and
             phrase.include?(sloch) and
+            not phrase.words.any?(&:proper_name_with_dot?) and
             # There must be at least 2 words before and after sloch.
             phrase.downcase.split(sloch).all? { |part| part.words_count >= 2 }
           end.
@@ -137,8 +140,9 @@ module Redgerra
         (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
           result << Word.new(abbr).to_encoded_string
         end) or
-        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-          result << Word.new(word).to_encoded_string
+        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}([\-\.]#{word_chars})*/o) and act do
+          is_proper_name_with_dot = word.include?(".")
+          result << Word.new(word, is_proper_name_with_dot).to_encoded_string
         end) or
         (other = s.getch and act do
           result << other
