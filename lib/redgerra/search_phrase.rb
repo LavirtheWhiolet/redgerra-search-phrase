@@ -40,6 +40,8 @@ module Redgerra
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
       One two three, do the flop, four five-six!
+      Let's load file from www.soundcloud.com.
+      Yet another phrase.
     "].
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
@@ -137,8 +139,9 @@ module Redgerra
         (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
           result << Word.new(abbr).to_encoded_string
         end) or
-        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-          result << Word.new(word).to_encoded_string
+        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}([\-\.]#{word_chars})*/o) and act do
+          is_proper_name_with_dot = word.include?(".")
+          result << Word.new(word, is_proper_name_with_dot).to_encoded_string
         end) or
         (other = s.getch and act do
           result << other
