@@ -122,41 +122,50 @@ module Redgerra
   
   class Text
     
-    # 
-    # +str+ must be String#squeeze_unicode_whitespace()-ed.
-    # 
-    def initialize(str)
-      @str = str
+    class << self
+      
+      # Private.
+      alias __original_new__ new
+      
+      # 
+      # +str+ must be String#squeeze_unicode_whitespace()-ed.
+      # 
+      def new(str)
+        __original_new__(str, nil)
+      end
+      
+      def from_encoded_string(encoded_string)
+        __original_new__(nil, encoded_string)
+      end
+    
     end
     
     def to_s
-      @str
+      @str ||= begin
+        @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
+          Word.from_encoded_string(encoded_word).to_s
+        end
+      end
     end
     
     def to_encoded_string
-      result = ""
-      s = StringScanner.new(@str)
-      until s.eos?
-        (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-          result << Word.new(abbr).to_encoded_string
-        end) or
-        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}([\-\.]#{word_chars})*/o) and act do
-          is_proper_name_with_dot = word.include?(".")
-          result << Word.new(word, is_proper_name_with_dot).to_encoded_string
-        end) or
-        (other = s.getch and act do
-          result << other
-        end)
-      end
-      return result
-    end
-    
-    def self.from_encoded_string(encoded_str)
-      Text.new(
-        encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
-          Word.from_encoded_string(encoded_word).to_s
+      @encoded_str ||= begin
+        result = ""
+        s = StringScanner.new(@str)
+        until s.eos?
+          (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
+            result << Word.new(abbr).to_encoded_string
+          end) or
+          (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}([\-\.]#{word_chars})*/o) and act do
+            is_proper_name_with_dot = word.include?(".")
+            result << Word.new(word, is_proper_name_with_dot).to_encoded_string
+          end) or
+          (other = s.getch and act do
+            result << other
+          end)
         end
-      )
+        result
+      end
     end
     
     def inspect
@@ -185,11 +194,11 @@ module Redgerra
     end
     
     def upcase?
-      /[a-z]/ !~ @str
+      /[a-z]/ !~ self.to_s
     end
     
     def downcase
-      Text.new(@str.downcase)
+      Text.new(self.to_s.downcase)
     end
     
     def split(sloch)
@@ -201,6 +210,11 @@ module Redgerra
     end
     
     private
+    
+    def initialize(str, encoded_str)  # :not-new:
+      @str = str
+      @encoded_str = encoded_str
+    end
     
     # calls +f+ and returns true.
     def act(&f)
@@ -297,7 +311,7 @@ module Redgerra
     
   end
   
-  p search_phrase("  do    *   flop ", nil, nil).to_a
+  1000.times { search_phrase("  do    *   flop ", nil, nil).to_a }
   
 end
 
