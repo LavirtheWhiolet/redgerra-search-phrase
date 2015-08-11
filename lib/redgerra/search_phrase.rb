@@ -25,12 +25,7 @@ module Redgerra
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
-    sloch_regexp = begin
-      r = sloch.squeeze_unicode_whitespace.strip
-      r = words_to_ids(r)
-      r.gsub!("*", "#{WORD_ID}( ?,? ?#{WORD_ID})?")
-      Regexp.new(r)
-    end
+    sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
     web_search.(%("#{sloch}"), browser).
@@ -38,24 +33,17 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        text_block = text_block.squeeze_unicode_whitespace
-        text_block_parsed = words_to_ids(text_block)
-        phrases_parsed = text_block_parsed.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
-        phrases_parsed.
-          map(&:strip).
-          map { |phrase_parsed| [phrase_parsed, ids_to_words(phrase_parsed)] }.
-          select do |phrase_parsed, phrase|
-            phrase_downcase_parsed = words_to_ids(phrase.downcase)
-            (
-              m.not_mentioned_before?(phrase) and
-              not upcase?(phrase) and
-              word_ids(phrase_parsed).size <= 20 and
-              sloch_regexp === phrase_downcase_parsed and
-              # There must be at least 2 words before and after sloch.
-              phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).all? { |part| word_ids(part).size >= 2 }
-            )
+        Text.new(text_block.squeeze_unicode_whitespace).
+          phrases.
+          select do |phrase|
+            not m.mentioned_before?(phrase.to_s) and
+            not phrase.upcase? and
+            phrase.words_count <= 20 and
+            phrase.include?(sloch) and
+            # There must be at least 2 words before and after sloch.
+            phrase.downcase.split(sloch).all? { |part| part.words_count >= 2 }
           end.
-          map { |phrase_parsed, phrase| phrase }
+          map(&:to_s)
       end
   end
   
@@ -120,10 +108,6 @@ module Redgerra
     return text_blocks
   end
   
-  def self.upcase?(word)
-    /[a-z]/ !~ word
-  end
-  
   class Text
     
     # 
@@ -185,6 +169,10 @@ module Redgerra
     
     def words_count
       self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).size
+    end
+    
+    def upcase?
+      /[a-z]/ !~ @str
     end
     
     def downcase
@@ -292,11 +280,6 @@ module Redgerra
       else
         return false
       end
-    end
-    
-    # Inversion of #mentioned_before?().
-    def not_mentioned_before?(x)
-      not mentioned_before?(x)
     end
     
   end
