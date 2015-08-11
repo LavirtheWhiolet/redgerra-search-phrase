@@ -129,67 +129,60 @@ module Redgerra
     # 
     # +str+ must be String#squeeze_unicode_whitespace()-ed.
     # 
-    def self.parse(str)
-      encoded_str = ""
-      s = StringScanner.new(str)
-      until s.eos?
-        (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-          encoded_str << Word.parse(abbr).to_encoded_string
-        end) or
-        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-          encoded_str << Word.parse(word).to_encoded_string
-        end) or
-        (other = s.getch and act do
-          encoded_str << other
-        end)
-      end
-      return Text.new(encoded_str)
-    end
-    
-    def inspect
-      "#<Text #{to_s.inspect}>"
+    def initialize(str)
+      @str = str
     end
     
     def to_s
-      @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
-        Word[encoded_word].to_s
-      end
+      @str
     end
     
-    def include?(sloch)
-      sloch.to_encoded_regexp === @encoded_str
-    end
-    
-    def words
-      @encoded_str.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_str|
-        Word[encoded_str]
-      end
-    end
-    
-    def split(sloch)
-      tmp_delimiter = "|"
-      raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
-      # 
-      @encoded_str.
-        # Split by <tt>sloch.to_encoded_regexp</tt>.
-        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
-        # 
-        map { |part| Text.new(part) }
-    end
-    
-    # Accessible to Sloch, Word, Text only.
     def to_encoded_string
-      @encoded_str
+      result = ""
+      s = StringScanner.new(str)
+      until s.eos?
+        (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
+          result << Word.parse(abbr).to_encoded_string
+        end) or
+        (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
+          result << Word.parse(word).to_encoded_string
+        end) or
+        (other = s.getch and act do
+          result << other
+        end)
+      end
+      return result
     end
+    
+    def inspect
+      "#<Text #{@str.inspect}>"
+    end
+    
+#     def include?(sloch)
+#       sloch.to_encoded_regexp === @encoded_str
+#     end
+#     
+#     def words
+#       @encoded_str.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_str|
+#         Word[encoded_str]
+#       end
+#     end
+#     
+#     def split(sloch)
+#       tmp_delimiter = "|"
+#       raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
+#       # 
+#       @encoded_str.
+#         # Split by <tt>sloch.to_encoded_regexp</tt>.
+#         gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
+#         # 
+#         map { |part| Text.new(part) }
+#     end
     
     private
     
-    def initialize(encoded_str)  # :nodoc:
-      @encoded_str = encoded_str
-    end
-    
     # calls +f+ and returns true.
-    def self.act(&f)
+    def act(&f)
       f.()
       return true
     end
@@ -198,64 +191,57 @@ module Redgerra
   
   class Word
     
-    # Accessible to Sloch, Word, Text only.
+    # 
+    # Regular expression matching #to_encoded_string().
+    # 
+    # It matches only Word#to_encoded_string() in Text#to_encoded_string() and
+    # nothing else. It also never matches a part of Word#to_encoded_string().
+    # 
     ENCODED_REGEXP = "W[OX]\\h+W"
     
-    # Accessible to Sloch, Word, Text only.
-    def self.[](encoded_str)
-      new(encoded_str)
-    end
-    
-    # Accessible to Sloch, Word, Text only.
-    def self.parse(str, is_proper_name_with_dot = false)
-      encoded_str = "W#{is_proper_name_with_dot ? "X" : "O"}"
-      str.each_codepoint do |code|
-        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-        encoded_str << code.to_s(16)
-      end
-      encoded_str << "W"
-      return Word[encoded_str]
-    end
-    
-    def proper_name_with_dot?
-      @encoded_str[1] == "X"
+    def initialize(str, is_proper_name_with_dot = false)
+      @str = str
+      @is_proper_name_with_dot = is_proper_name_with_dot
     end
     
     def to_s
-      @encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr }
+      @str
     end
     
-    # Accessible to Sloch, Text only.
     def to_encoded_string
-      @encoded_str
+      r = "W#{if proper_name_with_dot? then "X" else "O" end}"
+      str.each_codepoint do |code|
+        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+        r << code.to_s(16)
+      end
+      r << "W"
+      return r
     end
     
-    private
+    def self.from_encoded_string(encoded_str)
+      Word.new(
+        encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr },
+        encoded_str[1] == "X"
+      )
+    end
     
-    def initialize(encoded_str)  # :nodoc:
-      @encoded_str = encoded_str
+    def proper_name_with_dot?
+      @is_proper_name_with_dot
     end
     
   end
   
   class Sloch
     
-    def self.parse(str)
-      encoded_regexp =
-        Text.parse(str.squeeze_unicode_whitespace.strip.downcase).to_encoded_string.
+    def initialize(str)
+      @encoded_regexp = Regexp.new(
+        Text.new(str.squeeze_unicode_whitespace.strip.downcase).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
-      return Sloch.new(Regexp.new(encoded_regexp))
+      )
     end
     
-    # Accessible to Sloch, Word, Text only.
     def to_encoded_regexp
       @encoded_regexp
-    end
-    
-    private
-    
-    def initialize(encoded_regexp)  # :nodoc:
-      @encoded_regexp = encoded_regexp
     end
     
   end
