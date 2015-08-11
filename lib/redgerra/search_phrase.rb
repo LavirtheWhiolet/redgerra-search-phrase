@@ -154,30 +154,29 @@ module Redgerra
       return result
     end
     
+    def self.from_encoded_string(encoded_str)
+      Text.new()
+    end
+    
     def inspect
       "#<Text #{@str.inspect}>"
     end
     
-#     def include?(sloch)
-#       sloch.to_encoded_regexp === @encoded_str
-#     end
-#     
-#     def words
-#       @encoded_str.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_str|
-#         Word[encoded_str]
-#       end
-#     end
-#     
-#     def split(sloch)
-#       tmp_delimiter = "|"
-#       raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
-#       # 
-#       @encoded_str.
-#         # Split by <tt>sloch.to_encoded_regexp</tt>.
-#         gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
-#         # 
-#         map { |part| Text.new(part) }
-#     end
+    def include?(sloch)
+      sloch.to_encoded_regexp === self.to_encoded_string
+    end
+    
+    def words_count
+      self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).size
+    end
+    
+    def split(sloch)
+      self.to_encoded_string.
+        # Split by <tt>sloch.to_encoded_regexp</tt>.
+        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
+        # 
+        map { |part| Text.from_encoded_string(part) }
+    end
     
     private
     
