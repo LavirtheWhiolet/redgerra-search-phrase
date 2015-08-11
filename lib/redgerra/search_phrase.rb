@@ -81,6 +81,7 @@ module Redgerra
           case other
           when "," then Token[:comma, other]
           when " " then Token[:whitespace, other]
+          when "*" then Token[:asterisk, other]
           else Token[:other, other]
           end
         )
@@ -211,7 +212,52 @@ module Redgerra
     this.(element)
     return text_blocks
   end
-
+  
+  class Sloch
+    
+    def initialize(str)
+      @precompiled_sloch = begin
+        r = parse(str)
+        r = words_to_pseudo_words(r)
+        r.map! do |token|
+          if token.type == :asterisk then Token[:regexp, "Z\\h+Z( ?,? ?Z\\h+Z)?"]
+          else token
+          end
+        end
+        Regexp.new(r.join)
+      end
+    end
+    
+    private
+    
+    def words_to_pseudo_words(tokens)
+      tokens.map do |token|
+        if token.type == :word then
+          Token[:word, to_pseudo_word(token.text), token.proper_name_with_dot?]
+        else
+          token
+        end
+      end
+    end
+    
+    def to_pseudo_word(word)
+      r = "W"
+      word.each_codepoint do |code|
+        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+        r << code.to_s(16)
+      end
+      r << "W"
+      r
+    end
+    
+    def pseudo_words_to_words(tokens)
+      tokens.map do |token|
+        
+      end
+    end
+    
+  end
+  
   class Token
     
     class << self
