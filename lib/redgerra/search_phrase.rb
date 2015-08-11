@@ -155,7 +155,11 @@ module Redgerra
     end
     
     def self.from_encoded_string(encoded_str)
-      Text.new()
+      Text.new(
+        encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
+          Word.from_encoded_string(encoded_word).to_s
+        end
+      )
     end
     
     def inspect
@@ -164,6 +168,17 @@ module Redgerra
     
     def include?(sloch)
       sloch.to_encoded_regexp === self.to_encoded_string
+    end
+    
+    def phrases
+      self.to_encoded_string.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first).
+        map { |phrase| Text.new(phrase) }
+    end
+    
+    def words
+      self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_word|
+        Word.from_encoded_string(encoded_word)
+      end
     end
     
     def words_count
@@ -270,8 +285,8 @@ module Redgerra
     
   end
   
-    s = Sloch.parse("do * flop")
-    t = Text.parse("Everybody do the flop!
+    s = Sloch.new("do * flop")
+    t = Text.new("Everybody do the flop!
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
