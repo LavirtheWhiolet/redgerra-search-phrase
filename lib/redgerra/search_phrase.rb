@@ -195,7 +195,7 @@ module Redgerra
     end
     
     # Accessible to Sloch, Word, Text only.
-    def self.parse(str, is_proper_name_with_dot)
+    def self.parse(str, is_proper_name_with_dot = false)
       encoded_str = "W#{is_proper_name_with_dot ? "X" : "O"}"
       word.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
