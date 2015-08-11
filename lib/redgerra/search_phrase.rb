@@ -296,7 +296,17 @@ module Redgerra
     
   end
   
-  p search_phrase("  do    *   flop ", nil, nil).to_a
+  p Text.new("Everybody do the flop!
+      o-ne t$w'o, do it, again flop three - fo-ur.
+      ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
+      ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
+      One two undo the floppy disk three.
+      Very very very very very very very very very very very very very 
+      very very very very very long phrase, do the flop included anyway.
+      One two three, do the flop, four five-six!
+      Let's load file from www.soundcloud.com.
+      Yet another phrase.
+    ".squeeze_unicode_whitespace).phrases.filter { |phrase| phrase.words }
   
 end
 
