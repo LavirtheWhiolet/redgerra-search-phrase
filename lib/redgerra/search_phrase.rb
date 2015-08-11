@@ -188,7 +188,7 @@ module Redgerra
     def split(sloch)
       self.to_encoded_string.
         # Split by <tt>sloch.to_encoded_regexp</tt>.
-        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
+        gsub(sloch.to_encoded_regexp, "|").split("|", -1).
         # 
         map { |part| Text.from_encoded_string(part) }
     end
