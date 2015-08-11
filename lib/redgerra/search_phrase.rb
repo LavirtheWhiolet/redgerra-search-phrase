@@ -138,6 +138,10 @@ module Redgerra
       return Text.new(encoded_str)
     end
     
+    def inspect
+      "#<Text #{to_s.inspect}>"
+    end
+    
     def to_s
       @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |parsed_word|
         Word[parsed_word].to_s
@@ -163,6 +167,10 @@ module Redgerra
         gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
         # 
         map { |part| Text.new(part) }
+    end
+    
+    def inspect
+      
     end
     
     # Accessible to Sloch, Word, Text only.
@@ -273,7 +281,8 @@ module Redgerra
     
   end
   
-    p Text.parse("Everybody do the flop!
+    s = Sloch.parse("do * flop")
+    t = Text.parse("Everybody do the flop!
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
@@ -281,7 +290,8 @@ module Redgerra
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
     ")
-
+    p t.split(s)
+    
 end
 
 
