@@ -141,23 +141,15 @@ module Redgerra
   class Sloch
     
     def self.parse(str)
-      has_asterisk = false
       encoded_regexp =
         Text.parse(str).to_encoded_string.
-        gsub("*") do |asterisk|
-          has_asterisk = true
-          "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?"
-        end
+        gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       return Sloch.new(Regexp.new(encoded_regexp))
     end
     
     # Accessible to Sloch, Word, Text only.
     def to_encoded_regexp
       @encoded_regexp
-    end
-    
-    def has_asterisk?
-      @has_asterisk
     end
     
     private
