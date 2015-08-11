@@ -77,7 +77,6 @@ module Redgerra
   end
 
 #   search_phrase("do * flop", nil, nil).to_a.d("Result")  
-  ids_to_words(words_to_ids("Let's everybody do the flop-flip-flop, the prize is - 125000$!")).d
   
 end
 
