@@ -139,7 +139,7 @@ module Redgerra
     
     def to_encoded_string
       result = ""
-      s = StringScanner.new(str)
+      s = StringScanner.new(@str)
       until s.eos?
         (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
           result << Word.parse(abbr).to_encoded_string
