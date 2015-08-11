@@ -277,14 +277,14 @@ module Redgerra
     
   end
   
-  p parse squeeze_whitespace("Everybody do the flop!
+  p parse(squeeze_whitespace("Everybody do the flop!
    o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
      very very very very very long phrase, do the flop included anyway.
-  ")
+  ")).map { |t| t.to_s }.join
 
 end
 
