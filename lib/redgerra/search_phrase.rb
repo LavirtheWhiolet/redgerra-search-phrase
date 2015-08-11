@@ -58,48 +58,15 @@ module Redgerra
       end
   end
   
-  WORD_ID = "W\\h+W"
+  private
   
-  # returns IDs from +str+.
-  # 
-  # +str+ is a String processed with ::words_to_ids().
-  # 
-  def self.word_ids(str)
-    str.scan(/#{WORD_ID}/o)
-  end
-  
-  # converts all consecutive white-space characters to " ".
-  def self.squeeze_whitespace(str)
-    str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
-  end
-  
-  def self.upcase?(word)
-    /[a-z]/ !~ word
-  end
-  
-  # 
-  # replaces words in +text+ with IDs. WORD_ID matches the IDs, it never
-  # matches anything else or a part of the ID.
-  # 
-  # +text+ must be #squeeze_whitespace()-ed.
-  # 
-  def self.words_to_ids(text)
-    # 
-    to_id = lambda do |word|
-      r = "W"
-      word.each_codepoint do |code|
-        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-        r << code.to_s(16)
-      end
-      r << "W"
-      r
-    end
+  def parse(text)
     # Parse!
-    result = ""
+    result = []
     s = StringScanner.new(text)
     until s.eos?
       (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-        result << to_id.(abbr)
+        result << Token[:word, abbr]
       end) or
       (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
         result << to_id.(word)
@@ -111,10 +78,63 @@ module Redgerra
     return result
   end
   
-  # Inverse function of ::words_to_ids().
-  def self.ids_to_words(text)
-    text.gsub(/#{WORD_ID}/o) { |id| id[1...-1].gsub(/\h\h/) { |code| code.hex.chr } }
-  end
+#   WORD_ID = "W\\h+W"
+#   
+#   # returns IDs from +str+.
+#   # 
+#   # +str+ is a String processed with ::words_to_ids().
+#   # 
+#   def self.word_ids(str)
+#     str.scan(/#{WORD_ID}/o)
+#   end
+#   
+#   # converts all consecutive white-space characters to " ".
+#   def self.squeeze_whitespace(str)
+#     str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
+#   end
+#   
+#   def self.upcase?(word)
+#     /[a-z]/ !~ word
+#   end
+#   
+#   # 
+#   # replaces words in +text+ with IDs. WORD_ID matches the IDs, it never
+#   # matches anything else or a part of the ID.
+#   # 
+#   # +text+ must be #squeeze_whitespace()-ed.
+#   # 
+#   def self.words_to_ids(text)
+#     # 
+#     to_id = lambda do |word|
+#       r = "W"
+#       word.each_codepoint do |code|
+#         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+#         r << code.to_s(16)
+#       end
+#       r << "W"
+#       r
+#     end
+#     # Parse!
+#     result = ""
+#     s = StringScanner.new(text)
+#     until s.eos?
+#       (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
+#         result << to_id.(abbr)
+#       end) or
+#       (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
+#         result << to_id.(word)
+#       end) or
+#       (other = s.getch and act do
+#         result << other
+#       end)
+#     end
+#     return result
+#   end
+#   
+#   # Inverse function of ::words_to_ids().
+#   def self.ids_to_words(text)
+#     text.gsub(/#{WORD_ID}/o) { |id| id[1...-1].gsub(/\h\h/) { |code| code.hex.chr } }
+#   end
   
   # calls +f+ and returns true.
   def self.act(&f)
@@ -181,6 +201,32 @@ module Redgerra
     return text_blocks
   end
 
+  class Token
+    
+    class << self
+      
+      alias new []
+      
+    end
+    
+    def initialize(type, str, proper_name_with_dot = false)
+      @type = type
+      @str = str
+      @proper_name_with_dot = proper_name_with_dot
+    end
+    
+    attr_reader :type
+    
+    def to_s
+      @str
+    end
+    
+    def proper_name_with_dot?
+      @has_dot
+    end
+    
+  end
+  
   class Memory
     
     def initialize()
