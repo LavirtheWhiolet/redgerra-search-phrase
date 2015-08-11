@@ -63,63 +63,77 @@ module Redgerra
   class Text
     
     def self.parse(str)
-      parsed_text = ""
+      encoded_str = ""
       s = StringScanner.new(str)
       until s.eos?
         (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-          parsed_text << Word.parse(abbr)
+          encoded_str << Word.parse(abbr).to_encoded_string
         end) or
         (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-          parsed_text << Word.parse(word)
+          encoded_str << Word.parse(word).to_encoded_string
         end) or
         (other = s.getch and act do
-          parsed_text << other
+          encoded_str << other
         end)
       end
-      return Text.new(parsed_text)
+      return Text.new(encoded_str)
     end
     
     def to_s
       text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| to_word(parsed_word) }
     end
     
-    # Accessible to Sloch only.
-    def to_parsed_string
-      @to_parsed_string
+    # Accessible to Sloch, Word, Text only.
+    def to_encoded_string
+      @encoded_str
+    end
+    
+    def split(sloch)
+      r = @encoded_str.split(sloch, -1)
+      if sloch.has_asterisk? then r.map(&:first)
     end
     
     private
     
-    def initialize(parsed_text)  # :nodoc:
-      @parsed_text = parsed_text
+    def initialize(encoded_str)  # :nodoc:
+      encoded_str = encoded_str
     end
     
   end
   
   class Word
     
-    # Accessible to Text, Sloch only.
-    PARSED_REGEXP = "W[OX]\\h+W"
+    # Accessible to Sloch, Word, Text only.
+    ENCODED_REGEXP = "W[OX]\\h+W"
     
-    # Accessible to Text only.
-    def self.parse(word, is_proper_name_with_dot)
-      parsed_word = "W#{is_proper_name_with_dot ? "O" : "X"}"
+    # Accessible to Sloch, Word, Text only.
+    def self.parse(str, is_proper_name_with_dot)
+      encoded_str = "W#{is_proper_name_with_dot ? "X" : "O"}"
       word.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-        parsed_word << code.to_s(16)
+        encoded_str << code.to_s(16)
       end
-      parsed_word << "W"
-      return Word.new(parsed_word)
+      encoded_str << "W"
+      return Word.new(encoded_str)
+    end
+    
+    # Accessible to Sloch, Text only.
+    def to_encoded_string
+      @encoded_str
+    end
+    
+    def proper_name_with_dot?
+      @encoded_str[1] == "X"
     end
     
     private
     
-    def initialize(parsed_word)  # :nodoc:
-      @parsed_word = parsed_word
+    def initialize(encoded_str)  # :nodoc:
+      @encoded_str = encoded_str
     end
     
     def to_s
-      @parsed_word[2...-1].gsub(/\h\h/) { |code| code.hex.chr }
+      @encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr }
     end
     
   end
@@ -127,18 +141,29 @@ module Redgerra
   class Sloch
     
     def self.parse(str)
-      Sloch.new(
-        Regexp.new(
-          Text.parse(str).to_parsed_string.
-            gsub("*", "#{Word::PARSED_REGEXP}( ?,? ?#{Word::PARSED_REGEXP})?")
-        )
-      )
+      has_asterisk = false
+      encoded_regexp =
+        Text.parse(str).to_encoded_string.
+        gsub("*") do |asterisk|
+          has_asterisk = true
+          "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?"
+        end
+      return Sloch.new(Regexp.new(encoded_regexp))
+    end
+    
+    # Accessible to Sloch, Word, Text only.
+    def to_encoded_regexp
+      @encoded_regexp
+    end
+    
+    def has_asterisk?
+      @has_asterisk
     end
     
     private
     
-    def initialize(regexp)  # :nodoc:
-      @regexp = regexp
+    def initialize(encoded_regexp)  # :nodoc:
+      @encoded_regexp = encoded_regexp
     end
     
   end
