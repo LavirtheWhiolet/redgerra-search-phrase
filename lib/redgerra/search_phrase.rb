@@ -257,9 +257,12 @@ module Redgerra
   
   class Sloch
     
+    # 
+    # +str+ must be String#squeeze_unicode_whitespace()-ed.
+    # 
     def initialize(str)
       @encoded_regexp = Regexp.new(
-        Text.new(str.squeeze_unicode_whitespace.strip.downcase).to_encoded_string.
+        Text.new(str).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       )
     end
