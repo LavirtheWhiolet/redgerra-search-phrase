@@ -80,7 +80,7 @@ module Redgerra
     end
     
     def to_s
-      text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| to_word(parsed_word) }
+      text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| Word.new(parsed_word) }
     end
     
     # Accessible to Sloch, Word, Text only.
@@ -88,9 +88,16 @@ module Redgerra
       @encoded_str
     end
     
+    def include?(sloch)
+      sloch.to_encoded_regexp === @encoded_str
+    end
+    
     def split(sloch)
-      r = @encoded_str.split(sloch, -1)
-      if sloch.has_asterisk? then r.map(&:first)
+      tmp_delimiter = "|"
+      raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
+      @encoded_str.
+        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
+        map { |part| Text.new(part) }
     end
     
     private
