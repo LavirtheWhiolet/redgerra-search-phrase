@@ -60,6 +60,65 @@ module Redgerra
   
   private
   
+  # returns Array of String-s.
+  def self.text_blocks_from_page_at(uri)
+    #
+    page_io =
+      begin
+        open(uri)
+      rescue
+        return []
+      end
+    #
+    begin
+      text_blocks_from(Nokogiri::HTML(page_io))
+    ensure
+      page_io.close()
+    end
+  end
+  
+  # returns Array of String's.
+  # 
+  # +element+ is Nokogiri::Element.
+  # 
+  def self.text_blocks_from(element)
+    text_blocks = []
+    start_new_text_block = lambda do
+      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
+    end
+    this = lambda do |element|
+      case element
+      when Nokogiri::XML::CDATA, Nokogiri::XML::Text
+        text_blocks.last.concat(element.content.scrub("_"))
+      when Nokogiri::XML::Comment
+        # Do nothing.
+      when Nokogiri::XML::Document, Nokogiri::XML::Element
+        if element.name.in? %W{ script style } then
+          start_new_text_block.()
+        else
+          element_is_separate_text_block = element.name.not_in? %W{
+            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
+            q s samp small span strike strong sub sup time tt u wbr
+          }
+          string_introduced_by_element =
+            case element.name
+            when "br" then "\n"
+            when "img" then " "
+            else ""
+            end
+          start_new_text_block.() if element_is_separate_text_block
+          text_blocks.last.concat(string_introduced_by_element)
+          element.children.each(&this)
+          start_new_text_block.() if element_is_separate_text_block
+        end
+      else
+        start_new_text_block.()
+      end
+    end
+    this.(element)
+    return text_blocks
+  end
+
   class Text
     
     def self.parse(str)
@@ -171,130 +230,7 @@ module Redgerra
     end
     
   end
-    
-#   WORD_ID = "W\\h+W"
-#   
-#   # returns IDs from +str+.
-#   # 
-#   # +str+ is a String processed with ::words_to_ids().
-#   # 
-#   def self.word_ids(str)
-#     str.scan(/#{WORD_ID}/o)
-#   end
-#   
-#   # converts all consecutive white-space characters to " ".
-#   def self.squeeze_whitespace(str)
-#     str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
-#   end
-#   
-#   def self.upcase?(word)
-#     /[a-z]/ !~ word
-#   end
-#   
-#   # 
-#   # replaces words in +text+ with IDs. WORD_ID matches the IDs, it never
-#   # matches anything else or a part of the ID.
-#   # 
-#   # +text+ must be #squeeze_whitespace()-ed.
-#   # 
-#   def self.words_to_ids(text)
-#     # 
-#     to_id = lambda do |word|
-#       r = "W"
-#       word.each_codepoint do |code|
-#         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-#         r << code.to_s(16)
-#       end
-#       r << "W"
-#       r
-#     end
-#     # Parse!
-#     result = ""
-#     s = StringScanner.new(text)
-#     until s.eos?
-#       (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-#         result << to_id.(abbr)
-#       end) or
-#       (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}(\-#{word_chars})*/o) and act do
-#         result << to_id.(word)
-#       end) or
-#       (other = s.getch and act do
-#         result << other
-#       end)
-#     end
-#     return result
-#   end
-#   
-#   # Inverse function of ::words_to_ids().
-#   def self.ids_to_words(text)
-#     text.gsub(/#{WORD_ID}/o) { |id| id[1...-1].gsub(/\h\h/) { |code| code.hex.chr } }
-#   end
-#   
-#   # calls +f+ and returns true.
-#   def self.act(&f)
-#     f.()
-#     return true
-#   end
   
-  # returns Array of String-s.
-  def self.text_blocks_from_page_at(uri)
-    #
-    page_io =
-      begin
-        open(uri)
-      rescue
-        return []
-      end
-    #
-    begin
-      text_blocks_from(Nokogiri::HTML(page_io))
-    ensure
-      page_io.close()
-    end
-  end
-  
-  # returns Array of String's.
-  # 
-  # +element+ is Nokogiri::Element.
-  # 
-  def self.text_blocks_from(element)
-    text_blocks = []
-    start_new_text_block = lambda do
-      text_blocks.push("") if text_blocks.empty? or not text_blocks.last.empty?
-    end
-    this = lambda do |element|
-      case element
-      when Nokogiri::XML::CDATA, Nokogiri::XML::Text
-        text_blocks.last.concat(element.content.scrub("_"))
-      when Nokogiri::XML::Comment
-        # Do nothing.
-      when Nokogiri::XML::Document, Nokogiri::XML::Element
-        if element.name.in? %W{ script style } then
-          start_new_text_block.()
-        else
-          element_is_separate_text_block = element.name.not_in? %W{
-            a abbr acronym b bdi bdo br code del dfn em font i img ins kbd mark
-            q s samp small span strike strong sub sup time tt u wbr
-          }
-          string_introduced_by_element =
-            case element.name
-            when "br" then "\n"
-            when "img" then " "
-            else ""
-            end
-          start_new_text_block.() if element_is_separate_text_block
-          text_blocks.last.concat(string_introduced_by_element)
-          element.children.each(&this)
-          start_new_text_block.() if element_is_separate_text_block
-        end
-      else
-        start_new_text_block.()
-      end
-    end
-    this.(element)
-    return text_blocks
-  end
-
   class Memory
     
     def initialize()
