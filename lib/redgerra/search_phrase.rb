@@ -139,7 +139,30 @@ module Redgerra
     end
     
     def to_s
-      text.gsub(/#{WORD_REGEXP}/o) { |parsed_word| Word[parsed_word] }
+      @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |parsed_word|
+        Word[parsed_word].to_s
+      end
+    end
+    
+    def include?(sloch)
+      sloch.to_encoded_regexp === @encoded_str
+    end
+    
+    def words
+      @encoded_str.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_str|
+        Word[encoded_str]
+      end
+    end
+    
+    def split(sloch)
+      tmp_delimiter = "|"
+      raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
+      # 
+      @encoded_str.
+        # Split by <tt>sloch.to_encoded_regexp</tt>.
+        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
+        # 
+        map { |part| Text.new(part) }
     end
     
     # Accessible to Sloch, Word, Text only.
@@ -147,22 +170,10 @@ module Redgerra
       @encoded_str
     end
     
-    def include?(sloch)
-      sloch.to_encoded_regexp === @encoded_str
-    end
-    
-    def split(sloch)
-      tmp_delimiter = "|"
-      raise %(encoded string #{@encoded_str.inspect} must not contain #{tmp_delimiter.inspect}) if @encoded_str.include? tmp_delimiter
-      @encoded_str.
-        gsub(sloch.to_encoded_regexp, tmp_delimiter).split(tmp_delimiter, -1).
-        map { |part| Text.new(part) }
-    end
-    
     private
     
     def initialize(encoded_str)  # :nodoc:
-      encoded_str = encoded_str
+      @encoded_str = encoded_str
     end
     
   end
@@ -188,23 +199,23 @@ module Redgerra
       return Word[encoded_str]
     end
     
+    def proper_name_with_dot?
+      @encoded_str[1] == "X"
+    end
+    
+    def to_s
+      @encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr }
+    end
+    
     # Accessible to Sloch, Text only.
     def to_encoded_string
       @encoded_str
-    end
-    
-    def proper_name_with_dot?
-      @encoded_str[1] == "X"
     end
     
     private
     
     def initialize(encoded_str)  # :nodoc:
       @encoded_str = encoded_str
-    end
-    
-    def to_s
-      @encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr }
     end
     
   end
