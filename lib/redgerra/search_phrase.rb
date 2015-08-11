@@ -292,6 +292,8 @@ module Redgerra
     
   end
   
+  p search_phrase("  do    *   flop ", nil, nil)
+  
 end
 
 
