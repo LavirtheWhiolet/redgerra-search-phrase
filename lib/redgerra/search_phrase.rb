@@ -246,7 +246,7 @@ module Redgerra
     
     def self.parse(str)
       encoded_regexp =
-        Text.parse(str.downcase).to_encoded_string.
+        Text.parse(squeeze_whitespace(str).downcase).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       return Sloch.new(Regexp.new(encoded_regexp))
     end
