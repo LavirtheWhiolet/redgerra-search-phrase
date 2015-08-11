@@ -27,14 +27,10 @@ module Redgerra
     end
     m = Memory.new
     # 
-    ["Everybody do the flop!
-      o-ne t$w'o, do it, again flop three - fo-ur.
-      ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
-      ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
-      One two undo the floppy disk three.
-      Very very very very very very very very very very very very very 
-      very very very very very long phrase, do the flop included anyway.
-    "].
+    web_search.(%("#{sloch}"), browser).
+      lazy_cached_filter do |web_search_result|
+        text_blocks_from_page_at(web_search_result.url)
+      end.
       lazy_cached_filter do |text_block|
         text_block = squeeze_whitespace(text_block)
         text_block_parsed = words_to_ids(text_block)
@@ -145,17 +141,6 @@ module Redgerra
     end
     
   end
-  
-  class ::Object
-    
-    def d(msg = nil)
-      puts "#{if msg then "#{msg}: " else "" end}#{self.inspect}"
-      return self
-    end
-    
-  end
-  
-  search_phrase("do * flop", nil, nil).to_a.d("Result")  
   
 end
 
