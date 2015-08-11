@@ -290,14 +290,14 @@ module Redgerra
   end
   
     s = Sloch.parse("do * flop")
-    t = Text.parse("Everybody do the flop!
+    t = Text.parse(squeeze_whitespace("Everybody do the flop!
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
-    ")
+    "))
     p t.split(s)
     
 end
