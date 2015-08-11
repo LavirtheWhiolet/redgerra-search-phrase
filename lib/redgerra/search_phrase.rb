@@ -295,7 +295,7 @@ module Redgerra
     
   end
   
-    s = Sloch.new("do * flop")
+    s = Sloch.new("do the flop")
     t = Text.new("Everybody do the flop!
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
