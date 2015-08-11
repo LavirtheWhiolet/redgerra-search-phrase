@@ -302,7 +302,7 @@ module Redgerra
       end
     #
     begin
-      text_blocks_from(Nokogiri::HTML(page_io))
+      return text_blocks_from(Nokogiri::HTML(page_io))
     ensure
       page_io.close()
     end
