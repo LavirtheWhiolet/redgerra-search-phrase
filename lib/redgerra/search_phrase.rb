@@ -140,6 +140,9 @@ module Redgerra
   end
   
   # returns Array of String's.
+  # 
+  # +element+ is Nokogiri::Element.
+  # 
   def self.text_blocks_from(element)
     text_blocks = []
     start_new_text_block = lambda do
