@@ -60,7 +60,7 @@ module Redgerra
   
   private
   
-  def parse(text)
+  def self.parse(text)
     # Parse!
     result = []
     s = StringScanner.new(text)
