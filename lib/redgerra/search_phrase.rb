@@ -52,20 +52,6 @@ module Redgerra
     str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028\u2029\u202F\u205F\u3000]+/, " ")
   end
   
-#   # Adds " " to the beginning and the end of +str+ if they are not there yet.
-#   # 
-#   # +str+ must be #squeeze_whitespace()-ed.
-#   # 
-#   # Examples:
-#   # 
-#   #   enclose_with_whitespace("abc")    #=> " abc "
-#   #   enclose_with_whitespace(" abc ")  #=> " abc "
-#   #   enclose_with_whitespace(" abc")   #=> " abc "
-#   # 
-#   def self.enclose_with_whitespace(str)
-#     " #{str.strip} "
-#   end
-  
   # 
   # replaces words in +text+ with IDs (which can be matched with WORD_ID regular
   # expression; WORD_ID matches these IDs and nothing more).
