@@ -168,14 +168,6 @@ module Redgerra
       end
     end
     
-    def self.from_encoded_string(encoded_str)
-      Text.new(
-        encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
-          Word.from_encoded_string(encoded_word).to_s
-        end
-      )
-    end
-    
     def inspect
       "#<Text #{@str.inspect}>"
     end
@@ -202,11 +194,11 @@ module Redgerra
     end
     
     def upcase?
-      /[a-z]/ !~ @str
+      /[a-z]/ !~ self.to_s
     end
     
     def downcase
-      Text.new(@str.downcase)
+      Text.new(self.to_s.downcase)
     end
     
     def split(sloch)
@@ -221,6 +213,7 @@ module Redgerra
     
     def initialize(str, encoded_str)  # :not-new:
       @str = str
+      @encoded_str = encoded_str
     end
     
     # calls +f+ and returns true.
