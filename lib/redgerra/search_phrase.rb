@@ -177,7 +177,7 @@ module Redgerra
     end
     
     # calls +f+ and returns true.
-    def act(&f)
+    def self.act(&f)
       f.()
       return true
     end
