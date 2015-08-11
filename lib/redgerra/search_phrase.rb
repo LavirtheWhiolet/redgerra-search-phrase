@@ -38,20 +38,23 @@ module Redgerra
       lazy_cached_filter do |text_block|
         text_block = squeeze_whitespace(text_block)
         text_block_parsed = words_to_ids(text_block)
-        phrases_parsed = text_block.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
-        phrases.
+        phrases_parsed = text_block_parsed.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
+        phrases_parsed.
           map(&:strip).
-          select do |phrase_parsed|
-            phrase = ids_to_words(phrase)
-            phrase_parsed_downcase = words_to_ids(phrase.downcase)
+          map { |phrase_parsed| [phrase_parsed, ids_to_words(phrase_parsed)] }.
+          select do |phrase_parsed, phrase|
+            phrase_downcase_parsed = words_to_ids(phrase.downcase)
+            phrase.d("Phrase")
+            phrase_downcase_parsed.d("Phrase parsed")
             (
-              m.not_mentioned_before?(phrase) and
+              m.not_mentioned_before?(phrase).d(1) and
               (word_ids(phrase_parsed).size <= 20).d(2) and
-              (phrase_downcase[sloch]).d(3) and
-              phrase_downcase.gsub(sloch, "|").split("|", -1).d.all? { |part| word_ids(part).d.size >= 2 }.d(4)
+              (sloch_regexp === phrase_downcase_parsed).d(3) and
+              # There must be at least 2 words before and after sloch.
+              (phrase_downcase_parsed.gsub(sloch, "|").split("|", -1).d.all? { |part| word_ids(part).d.size >= 2 }).d(4)
             )
           end.
-          map { |phrase| ids_to_words(phrase) }
+          map { |phrase_parsed, phrase| phrase }
       end
   end
   
