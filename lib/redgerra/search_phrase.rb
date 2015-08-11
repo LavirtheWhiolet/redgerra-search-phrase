@@ -293,7 +293,7 @@ module Redgerra
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
-    ".squ)
+    ".squeeze_unicode_whitespace)
     p t.split(s)
     
 end
