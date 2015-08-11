@@ -171,7 +171,7 @@ module Redgerra
     end
     
     def phrases
-      self.to_encoded_string.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first).
+      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|[\,\-\ ])+)/o).map(&:first).
         map { |phrase| Text.new(phrase) }
     end
     
@@ -298,6 +298,7 @@ module Redgerra
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
     ".squeeze_unicode_whitespace)
+    p t.phrases
     p t.downcase.split(s)
     
 end
