@@ -176,6 +176,12 @@ module Redgerra
       @encoded_str = encoded_str
     end
     
+    # calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
   end
   
   class Word
