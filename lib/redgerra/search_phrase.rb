@@ -19,11 +19,11 @@ module Redgerra
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
-    sloch = begin
-      sloch = squeeze_whitespace(sloch).strip
-      sloch = words_to_ids(sloch)
-      sloch.gsub!("*", "#{WORD_ID}( ?,? ?#{WORD_ID})?")
-      Regexp.new(sloch)
+    sloch_regexp = begin
+      r = squeeze_whitespace(sloch).strip
+      r = words_to_ids(r)
+      r.gsub!("*", "#{WORD_ID}( ?,? ?#{WORD_ID})?")
+      Regexp.new(r)
     end
     m = Memory.new
     # 
@@ -37,18 +37,16 @@ module Redgerra
     "].
       lazy_cached_filter do |text_block|
         text_block = squeeze_whitespace(text_block)
-        text_block = words_to_ids(text_block)
-        phrases = text_block.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
+        text_block_parsed = words_to_ids(text_block)
+        phrases_parsed = text_block.scan(/((#{WORD_ID}|[\,\-\ ])+)/o).map(&:first)
         phrases.
           map(&:strip).
-          select do |phrase|
-            sloch.d("Sloch")
-            ids_to_words(phrase).d("Phrase")
-            phrase.d("Phrase with IDs")
-            phrase_downcase = words_to_ids(ids_to_words(phrase).downcase).d("Phrase with IDs downcase")
+          select do |phrase_parsed|
+            phrase = ids_to_words(phrase)
+            phrase_parsed_downcase = words_to_ids(phrase.downcase)
             (
-              m.not_mentioned_before?(phrase).d(1) and
-              (word_ids(phrase).size <= 20).d(2) and
+              m.not_mentioned_before?(phrase) and
+              (word_ids(phrase_parsed).size <= 20).d(2) and
               (phrase_downcase[sloch]).d(3) and
               phrase_downcase.gsub(sloch, "|").split("|", -1).d.all? { |part| word_ids(part).d.size >= 2 }.d(4)
             )
