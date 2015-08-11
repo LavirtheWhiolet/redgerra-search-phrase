@@ -240,6 +240,7 @@ module Redgerra
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
+      one two everydo it floppy disk three four.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
     "].
