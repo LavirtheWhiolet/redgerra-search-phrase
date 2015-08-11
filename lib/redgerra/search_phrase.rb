@@ -169,10 +169,6 @@ module Redgerra
         map { |part| Text.new(part) }
     end
     
-    def inspect
-      
-    end
-    
     # Accessible to Sloch, Word, Text only.
     def to_encoded_string
       @encoded_str
@@ -238,7 +234,7 @@ module Redgerra
     
     def self.parse(str)
       encoded_regexp =
-        Text.parse(str).to_encoded_string.
+        Text.parse(str.downcase).to_encoded_string.
         gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       return Sloch.new(Regexp.new(encoded_regexp))
     end
