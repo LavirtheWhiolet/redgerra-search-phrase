@@ -233,7 +233,7 @@ module Redgerra
     end
     
     def inspect
-      "[:#{type}, #{to_s.inspect}, #{proper_name_with_dot?.inspect}]"
+      "#{type}:#{to_s.inspect}#{if proper_name_with_dot? then "(.)" else "" end}"
     end
     
     def proper_name_with_dot?
@@ -284,7 +284,7 @@ module Redgerra
       One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
      very very very very very long phrase, do the flop included anyway.
-  ")).map { |t| t.to_s }.join
+  "))
 
 end
 
