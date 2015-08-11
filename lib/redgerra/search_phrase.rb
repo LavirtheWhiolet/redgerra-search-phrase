@@ -31,6 +31,7 @@ module Redgerra
       o-ne t$w'o, do it, again flop three - fo-ur.
       ONE TWO DO IT AGAI'N FLOP THREE FO-UR...
       ONE TWO DO IT AGAI'N FLOP THREE Fo-ur...
+      One two undo the floppy disk three.
       Very very very very very very very very very very very very very 
       very very very very very long phrase, do the flop included anyway.
     "].
@@ -56,7 +57,7 @@ module Redgerra
       end
   end
   
-  WORD_ID = "\\h+"
+  WORD_ID = "Z\\h+Z"
   
   # returns IDs from +str+.
   # 
@@ -72,19 +73,20 @@ module Redgerra
   end
   
   # 
-  # replaces words in +text+ with IDs (which can be matched with WORD_ID regular
-  # expression; WORD_ID matches these IDs and nothing more).
+  # replaces words in +text+ with IDs. WORD_ID matches the IDs, it never
+  # matches anything else and never matches a part of the ID.
   # 
   # +text+ must be #squeeze_whitespace()-ed.
   # 
   def self.words_to_ids(text)
     # 
     to_id = lambda do |word|
-      r = ""
+      r = "Z"
       word.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
       end
+      r << "Z"
       r
     end
     # Parse!
@@ -106,7 +108,7 @@ module Redgerra
   
   # Inverse function of ::words_to_ids().
   def self.ids_to_words(text)
-    text.gsub(/\h\h/) { |code| code.hex.chr }
+    text.gsub(/#{WORD_ID}/o) { |id| id[1...-1].gsub(/\h\h/) { |code| code.hex.chr } }
   end
   
   # calls +f+ and returns true.
