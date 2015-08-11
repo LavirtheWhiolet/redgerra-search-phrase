@@ -57,7 +57,7 @@ module Redgerra
       end
   end
   
-  WORD_ID = "Z\\h+Z"
+  WORD_ID = "W\\h+W"
   
   # returns IDs from +str+.
   # 
@@ -81,12 +81,12 @@ module Redgerra
   def self.words_to_ids(text)
     # 
     to_id = lambda do |word|
-      r = "Z"
+      r = "W"
       word.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
       end
-      r << "Z"
+      r << "W"
       r
     end
     # Parse!
