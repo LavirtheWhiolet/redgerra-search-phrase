@@ -293,7 +293,7 @@ module Redgerra
     
   end
   
-  p search_phrase("  do    the   flop ", nil, nil).to_a
+  p search_phrase("  do    *   flop ", nil, nil).to_a
   
 end
 
