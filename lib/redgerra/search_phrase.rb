@@ -232,6 +232,9 @@ module Redgerra
       @str
     end
     
+    # 
+    # See also ENCODED_REGEXP, ::from_encoded_string().
+    # 
     def to_encoded_string
       r = "W#{if proper_name_with_dot? then "X" else "O" end}"
       @str.each_codepoint do |code|
