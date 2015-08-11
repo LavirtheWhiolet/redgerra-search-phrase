@@ -119,8 +119,19 @@ module Redgerra
     return text_blocks
   end
 
+  def self.squeeze_whitespace(str)
+    str.gsub(/[\u0009-\u000D\u0020\u0085\u00A0\u1680\u180E\u2000-\u200A\u2028
+  end
+  
+  def self.upcase?(word)
+    /[a-z]/ !~ word
+  end
+  
   class Text
     
+    # 
+    # +str+ must be ::squeeze_whitespace()-ed.
+    # 
     def self.parse(str)
       encoded_str = ""
       s = StringScanner.new(str)
