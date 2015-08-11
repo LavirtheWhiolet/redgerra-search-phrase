@@ -173,6 +173,7 @@ module Redgerra
     def phrases
       self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|[\,\-\ ])+)/o).map(&:first).
         map(&:strip).
+        reject(&:empty?).
         map { |encoded_phrase| Text.from_encoded_string(encoded_phrase) }
     end
     
