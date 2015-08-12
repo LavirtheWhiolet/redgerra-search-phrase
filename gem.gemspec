@@ -17,5 +17,6 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'watir-webdriver'
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'timers'
+  s.add_runtime_dependency 'mechanize'
   s.requirements << 'PhantomJS (http://phantomjs.org/)'
 end
