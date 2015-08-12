@@ -1,5 +1,6 @@
 require 'mechanize'
 require 'monitor'
+require 'nokogiri'
 
 module Google
   
@@ -14,28 +15,19 @@ module Google
     def initialize(query, browser)
       # 
       @browser = begin
-        # Optimize the browser.
-        begin
-          browser.html_parser = DummyHTMLParser.new
-          browser.max_history = 0
-        end
+        # Optimize.
+        browser.max_history = 0
+        # Make Google to send results as for...
+        browser.user_agent = "Lynx/2.8.8pre.4 libwww-FM/2.14 SSL-MM/1.4.1"
+        # In case of errors...
+        browser.post_connect_hooks.push(lambda do |agent, uri, response, body|
+          @last_response_body = body
+        end)
+        #
+        browser
       end
       # 
       @next_page = "https://google.com/search?q=#{CGI::escape(query)}"
-    end
-    
-    private
-    
-    class DummyHTMLParser
-      
-      def parse(_, _, _)
-        EMPTY_ARRAY_CACHED
-      end
-      
-      private
-      
-      EMPTY_ARRAY_CACHED = []
-      
     end
     
   end
