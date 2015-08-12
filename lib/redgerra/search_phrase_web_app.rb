@@ -76,6 +76,21 @@ module Redgerra
       end
     end
     
+    class Session
+      
+      def initialize(search_web, sloch, new_web_search_browser)
+        @browser = new_web_search_browser.()
+        @phrases = Redgerra::search_phrase(sloch, @search_web, @browser)
+      end
+      
+      attr_reader :phrases
+      
+      def close()
+        @browser.close()
+      end
+      
+    end
+    
   end
 
 end
