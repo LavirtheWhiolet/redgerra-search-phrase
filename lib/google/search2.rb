@@ -2,6 +2,7 @@ require 'mechanize'
 require 'monitor'
 require 'nokogiri'
 require 'object/not_nil'
+require 'web_search_error'
 
 module Google
   
@@ -20,10 +21,6 @@ module Google
         browser.max_history = 0
         # Make Google to send results as for...
         browser.user_agent = "Lynx/2.8.8pre.4 libwww-FM/2.14 SSL-MM/1.4.1"
-        # In case of errors...
-        browser.post_connect_hooks.push(lambda do |agent, uri, response, body|
-          @last_response_body = body
-        end)
         #
         browser
       end
@@ -37,10 +34,19 @@ module Google
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page.nil?
           # Go to next page/start the search.
-          begin
-            
-          rescue Exception => e
-          end
+          page =
+            begin
+              @browser.get(@next_page)
+            rescue Mechanize::ResponseCodeError => e
+              # If Google asks captcha...
+              if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
+                raise WebSearchError.new("Google thinks you are bot and asks to solve a captcha")
+              # In case of other errors...
+              else
+                raise WebSearchError.new(e.page.content)
+              end
+            end
+          # 
         end
       end
     end
