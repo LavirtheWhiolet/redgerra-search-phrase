@@ -7,6 +7,7 @@ require 'object/not_nil'
 require 'object/not_empty'
 require 'object/in'
 require 'string/lchomp'
+require 'cgi'
 
 module Google
   
@@ -19,9 +20,7 @@ module Google
       #
       @browser = browser
       # Start searching!
-      @browser.goto "https://google.com"
-      @browser.text_field(name: "q").set(query)
-      @browser.button(name: "btnG").click()
+      @browser.goto "https://google.com/search?q=#{CGI::escape(query)}"
       # 
       @cached_results = []
       @no_more_results = false
