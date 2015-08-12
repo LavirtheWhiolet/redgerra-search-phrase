@@ -45,7 +45,7 @@ class ExpiringHashMap2
     @map = {}  # key -> [value, timer]
     @timers = Timers::Group.new
     @on_expire = lambda { |value| }
-    @default_proc = default_proc || lambda { |key| }
+    @default_proc = default_proc || lambda { |hash, key| }
     @deleting_thread = Thread.new do
       loop do
         @timers.wait
