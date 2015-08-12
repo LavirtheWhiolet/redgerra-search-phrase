@@ -33,7 +33,7 @@ module Redgerra
         sessions[sloch] = Session.new(browser, phrases)
       end
       @sessions.on_expire = lambda do |session|
-        session.browser.close()
+        session.close()
       end
     end
     
@@ -69,6 +69,11 @@ module Redgerra
     end
     
     class Session < Struct.new :browser, :phrases
+      
+      def close()
+        browser.close()
+      end
+      
     end
     
   end
