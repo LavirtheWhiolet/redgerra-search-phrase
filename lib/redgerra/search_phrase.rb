@@ -316,6 +316,7 @@ module Redgerra
     include MonitorMixin
     
     def initialize(source)
+      super()
       @source = source
     end
     
