@@ -163,7 +163,7 @@ module Redgerra
     end
     
     def inspect
-      "#<Text #{@str.inspect}>"
+      "#<Text #{to_s.inspect}>"
     end
     
     def include?(sloch)
