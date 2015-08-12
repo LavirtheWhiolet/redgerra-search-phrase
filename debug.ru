@@ -10,7 +10,7 @@ require 'headless'
 
 h = Headless.new
 h.start
-trap { h.destroy }
+trap("SIGTERM") { h.destroy }
 p = Selenium::WebDriver::Firefox::Profile.new
 
 run Redgerra::SearchPhraseWebApp.new(
