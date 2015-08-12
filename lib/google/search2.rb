@@ -1,4 +1,4 @@
-# require 'mechanize'
+require 'mechanize'
 require 'monitor'
 require 'nokogiri'
 require 'object/not_nil'
@@ -20,6 +20,7 @@ module Google
     include MonitorMixin
     
     def initialize(query, browser)
+      super()
       # 
       @browser = begin
         # Optimize.
@@ -52,10 +53,11 @@ module Google
               end
             end
           # 
-          @cached_results.concat web_search_results_from page.root
+          @cached_results.concat(web_search_results_from page.root)
           #
           @next_page_url = next_page_url_from page.root, page.uri
         end
+        return @cached_results[index]
       end
     end
     
@@ -131,11 +133,19 @@ module Google
     SearchResults2.new(query, browser)
   end
   
+  module_function :search2
+  
 end
 
 # require 'uri'
 # puts Google::SearchResults2::next_page_url_from(Nokogiri::HTML(File.read("../h.html")), URI.parse("https://google.com"))
 
-# r = Google::SearchResults2::web_search_results_from(Nokogiri::HTML(File.read("../h.html")))
-# r.compact.each { |x| next if x.nil?; puts x; puts '---' }
-# puts r.size
+m = Mechanize.new
+begin
+  r = Google::search2("do the flop", m)
+  for i in 0..35
+    puts "#{i}. #{r[i].inspect}"
+  end
+ensure
+  m.shutdown
+end
