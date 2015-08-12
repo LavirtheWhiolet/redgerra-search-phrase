@@ -21,6 +21,8 @@ module Redgerra
   # passes the query to a web search engine and returns RandomAccessible
   # collection of WebSearchResult-s.
   # 
+  # It returns RandomAccessible of String-s.
+  # 
   # It may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
