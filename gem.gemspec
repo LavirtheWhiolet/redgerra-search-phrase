@@ -17,5 +17,7 @@ Gem::Specification.new do |s|
   s.add_runtime_dependency 'watir-webdriver'
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'timers'
-  s.requirements << 'PhantomJS (http://phantomjs.org/)'
+  s.add_runtime_dependency 'headless'
+  s.requirements << 'Firefox (https://www.mozilla.org/firefox)'
+  s.requirements << 'Xvfb (http://www.x.org/releases/X11R7.6/doc/man/man1/Xvfb.1.xhtml)'
 end
