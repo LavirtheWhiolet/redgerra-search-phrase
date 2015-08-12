@@ -24,11 +24,16 @@ module Redgerra
     # 
     def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60)
       super()
-      @search_web = search_web
-      @new_web_search_browser = new_web_search_browser
+      #
       @results_per_page = results_per_page
-      @sessions = ExpiringHashMap.new(cache_lifetime) do |session|
-        session.close()
+      # 
+      @sessions = ExpiringHashMap.new(cache_lifetime) do |sessions, sloch|
+        browser = new_web_search_browser.()
+        phrases = Redgerra::search_phrase(sloch, search_web, browser)
+        sessions[sloch] = Session.new(browser, phrases)
+      end
+      @sessions.on_expire = lambda do |session|
+        session.browser.close()
       end
     end
     
@@ -57,30 +62,13 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       begin
-        session(sloch).phrases[offset] || ""
+        @sessions[sloch].phrases[offset] || ""
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
     end
     
-    def session(sloch)
-      @sessions[sloch] ||=
-        Session.new(@search_web, @new_web_search_browser, sloch)
-    end
-    
-    class Session
-      
-      def initialize(search_web, new_web_search_browser, sloch)
-        @browser = new_web_search_browser.()
-        @phrases = Redgerra::search_phrase(sloch, @search_web, @browser)
-      end
-      
-      attr_reader :phrases
-      
-      def close()
-        @browser.close()
-      end
-      
+    class Session < Struct.new :browser, :phrases
     end
     
   end
