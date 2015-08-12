@@ -57,7 +57,7 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       begin
-        session[sloch].phrases[offset] || ""
+        session(sloch).phrases[offset] || ""
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
