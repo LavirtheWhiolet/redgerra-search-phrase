@@ -1,6 +1,6 @@
 # encoding: UTF-8
 require 'sinatra/base'
-require 'expiring_hash_map'
+require 'expiring_hash_map2'
 require 'redgerra/search_phrase'
 require 'web_search_error'
 
@@ -27,7 +27,7 @@ module Redgerra
       #
       @results_per_page = results_per_page
       # 
-      @sessions = ExpiringHashMap.new(cache_lifetime) do |sessions, sloch|
+      @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
         browser = new_web_search_browser.()
         phrases = Redgerra::search_phrase(sloch, search_web, browser)
         sessions[sloch] = Session.new(browser, phrases)
