@@ -28,6 +28,13 @@ module Google
       end
       # 
       @next_page = "https://google.com/search?q=#{CGI::escape(query)}"
+      # 
+      @cached_results = []
+    end
+    
+    def [](index)
+      mon_synchronize do
+      end
     end
     
     private
