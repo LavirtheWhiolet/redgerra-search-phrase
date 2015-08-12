@@ -54,7 +54,24 @@ class ExpiringHashMap2
     end
   end
   
-  # TODO
+  # 
+  # A Proc which is called when an entry is deleted due to expiration.
+  # It is passed with the entry's value.
+  # 
+  def on_expire
+    mon_synchronize do
+      @on_expire
+    end
+  end
+  
+  # 
+  # sets #on_expire.
+  # 
+  def on_expire=(action)
+    mon_synchronize do
+      @on_expire = action
+    end
+  end
   
   def []=(key, value)
     mon_synchronize do
