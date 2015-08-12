@@ -64,7 +64,8 @@ module Redgerra
     end
     
     def session(sloch)
-      @sessions[sloch] ||= Session.new(@search_web, @new_web_search_browser, sloch)
+      @sessions[sloch] ||=
+        Session.new(@search_web, @new_web_search_browser, sloch)
     end
     
     class Session
