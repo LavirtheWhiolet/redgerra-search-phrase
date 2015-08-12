@@ -313,6 +313,7 @@ module Redgerra
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
+    include MonitorMixin
     
     def initialize(source)
       @source = source
