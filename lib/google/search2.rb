@@ -107,20 +107,6 @@ module Google
       CGI::unescape(r[param_prefix.size..-1])
     end
     
-    def self.source_page_url_from(google_search_result_url)
-      google_search_result_url.
-        # Get parameters string.
-        lchomp("/url?").
-        # Split parameters.
-        split(/\&(?!.*?;)/).
-        # 
-        select { |parameter| parameter.start_with? "q=" }.
-        # 
-        map { |q| CGI.unescapeHTML(q.lchomp("q=")) }.
-        # 
-        first
-    end
-    
   end
   
   # 
