@@ -52,12 +52,16 @@ module Google
               end
             end
           # 
-          
+          @cached_results.concat web_search_results_from page.root
+          #
+          @next_page_url = next_page_url_from page.root, page.uri
         end
       end
     end
     
-    def self.web_search_results_from(page)
+    private
+    
+    def web_search_results_from(page)
       results = []
       page.xpath("//table").each do |table|
         p = table.previous_sibling
@@ -87,7 +91,7 @@ module Google
       return results
     end
     
-    def self.text_from(node, ignored_nodes = [])
+    def text_from(node, ignored_nodes = [])
       if node.in? ignored_nodes then return ""
       elsif node.text? then return node.content
       elsif node.element? then
@@ -98,7 +102,7 @@ module Google
       end
     end
     
-    def self.next_page_url_from(page, page_uri)
+    def next_page_url_from(page, page_uri)
       href = page.xpath("//a[img[@src='nav_next_2.gif']]/@href").first
       return nil unless href
       url = "#{page_uri.scheme}://#{page_uri.host}#{href.value}"
@@ -106,7 +110,7 @@ module Google
       url
     end
     
-    def self.param_value(url, param_name)
+    def param_value(url, param_name)
       param_prefix = "#{param_name}="
       r = (url[/\?(.*)$/, 1] || "").
         split(/\&(?!.*?;)/).
@@ -129,8 +133,8 @@ module Google
   
 end
 
-require 'uri'
-puts Google::SearchResults2::next_page_url_from(Nokogiri::HTML(File.read("../h.html")), URI.parse("https://google.com"))
+# require 'uri'
+# puts Google::SearchResults2::next_page_url_from(Nokogiri::HTML(File.read("../h.html")), URI.parse("https://google.com"))
 
 # r = Google::SearchResults2::web_search_results_from(Nokogiri::HTML(File.read("../h.html")))
 # r.compact.each { |x| next if x.nil?; puts x; puts '---' }
