@@ -30,6 +30,10 @@ module Google
       @next_page = "https://google.com/search?q=#{CGI::escape(query)}"
     end
     
+    private
+    
+    
+    
   end
   
   # 
