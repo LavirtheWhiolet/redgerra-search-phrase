@@ -56,28 +56,29 @@ module Google
     private
     
     def results_from(html)
-      html.
-        xpath("//div[@id='ires']/ol").
+      (
+        # For PhantomJS.
+        html.xpath("//div[@id='ires']/ol/li") + 
+        # For Firefox.
+        html.xpath("//div[@id='ires']/ol/div[class='srg']/div")
+      ).
         map do |node|
           # For PhantomJS.
-          li = node.xpath("li")
           r = RawResult.new(
-            li.xpath("h3/a/@href").first,
-            li.xpath("h3/a").first,
-            li.xpath("div/span").first
+            node.xpath("h3/a/@href").first,
+            node.xpath("h3/a").first,
+            node.xpath("div/span").first
           )
           # For PhantomJS (another version).
           if r.any_property_nil? then
-            li = node.xpath("li")
             r = RawResult.new(
-              li.xpath("table/tbody/tr/td/h3/a/@href").first,
-              li.xpath("table/tbody/tr/td/h3/a").first,
-              li.xpath("table/tbody/tr/td/span[@class='st']").first
+              node.xpath("table/tbody/tr/td/h3/a/@href").first,
+              node.xpath("table/tbody/tr/td/h3/a").first,
+              node.xpath("table/tbody/tr/td/span[@class='st']").first
             )
           end
 #           # For Firefox.
 #           if r.any_property_nil? then
-#             srg = node.xpath("div[class='srg']/div")
 #             r = RawResult.new(
 #               node.xpath("div/div/h3")
 #             )
