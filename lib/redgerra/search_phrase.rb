@@ -6,6 +6,7 @@ require 'web_search_error'
 require 'random_accessible'
 require 'set'
 require 'string/squeeze_unicode_whitespace'
+require 'monitor'
 
 require 'open-uri'
 require 'nokogiri'
@@ -21,7 +22,7 @@ module Redgerra
   # passes the query to a web search engine and returns RandomAccessible
   # collection of WebSearchResult-s.
   # 
-  # It returns RandomAccessible of String-s.
+  # It returns thread-safe RandomAccessible of String-s.
   # 
   # It may raise WebSearchError.
   # 
@@ -30,7 +31,7 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-    web_search.(%("#{sloch}"), browser).
+    phrases = web_search.(%("#{sloch}"), browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
       end.
@@ -48,6 +49,8 @@ module Redgerra
           end.
           map(&:to_s)
       end
+    #
+    return ThreadSafeRandomAccessible.new(phrases)
   end
   
   private
@@ -302,6 +305,24 @@ module Redgerra
       else
         @impl.add x
         return false
+      end
+    end
+    
+  end
+  
+  class ThreadSafeRandomAccessible
+    
+    include RandomAccessible
+    include MonitorMixin
+    
+    def initialize(source)
+      super()
+      @source = source
+    end
+    
+    def [](index)
+      mon_synchronize do
+        @source[index]
       end
     end
     
