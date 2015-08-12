@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/**"] + ["config.ru"]
   s.name = 'search-phrase'
   s.summary = 'Search for the specific phrase in Internet.'
-  s.version = '0.0.3'
+  s.version = '0.0.4'
   s.license = 'Public Domain'
   s.description = <<-EOF
     Search for the specific phrase in Internet. The library includes the
