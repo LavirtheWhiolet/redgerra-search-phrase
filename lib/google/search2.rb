@@ -136,3 +136,16 @@ module Google
   module_function :search2
   
 end
+
+# require 'uri'
+# puts Google::SearchResults2::next_page_url_from(Nokogiri::HTML(File.read("../h.html")), URI.parse("https://google.com"))
+
+m = Mechanize.new
+begin
+  r = Google::search2("do the flop", m)
+  for i in 0..35
+    puts "#{i}. #{r[i].inspect}"
+  end
+ensure
+  m.shutdown
+end
