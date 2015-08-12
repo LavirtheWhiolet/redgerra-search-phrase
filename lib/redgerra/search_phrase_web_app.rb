@@ -27,8 +27,8 @@ module Redgerra
       @search_web = search_web
       @new_web_search_browser = new_web_search_browser
       @results_per_page = results_per_page
-      @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
-        phrases_and_browsers[1].close()
+      @sessions = ExpiringHashMap.new(cache_lifetime) do |session|
+        session.close()
       end
     end
     
@@ -57,28 +57,19 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       begin
-        search_phrase_cached(sloch)[offset] || ""
+        session[sloch].phrases[offset] || ""
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
     end
     
-    # Cached version of Redgerra::search_phrase().
-    def search_phrase_cached(sloch)
-      cached_phrases_and_browsers = @cached_phrases_and_browsers[sloch]
-      if cached_phrases_and_browsers.nil?
-        b1 = @new_web_search_browser.()
-        phrases = Redgerra::search_phrase(sloch, @search_web, b1)
-        @cached_phrases_and_browsers[sloch] = [phrases, b1]
-        return phrases
-      else
-        return cached_phrases_and_browsers[0]
-      end
+    def session(sloch)
+      @sessions[sloch] ||= Session.new(@search_web, @new_web_search_browser, sloch)
     end
     
     class Session
       
-      def initialize(search_web, sloch, new_web_search_browser)
+      def initialize(search_web, new_web_search_browser, sloch)
         @browser = new_web_search_browser.()
         @phrases = Redgerra::search_phrase(sloch, @search_web, @browser)
       end
