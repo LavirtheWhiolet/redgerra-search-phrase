@@ -30,18 +30,18 @@ module Google
         browser
       end
       # 
-      @next_page = "https://google.com/search?q=#{CGI::escape(query)}"
+      @next_page_url = "https://google.com/search?q=#{CGI::escape(query)}"
       # 
       @cached_results = []
     end
     
     def [](index)
       mon_synchronize do
-        until @cached_results[index].not_nil? or @next_page.nil?
+        until @cached_results[index].not_nil? or @next_page_url.nil?
           # Go to next page/start the search.
           page =
             begin
-              @browser.get(@next_page)
+              @browser.get(@next_page_url)
             rescue Mechanize::ResponseCodeError => e
               # If Google asks captcha...
               if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
@@ -98,6 +98,14 @@ module Google
       end
     end
     
+    def self.next_page_url_from(page, page_uri)
+      href = page.xpath("//a[img[@src='nav_next_2.gif']]/@href").first
+      return nil unless href
+      url = "#{page_uri.scheme}://#{page_uri.host}#{href.value}"
+      return nil if url == @next_page_url
+      url
+    end
+    
     def self.param_value(url, param_name)
       param_prefix = "#{param_name}="
       r = (url[/\?(.*)$/, 1] || "").
@@ -121,6 +129,9 @@ module Google
   
 end
 
-r = Google::SearchResults2::web_search_results_from(Nokogiri::HTML(File.read("../h.html")))
-r.compact.each { |x| next if x.nil?; puts x; puts '---' }
-puts r.size
+require 'uri'
+puts Google::SearchResults2::next_page_url_from(Nokogiri::HTML(File.read("../h.html")), URI.parse("https://google.com"))
+
+# r = Google::SearchResults2::web_search_results_from(Nokogiri::HTML(File.read("../h.html")))
+# r.compact.each { |x| next if x.nil?; puts x; puts '---' }
+# puts r.size
