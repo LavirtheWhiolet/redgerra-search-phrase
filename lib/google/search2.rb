@@ -1,6 +1,7 @@
 require 'mechanize'
 require 'monitor'
 require 'nokogiri'
+require 'object/not_nil'
 
 module Google
   
@@ -34,6 +35,13 @@ module Google
     
     def [](index)
       mon_synchronize do
+        until @cached_results[index].not_nil? or @next_page.nil?
+          # Go to next page/start the search.
+          begin
+            
+          rescue Exception => e
+          end
+        end
       end
     end
     
