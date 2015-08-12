@@ -1,6 +1,6 @@
 # encoding: UTF-8
 require 'sinatra/base'
-require 'expiring_hash_map'
+require 'expiring_hash_map2'
 require 'redgerra/search_phrase'
 require 'web_search_error'
 
@@ -24,11 +24,16 @@ module Redgerra
     # 
     def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60)
       super()
-      @search_web = search_web
-      @new_web_search_browser = new_web_search_browser
+      #
       @results_per_page = results_per_page
-      @cached_phrases_and_browsers = ExpiringHashMap.new(cache_lifetime) do |phrases_and_browsers|
-        phrases_and_browsers[1].close()
+      # 
+      @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
+        browser = new_web_search_browser.()
+        phrases = Redgerra::search_phrase(sloch, search_web, browser)
+        sessions[sloch] = Session.new(browser, phrases)
+      end
+      @sessions.on_expire = lambda do |session|
+        session.close()
       end
     end
     
@@ -57,23 +62,18 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       begin
-        search_phrase_cached(sloch)[offset] || ""
+        @sessions[sloch].phrases[offset] || ""
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
     end
     
-    # Cached version of Redgerra::search_phrase().
-    def search_phrase_cached(sloch)
-      cached_phrases_and_browsers = @cached_phrases_and_browsers[sloch]
-      if cached_phrases_and_browsers.nil?
-        b1 = @new_web_search_browser.()
-        phrases = Redgerra::search_phrase(sloch, @search_web, b1)
-        @cached_phrases_and_browsers[sloch] = [phrases, b1]
-        return phrases
-      else
-        return cached_phrases_and_browsers[0]
+    class Session < Struct.new :browser, :phrases
+      
+      def close()
+        browser.close()
       end
+      
     end
     
   end
