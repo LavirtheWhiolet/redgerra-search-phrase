@@ -133,8 +133,11 @@ module Google
   # 
   # returns SearchResults.
   # 
-  # +browser+ is Watir::Browser which will be used to access Google. It must
-  # be Watir::Browser#close()-d after the returned SearchResults are used.
+  # +browser+ is Watir::Browser (https://rubygems.org/gems/watir) which will be
+  # used to access Google. It must be Watir::Browser#close()-d after the
+  # returned SearchResults are used.
+  # 
+  # Deprecated. Use Google::search2().
   # 
   def search(query, browser)
     SearchResults.new(query, browser)

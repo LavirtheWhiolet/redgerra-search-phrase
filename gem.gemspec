@@ -14,8 +14,7 @@ Gem::Specification.new do |s|
   EOF
   s.required_ruby_version = '>= 1.9.3'
   s.add_runtime_dependency 'nokogiri'
-  s.add_runtime_dependency 'watir-webdriver'
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'timers'
-  s.requirements << 'PhantomJS (http://phantomjs.org/)'
+  s.add_runtime_dependency 'mechanize'
 end

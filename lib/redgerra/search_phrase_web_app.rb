@@ -14,8 +14,9 @@ module Redgerra
     # 
     # +search_web+ is +search_web+ argument for Redgerra::search_phrase().
     # 
-    # +new_web_search_browser+ is a Proc returning a new Watir::Browser eligible
-    # for passing it to +search_web+.
+    # +new_web_search_browser+ is a Proc returning a new browser eligible
+    # for passing it to +search_web+. The browser must respond to
+    # <code>close()</code>.
     # 
     # +results_per_page+ is number of results to be shown until "More..."
     # button is displayed.
