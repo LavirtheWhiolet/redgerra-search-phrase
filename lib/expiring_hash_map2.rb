@@ -86,7 +86,7 @@ class ExpiringHashMap2
         entry[1].reset()
         return entry[0]
       else
-        return @default_proc.(key)
+        return @default_proc.(self, key)
       end
     end
   end
