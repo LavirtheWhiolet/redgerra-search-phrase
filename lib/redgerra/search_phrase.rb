@@ -24,7 +24,7 @@ module Redgerra
   # - the query;
   # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
   # - +browser+.
-  # +web_search+ must returns RandomAccessible collection of WebSearchResult-s
+  # +web_search+ must return RandomAccessible collection of WebSearchResult-s
   # and may raise WebSearchError.
   # 
   # This method returns thread-safe RandomAccessible collection of String-s and
