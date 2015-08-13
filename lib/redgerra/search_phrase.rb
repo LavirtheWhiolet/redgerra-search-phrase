@@ -32,10 +32,14 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-    phrases = web_search.(%("#{sloch}"), browser).
-      lazy_cached_filter do |web_search_result|
-        [web_search_result.page_excerpt]
-      end.
+#     phrases = web_search.(%("#{sloch}"), browser).
+#       lazy_cached_filter do |web_search_result|
+#         [web_search_result.page_excerpt]
+#       end.
+    ["Jesse Eisenberg Calls Comic-Con Some Kind Of Genocide image. 
+     Lyrics to Some Kind Of Wonderful by Grand Funk Railroad: I don't need a whole  lots 'a money / 
+    Watch the Some Kind of Beautiful trailer. 
+    1 day ago ... Pierce Brosnan gets shocking baby news from Jessica Alba in an exclusive clip  from their new romantic comedy Some Kind of Beautiful."]
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
@@ -331,4 +335,4 @@ module Redgerra
   
 end
 
-
+p search_phrase("some kind of", nil, nil)
