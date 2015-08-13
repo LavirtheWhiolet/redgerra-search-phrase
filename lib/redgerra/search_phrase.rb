@@ -8,6 +8,7 @@ require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
 
+# For Redgerra::text_blocks_from*().
 require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
