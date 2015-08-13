@@ -12,6 +12,8 @@ require 'cgi'
 module Google
   
   # 
+  # Results of Google::search2().
+  # 
   # This class is thread-safe.
   # 
   class SearchResults2
@@ -19,6 +21,7 @@ module Google
     include RandomAccessible
     include MonitorMixin
     
+    # Accessible to Google::search2() only.
     def initialize(query, browser)
       super()
       # 
