@@ -17,7 +17,7 @@ require 'string/scrub'
 module Redgerra
   
   # 
-  # searches for phrases in Web which include +sloch+.
+  # searches for phrases in WWW which include +sloch+.
   # 
   # +web_search+ is a Proc which queries a web search engine (such as Yandex,
   # Google, DuckDuckGo or other). It is passed with:
