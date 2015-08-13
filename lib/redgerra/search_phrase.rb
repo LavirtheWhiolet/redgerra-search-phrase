@@ -36,7 +36,7 @@ module Redgerra
     m = Memory.new
     # 
     phrases = 
-      web_search.(%("#{sloch}"), browser).
+      web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
       end.
