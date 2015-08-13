@@ -155,9 +155,9 @@ module Redgerra
         result = ""
         s = StringScanner.new(@str)
         until s.eos?
-          (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
-            result << Word.new(abbr).to_encoded_string
-          end) or
+          (slang = s.scan(/\'[Cc]ause/) and act do
+            result << Word.new(slang).to_encoded_string
+          end)
           (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o) and act do
             is_proper_name_with_dot = word.include?(".")
             result << Word.new(word, is_proper_name_with_dot).to_encoded_string
@@ -237,7 +237,7 @@ module Redgerra
     # It matches only Word#to_encoded_string() in Text#to_encoded_string() and
     # nothing else. It also never matches a part of Word#to_encoded_string().
     # 
-    ENCODED_REGEXP = "W[OX]\\h+W"
+    ENCODED_REGEXP = "W[01]\\h+W"
     
     def initialize(str, is_proper_name_with_dot = false)
       @str = str
@@ -256,7 +256,7 @@ module Redgerra
     # See also ENCODED_REGEXP, ::from_encoded_string().
     # 
     def to_encoded_string
-      r = "W#{if proper_name_with_dot? then "X" else "O" end}"
+      r = "W#{if proper_name_with_dot? then "1" else "0" end}"
       @str.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
@@ -268,7 +268,7 @@ module Redgerra
     def self.from_encoded_string(encoded_str)
       Word.new(
         encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr },
-        encoded_str[1] == "X"
+        encoded_str[1] == "1"
       )
     end
     
