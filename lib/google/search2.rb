@@ -19,7 +19,7 @@ module Google
     include RandomAccessible
     include MonitorMixin
     
-    def initialize(query, browser)
+    def initialize(query, language, browser)
       super()
       # 
       @browser = begin
@@ -126,10 +126,14 @@ module Google
   # 
   # returns SearchResults2.
   # 
+  # +language+ is a two-character language code (e. g., "en", "ru", "fr", "de").
+  # If it is specified then Google will be asked for results in specified
+  # language.
+  # 
   # +browser+ is Mechanize which will be used to access Google. It must
   # be Mechanize#shutdown()-ed after the returned SearchResults are used.
   # 
-  def search2(query, browser)
+  def search2(query, language = nil, browser)
     SearchResults2.new(query, browser)
   end
   
