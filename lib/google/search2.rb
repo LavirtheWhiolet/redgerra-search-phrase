@@ -31,7 +31,9 @@ module Google
         browser
       end
       # 
-      @next_page_url = "https://google.com/search?q=#{CGI::escape(query)}"
+      @next_page_url =
+        "https://google.com/search?q=#{CGI::escape(query)}" +
+        if language then "&hl=#{language}" else "" end
       # 
       @cached_results = []
     end
