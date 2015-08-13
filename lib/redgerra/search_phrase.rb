@@ -35,7 +35,7 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-    phrases = 
+    phrases =
       web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
