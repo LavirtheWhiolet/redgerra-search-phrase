@@ -133,7 +133,7 @@ module Google
   # be Mechanize#shutdown()-ed after the returned SearchResults are used.
   # 
   def search2(query, language = nil, browser)
-    SearchResults2.new(query, browser)
+    SearchResults2.new(query, language, browser)
   end
   
   module_function :search2
