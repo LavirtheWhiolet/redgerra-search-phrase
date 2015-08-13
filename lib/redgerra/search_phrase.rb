@@ -17,23 +17,27 @@ require 'string/scrub'
 module Redgerra
   
   # 
-  # searches for phrases in Web which include +sloch+.
+  # searches for phrases in WWW which include +sloch+.
   # 
-  # +web_search+ is a Proc which is passed with a query and +browser+,
-  # passes the query to a web search engine and returns RandomAccessible
-  # collection of WebSearchResult-s.
+  # +web_search+ is a Proc which queries a web search engine (such as Yandex,
+  # Google, DuckDuckGo or other). It is passed with:
+  # - the query;
+  # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
+  # - +browser+.
   # 
-  # It returns thread-safe RandomAccessible of String-s.
+  # +web_search+ must return RandomAccessible collection of WebSearchResult-s
+  # and may raise WebSearchError.
   # 
-  # It may raise WebSearchError.
+  # This method returns thread-safe RandomAccessible collection of String-s and
+  # may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-    phrases = 
-      web_search.(%("#{sloch}"), browser).
+    phrases =
+      web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
       end.

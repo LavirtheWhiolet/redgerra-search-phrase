@@ -12,6 +12,8 @@ require 'cgi'
 module Google
   
   # 
+  # Results of Google::search2().
+  # 
   # This class is thread-safe.
   # 
   class SearchResults2
@@ -19,7 +21,8 @@ module Google
     include RandomAccessible
     include MonitorMixin
     
-    def initialize(query, browser)
+    # Accessible to Google::search2() only.
+    def initialize(query, language, browser)
       super()
       # 
       @browser = begin
@@ -31,7 +34,9 @@ module Google
         browser
       end
       # 
-      @next_page_url = "https://google.com/search?q=#{CGI::escape(query)}"
+      @next_page_url =
+        "https://google.com/search?q=#{CGI::escape(query)}" +
+        if language then "&hl=#{language}" else "" end
       # 
       @cached_results = []
     end
@@ -126,11 +131,14 @@ module Google
   # 
   # returns SearchResults2.
   # 
+  # +language+ is a preferred language of results. It is a two-character code
+  # (e. g., "en", "ru", "de").
+  # 
   # +browser+ is Mechanize which will be used to access Google. It must
   # be Mechanize#shutdown()-ed after the returned SearchResults are used.
   # 
-  def search2(query, browser)
-    SearchResults2.new(query, browser)
+  def search2(query, language = nil, browser)
+    SearchResults2.new(query, language, browser)
   end
   
   module_function :search2
