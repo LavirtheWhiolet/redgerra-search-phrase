@@ -9,8 +9,9 @@ Gem::Specification.new do |s|
   s.version = '0.0.4'
   s.license = 'Public Domain'
   s.description = <<-EOF
-    Search for the specific phrase in Internet. The library includes the
-    searching function and a wrapper web-application for it.
+    Search for the specific phrase in Internet as specified by
+    Redgerra. The library includes the searching function and
+    a wrapper web-application for it.
   EOF
   s.required_ruby_version = '>= 1.9.3'
   s.add_runtime_dependency 'nokogiri'
