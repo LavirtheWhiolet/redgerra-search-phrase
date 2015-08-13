@@ -37,7 +37,7 @@ module Redgerra
 #       lazy_cached_filter do |web_search_result|
 #         [web_search_result.page_excerpt]
 #       end.
-    ["'Everybody do the flop let's do it again' And do the flop."]
+    ["'Everybody do the flop let's do it again' And do the flop."].
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
@@ -180,7 +180,7 @@ module Redgerra
     end
     
     def phrases
-      punctuation_and_whitespace = "[\\,\\'\\ ]"
+      punctuation_and_whitespace = "[\\,\\ ]"
       self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+)/o).map(&:first).
         map do |encoded_phrase|
           encoded_phrase.gsub(/^#{punctuation_and_whitespace}*|#{punctuation_and_whitespace}*$/o, "")
@@ -342,4 +342,4 @@ module Redgerra
   
 end
 
-p Redgerra.search_phrase("do the flop").to_a
+p Redgerra.search_phrase("do the flop", nil, nil).to_a
