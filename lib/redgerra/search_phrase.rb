@@ -32,7 +32,8 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-    phrases = web_search.(%("#{sloch}"), browser).
+    phrases = 
+      web_search.(%("#{sloch}"), browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
       end.
@@ -174,8 +175,11 @@ module Redgerra
     end
     
     def phrases
-      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|[\,\-\ ])+)/o).map(&:first).
-        map(&:strip).
+      punctuation_and_whitespace = "[\\,\\-\\ ]"
+      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+)/o).map(&:first).
+        map do |encoded_phrase|
+          encoded_phrase.gsub(/^#{punctuation_and_whitespace}*|#{punctuation_and_whitespace}*$/o, "")
+        end.
         reject(&:empty?).
         map { |encoded_phrase| Text.from_encoded_string(encoded_phrase) }
     end
