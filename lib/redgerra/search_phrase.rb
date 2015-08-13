@@ -158,7 +158,7 @@ module Redgerra
           (abbr = s.scan(/[Ee]\. ?g\.|etc\.|i\. ?e\.|[Ss]mb\.|[Ss]mth\./) and act do
             result << Word.new(abbr).to_encoded_string
           end) or
-          (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\'\\$]+"}([\-\.]#{word_chars})*/o) and act do
+          (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o) and act do
             is_proper_name_with_dot = word.include?(".")
             result << Word.new(word, is_proper_name_with_dot).to_encoded_string
           end) or
