@@ -126,9 +126,8 @@ module Google
   # 
   # returns SearchResults2.
   # 
-  # +language+ is a two-character language code (e. g., "en", "ru", "fr", "de").
-  # If it is specified then Google will be asked for results in specified
-  # language.
+  # +language+ is a preferred language of results. It is a two-character code
+  # (e. g., "en", "ru", "de").
   # 
   # +browser+ is Mechanize which will be used to access Google. It must
   # be Mechanize#shutdown()-ed after the returned SearchResults are used.
