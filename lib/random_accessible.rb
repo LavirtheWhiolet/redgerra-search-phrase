@@ -3,16 +3,11 @@ require 'enumerable/filter'
 
 module RandomAccessible
   
-  unless RUBY_VERSION >= "2.0.0"
+  class ::Array
     
-    # Prepend this module to Array.
-    class ::Array
-      include RandomAccessible
-    end
-    
-    # NOTE: When Module A is included into Module B *before* any declarations
-    # made in A then the effect is the same as Module A is prepended to
-    # Module B (as in Ruby 2.0).
+    # Include RandomAccessible into Array but do not overwrite existing
+    # Array methods.
+    include RandomAccessible
     
   end
   
@@ -77,16 +72,6 @@ module RandomAccessible
     def self.f1_filter_f2(f1, f2)
       lambda { |item| f1.(item).filter(&f2) }
     end
-    
-  end
-  
-end
-
-if RUBY_VERSION >= "2.0.0"
-  
-  class Array
-    
-    prepend RandomAccessible
     
   end
   
