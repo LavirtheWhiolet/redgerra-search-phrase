@@ -19,13 +19,16 @@ module Redgerra
   # 
   # searches for phrases in Web which include +sloch+.
   # 
-  # +web_search+ is a Proc which is passed with a query and +browser+,
-  # passes the query to a web search engine and returns RandomAccessible
-  # collection of WebSearchResult-s.
+  # +web_search+ is a Proc which queries a web search engine (such as Yandex,
+  # Google, DuckDuckGo or other). It is passed with:
+  # - a query;
+  # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
+  # - +browser.
+  # It returns RandomAccessible collection of WebSearchResult-s. It may raise
+  # WebSearchError.
   # 
-  # It returns thread-safe RandomAccessible of String-s.
-  # 
-  # It may raise WebSearchError.
+  # This method returns thread-safe RandomAccessible collection of String-s and
+  # may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
