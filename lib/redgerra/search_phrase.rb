@@ -33,10 +33,11 @@ module Redgerra
     m = Memory.new
     # 
     phrases = 
-      web_search.(%("#{sloch}"), browser).
-      lazy_cached_filter do |web_search_result|
-        [web_search_result.page_excerpt]
-      end.
+#       web_search.(%("#{sloch}"), browser).
+#       lazy_cached_filter do |web_search_result|
+#         [web_search_result.page_excerpt]
+#       end.
+    ["'Everybody do the flop let's do it again' And do the flop."]
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
@@ -340,3 +341,5 @@ module Redgerra
   end
   
 end
+
+p Redgerra.search_phrase("do the flop").to_a
