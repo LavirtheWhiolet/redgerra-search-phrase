@@ -174,8 +174,11 @@ module Redgerra
     end
     
     def phrases
-      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|[\,\-\ ])+)/o).map(&:first).
-        map(&:strip).
+      punctuation_and_whitespace = "[\\,\\-\\ ]"
+      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+)/o).map(&:first).
+        map do |encoded_phrase|
+          encoded_phrase.gsub(/^#{punctuation_and_whitespace}*|#{punctuation_and_whitespace}*$/o, "")
+        end.
         reject(&:empty?).
         map { |encoded_phrase| Text.from_encoded_string(encoded_phrase) }
     end
