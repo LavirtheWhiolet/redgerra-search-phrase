@@ -32,25 +32,23 @@ module Redgerra
     sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
     m = Memory.new
     # 
-#     phrases = web_search.(%("#{sloch}"), browser).
-#       lazy_cached_filter do |web_search_result|
-#         [web_search_result.page_excerpt]
-#       end.
-    ["Jesse Eisenberg Calls Comic-Con Some Kind Of Genocide image. 
-     Lyrics to Some Kind Of Wonderful by Grand Funk Railroad: I don't need a whole  lots 'a money / 
-    Watch the Some Kind of Beautiful trailer. 
-    1 day ago ... Pierce Brosnan gets shocking baby news from Jessica Alba in an exclusive clip  from their new romantic comedy Some Kind of Beautiful."]
+    phrases = web_search.(%("#{sloch}"), browser).
+      lazy_cached_filter do |web_search_result|
+        [web_search_result.page_excerpt]
+      end.
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
           select do |phrase|
+            phrase_downcase = phrase.downcase
+            #
             not m.mentioned_before?(phrase.to_s) and
             not phrase.upcase? and
             phrase.words_count <= 20 and
-            phrase.downcase.include?(sloch) and
+            phrase_downcase.include?(sloch) and
             not phrase.words.any?(&:proper_name_with_dot?) and
             # There must be at least 2 words before and after sloch.
-            phrase.downcase.split(sloch).all? { |part| part.words_count >= 2 }
+            phrase_downcase.split(sloch).all? { |part| part.words_count >= 2 }
           end.
           map(&:to_s)
       end
@@ -334,5 +332,3 @@ module Redgerra
   end
   
 end
-
-p search_phrase("some kind of", nil, nil)
