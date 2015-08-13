@@ -21,9 +21,9 @@ module Redgerra
   # 
   # +web_search+ is a Proc which queries a web search engine (such as Yandex,
   # Google, DuckDuckGo or other). It is passed with:
-  # - a query;
+  # - the query;
   # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
-  # - +browser.
+  # - +browser+.
   # It returns RandomAccessible collection of WebSearchResult-s. It may raise
   # WebSearchError.
   # 
