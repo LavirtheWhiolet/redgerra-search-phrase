@@ -49,7 +49,7 @@ module Redgerra
             phrase_downcase.include?(sloch) and
             not phrase.words.any?(&:proper_name_with_dot?) and
             # There must be at least 1 word before and after sloch.
-            phrase_downcase.split(sloch).all? { |part| part.words_count >= 1 }
+            phrase_downcase.split(sloch)[1...-1].all? { |part| part.words_count >= 1 }
           end.
           map(&:to_s)
       end
