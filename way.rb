@@ -1,3 +1,9 @@
+# 
+# Mechanize does not download images. You may navigate to the Google captcha's
+# page, download the captcha manually and enter the captcha with Mechanize
+# again. That should work.
+# 
+
 require 'open-uri'
 require 'cgi'
 require 'nokogiri'
