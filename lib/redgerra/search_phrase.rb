@@ -40,13 +40,15 @@ module Redgerra
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
           select do |phrase|
+            phrase_downcase = phrase.downcase
+            #
             not m.mentioned_before?(phrase.to_s) and
             not phrase.upcase? and
             phrase.words_count <= 20 and
-            phrase.include?(sloch) and
+            phrase_downcase.include?(sloch) and
             not phrase.words.any?(&:proper_name_with_dot?) and
             # There must be at least 2 words before and after sloch.
-            phrase.downcase.split(sloch).all? { |part| part.words_count >= 2 }
+            phrase_downcase.split(sloch).all? { |part| part.words_count >= 2 }
           end.
           map(&:to_s)
       end
@@ -330,5 +332,3 @@ module Redgerra
   end
   
 end
-
-
