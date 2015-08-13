@@ -155,6 +155,9 @@ module Redgerra
         result = ""
         s = StringScanner.new(@str)
         until s.eos?
+          (slang = s.scan(/\'[Cc]ause/) and act do
+            result << Word.new(slang).to_encoded_string
+          end)
           (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o) and act do
             is_proper_name_with_dot = word.include?(".")
             result << Word.new(word, is_proper_name_with_dot).to_encoded_string
