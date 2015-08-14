@@ -37,6 +37,7 @@ module Google
       @cached_results = []
     end
     
+    # TODO: Doc: It may raise WebSearchError.
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
@@ -147,3 +148,10 @@ module Google
   module_function :search2
   
 end
+
+m = Mechanize.new
+begin
+  Google.search2("do the flop", m).each do |x|
+    puts x
+  end
+rescue 
