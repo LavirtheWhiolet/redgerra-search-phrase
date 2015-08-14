@@ -126,14 +126,26 @@ module Google
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
         if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
+          # To prevent answering captcha twice.
+          is_captcha_answered = false
+          # 
           raise ServerAsksCaptcha.new(
+            # user readable message
             "Google thinks you are bot and asks to solve a captcha",
+            # captcha MIME type
             "image/jpeg",
+            # captcha IO
             @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content,
+            # submit function
             &lambda do |captcha_answer|
-              captcha_form.field(name: "captcha").value = captcha_answer
-              @next_page_url = @next_page.uri
-              @next_page = rescue_browser_exceptions { captcha_form.submit() }
+              mon_synchronize do
+                if not captcha_answered then
+                  captcha_form.field(name: "captcha").value = captcha_answer
+                  @next_page = rescue_browser_exceptions { captcha_form.submit() }
+                  @next_page_url = @next_page.uri
+                  is_captcha_answered = true
+                end
+              end
             end
           )
         # In case of other errors...
