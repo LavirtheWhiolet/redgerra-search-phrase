@@ -73,12 +73,11 @@ module Redgerra
       #
       with_session(sloch) do |session|
         halt 404 unless session.server_asks_captcha
-        halt 404 if session.server_asks_captcha.closed?
         headers \
           "Cache-Control" => "no-cache"
           "Content-Type" => session.server_asks_captcha.captcha_mime_type
-          "Content-Length" => session.server_asks_captcha.captcha.length
-        stream { |out| session.server_asks_captcha.captcha.read() }
+          "Content-Length" => session.server_asks_captcha.captcha_cached.length
+        stream { |out| session.server_asks_captcha.captcha_cached.read() }
       end
     end
     
