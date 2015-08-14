@@ -206,13 +206,14 @@
       captchaForm.onsubmit = function(event) {
         request(
           "POST",
-          "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" encodeURIComponent(captchaAnswer.value),
+          "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" + encodeURIComponent(captchaAnswer.value),
           /* okF */ function(responseText) {
             more();
           },
           /* errorF */ function(statusCode, responseText, isNetworkingError) {
             more();
           }
+        )
         event.preventDefault();
       }
       

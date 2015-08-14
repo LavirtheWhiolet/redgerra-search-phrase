@@ -63,7 +63,7 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       with_session(sloch) do |session|
-        rescuing_web_search_errors { session.phrases[offset] || "" }
+        rescue_web_search_errors(session) { session.phrases[offset] || "" }
       end
     end
     
@@ -88,7 +88,9 @@ module Redgerra
       #
       with_session(sloch) do |session|
         halt 404 unless session.server_asks_captcha
-        rescuing_web_search_errors { session.server_asks_captcha.submit(answer) }
+        rescue_web_search_errors(session) do
+          session.server_asks_captcha.submit(answer)
+        end
         session.server_asks_captcha = nil
         ""
       end
@@ -101,7 +103,7 @@ module Redgerra
       end
     end
     
-    def rescuing_web_search_errors(&action)
+    def rescue_web_search_errors(session, &action)
       begin
         action.()
       rescue ServerAsksCaptcha => e
