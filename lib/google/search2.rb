@@ -12,6 +12,7 @@ require 'cgi'
 
 module Google
   
+  # TODO: Fix doc.
   # 
   # This class is thread-safe.
   # 
@@ -131,8 +132,8 @@ module Google
             @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content,
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
-              @next_page = rescue_browser_exceptions { captcha_form.submit() }
               @next_page_url = @next_page.uri
+              @next_page = rescue_browser_exceptions { captcha_form.submit() }
             end
           )
         # In case of other errors...
