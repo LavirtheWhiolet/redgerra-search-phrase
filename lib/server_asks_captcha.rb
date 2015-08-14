@@ -29,7 +29,7 @@ class ServerAsksCaptcha < WebSearchError
   # It may return a new IO on each call.
   # 
   def captcha_io
-    captcha_io_f.()
+    @captcha_io_f.()
   end
   
   alias captcha captcha_io
