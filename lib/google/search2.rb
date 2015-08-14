@@ -158,7 +158,7 @@ begin
     puts x.page_title
   end
 rescue ServerAsksCaptcha => e
-  puts "Captcha URL: #{e.captcha_url}"
+  puts "Captcha URL: #{e.captcha_uri}"
   answer = STDIN.gets.chomp
   before_each = lambda { e.submit(answer) }
   retry
