@@ -136,8 +136,8 @@ module Google
             end,
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
-              @next_page_url = @next_page.uri
               @next_page = rescue_browser_exceptions { captcha_form.submit() }
+              @next_page_url = @next_page.uri
             end
           )
         # In case of other errors...
