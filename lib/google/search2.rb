@@ -41,7 +41,7 @@ module Google
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
-          page = handling_browser_exceptions { @browser.get(@next_page_url) }
+          page = rescue_browser_exceptions { @browser.get(@next_page_url) }
           @cached_results.concat(web_search_results_from page.root)
           @next_page_url = next_page_url_from page.root, page.uri
         end
@@ -109,7 +109,7 @@ module Google
       CGI::unescape(r[param_prefix.size..-1])
     end
     
-    def handling_browser_exceptions(&action)
+    def rescue_browser_exceptions(&action)
       begin
         action.()
       rescue Mechanize::ResponseCodeError => e
@@ -121,7 +121,7 @@ module Google
             @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content,
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
-              page_after_captcha = handling_browser_exceptions { captcha_form.submit() }
+              page_after_captcha = rescue_browser_exceptions { captcha_form.submit() }
               @next_page_url = page_after_captcha.uri
             end
           )
