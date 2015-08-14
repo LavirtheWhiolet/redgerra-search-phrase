@@ -118,7 +118,7 @@ module Google
         if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil?
           raise ServerAsksCaptcha.new(
             "Google thinks you are bot and asks to solve a captcha",
-            "#{e.page.uri.scheme}://#{e.page.uri.host}#{e.page.root.xpath("//img/@src").first.value}",
+            "https://google.com#{e.page.root.xpath("//img/@src").first.value}",
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
               handling_browser_exceptions do
