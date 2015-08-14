@@ -47,12 +47,12 @@
       <li id="loadingSymbol"><img src="loading.gif"/></li>
     </ul>
     <p/>
-    <form id="captchaForm">
+    <form action="captcha" method="post">
       To continue, please type the characters below:
       <p/>
       <img id="captchaImage" alt="Please enable images" border="1"/>
       <p/>
-      <input id="captchaAnswer" type="text" size="12"/>
+      <input name="answer" type="text" size="12"/> <input type="submit">
     </form>
     <p/>
     <a id="moreButton" href="#" class="hidden">More…</a>
