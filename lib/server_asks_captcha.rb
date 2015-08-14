@@ -25,6 +25,8 @@ class ServerAsksCaptcha < WebSearchError
   
   attr_reader :captcha_io
   
+  alias captcha captcha_io
+  
   # 
   # submits an answer to the captcha.
   # 
