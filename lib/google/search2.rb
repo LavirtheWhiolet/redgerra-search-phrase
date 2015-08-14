@@ -44,9 +44,16 @@ module Google
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
-          page = rescue_browser_exceptions { @browser.get(@next_page_url) }
+          page =
+            if @next_page then
+              if @next_page.uri != @next_page_url then raise %((@next_page.uri == @next_page_url) = (#{@next_page.uri.to_s.inspect} == #{@next_page_url.to_s.inspect}) = false!); end
+              @next_page
+            else
+              rescue_browser_exceptions { @browser.get(@next_page_url) }
+            end
           @cached_results.concat(web_search_results_from page.root)
           @next_page_url = next_page_url_from page.root, page.uri
+          @next_page = nil  # Optimization: don't keep the page after it is processed.
         end
         return @cached_results[index]
       end
