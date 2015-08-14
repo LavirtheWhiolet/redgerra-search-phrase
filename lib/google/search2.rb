@@ -53,7 +53,7 @@ module Google
             end
           @cached_results.concat(web_search_results_from page.root)
           @next_page_url = next_page_url_from page.root, page.uri
-          @next_page = nil  # Optimization: don't keep the page after it is processed.
+          @next_page = nil
         end
         return @cached_results[index]
       end
