@@ -5,6 +5,7 @@ require 'object/not_nil'
 require 'object/in'
 require 'object/not_empty'
 require 'web_search_error'
+require 'server_asks_captcha'
 require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
@@ -113,7 +114,13 @@ module Google
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
         if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
-          raise WebSearchError.new("Google thinks you are bot and asks to solve a captcha")
+          raise ServerAsksCaptcha.new(
+            "Google thinks you are bot and asks to solve a captcha",
+            "#{e.page.uri.scheme}://#{e.page.uri.host}#{e.page.root.xpath("//img/@src").first.value}",
+            &lambda do |captcha_answer|
+              e.page.form
+            end
+          )
         # In case of other errors...
         else
           raise WebSearchError.new(e.page.content)
