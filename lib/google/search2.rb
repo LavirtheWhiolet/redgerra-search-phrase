@@ -150,8 +150,16 @@ module Google
 end
 
 m = Mechanize.new
+s = Google.search2("do the flop", m)
+before_each = lambda {}
 begin
-  Google.search2("do the flop", m).each do |x|
-    puts x
+  before_each.()
+  s.each do |x|
+    puts x.page_title
   end
-rescue 
+rescue ServerAsksCaptcha => e
+  puts "Captcha URL: #{e.captcha_url}"
+  answer = STDIN.gets.chomp
+  before_each = lambda { e.submit(answer) }
+  retry
+end
