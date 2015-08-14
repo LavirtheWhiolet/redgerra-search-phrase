@@ -12,9 +12,8 @@ require 'cgi'
 
 module Google
   
-  # TODO: Fix doc.
   # 
-  # Results of Google::search2().
+  # A collection of WebSearchResult-s.
   # 
   # This class is thread-safe.
   # 
@@ -46,7 +45,10 @@ module Google
       @cached_results = []
     end
     
-    # TODO: Doc: It may raise WebSearchError.
+    # returns +index+-th WebSearchResult.
+    # 
+    # It may raise WebSearchError.
+    # 
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
