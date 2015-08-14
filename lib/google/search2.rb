@@ -115,7 +115,7 @@ module Google
         action.()
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
-        if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil?
+        if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
           raise ServerAsksCaptcha.new(
             "Google thinks you are bot and asks to solve a captcha",
             "image/jpeg",
@@ -123,7 +123,8 @@ module Google
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
               handling_browser_exceptions do
-                @next_page_url = captcha_form.submit().page.uri
+                
+                @next_page_url = captcha_form.submit().uri
               end
             end
           )
