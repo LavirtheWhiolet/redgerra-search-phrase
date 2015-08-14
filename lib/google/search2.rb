@@ -171,4 +171,6 @@ rescue ServerAsksCaptcha => e
   answer = (print "Captcha answer: "; STDIN.gets.chomp)
   before_each = lambda { e.submit(answer) }
   retry
+ensure
+  m.shutdown
 end
