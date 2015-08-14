@@ -36,7 +36,7 @@
     
     <form action="index.html" method="get" class="search-form">
       <table>
-        <tr> <td>Sloch:</td> <td class="input-col" width="100%"><input name="sloch" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
+        <tr> <td>Sloch:</td> <td class="input-col" width="100%"><input id="slochInput" name="sloch" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
       </table>
     </form>
     
@@ -60,8 +60,8 @@
     <script>
       
       var resultsPerPage = <%=@results_per_page%>;
-      var slochCGIEscaped = "<%=Rack::Utils.escape(sloch)%>";
       
+      var slochInput = document.getElementById("slochInput");
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
       var moreButton = document.getElementById("moreButton");
@@ -134,6 +134,10 @@
         addNodeToResultsList(li);
       }
       
+      function sloch() {
+        return slochInput.value;
+      }
+      
       var currentIndex = 0;
       
       function more() {
@@ -148,7 +152,7 @@
         function loop() {
           request(
             "GET",
-            "phrase?sloch=" + slochCGIEscaped + "&offset=" + currentIndex.toString(),
+            "phrase?sloch=" + encodeURIComponent(sloch()) + "&offset=" + currentIndex.toString(),
             /* okF = */ function(responseText) {
               if (hasNoMorePhrases(responseText)) {
                 hide(loadingSymbol);
