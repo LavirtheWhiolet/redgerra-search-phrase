@@ -25,11 +25,11 @@ module Redgerra
   # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
   # - +browser+.
   # 
-  # +web_search+ must return RandomAccessible collection of WebSearchResult-s
-  # and may raise WebSearchError.
+  # +web_search+ must return RandomAccessible collection of WebSearchResult-s.
+  # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  # This method returns thread-safe RandomAccessible collection of String-s and
-  # may raise WebSearchError.
+  # This method returns thread-safe RandomAccessible collection of String-s.
+  # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
