@@ -33,6 +33,9 @@ module Google
       end
       # 
       @next_page_url = "https://google.com/search?q=#{CGI::escape(query)}"
+      # It must be a Mechanize::Page and must be either nil or
+      # correspond to @next_page_url.
+      @next_page = nil
       # 
       @cached_results = []
     end
