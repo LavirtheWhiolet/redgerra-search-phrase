@@ -40,7 +40,8 @@ module Google
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
-          page = handling_browser_exceptions { @browser.get(@next_page_url) }
+          page =
+            handling_browser_exceptions { @browser.get(@next_page_url) }
           @cached_results.concat(web_search_results_from page.root)
           @next_page_url = next_page_url_from page.root, page.uri
         end
@@ -113,12 +114,15 @@ module Google
         action.()
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
-        if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
+        if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil?
           raise ServerAsksCaptcha.new(
             "Google thinks you are bot and asks to solve a captcha",
             "#{e.page.uri.scheme}://#{e.page.uri.host}#{e.page.root.xpath("//img/@src").first.value}",
             &lambda do |captcha_answer|
-              e.page.form
+              captcha_form.field(name: "captcha").value = captcha_answer
+              handling_browser_exceptions do
+                @next_page_url = captcha_form.submit().page.uri
+              end
             end
           )
         # In case of other errors...
