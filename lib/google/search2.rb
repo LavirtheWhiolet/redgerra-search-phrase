@@ -1,4 +1,4 @@
-require 'mechanize'
+xrequire 'mechanize'
 require 'monitor'
 require 'nokogiri'
 require 'object/not_nil'
@@ -157,21 +157,4 @@ module Google
   
   module_function :search2
   
-end
-
-m = Mechanize.new
-s = Google.search2("do the flop", m)
-before_each = lambda {}
-begin
-  before_each.()
-  s.each do |x|
-    puts x.page_title
-  end
-rescue ServerAsksCaptcha => e
-  File.write("../c.jpg", e.captcha.read)
-  answer = (print "Captcha answer: "; STDIN.gets.chomp)
-  before_each = lambda { e.submit(answer) }
-  retry
-ensure
-  m.shutdown
 end
