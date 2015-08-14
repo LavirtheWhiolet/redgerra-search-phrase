@@ -30,7 +30,7 @@
         -webkit-box-sizing: border-box; /* Safari/Chrome, other WebKit */
         -moz-box-sizing: border-box;    /* Firefox, other Gecko */
       }
-      #captchaForm #captchaFormDiv {
+      #captchaForm {
         border: 2px solid;
         padding: 0.5em;
         display: inline-block;
@@ -56,13 +56,11 @@
     </ul>
     <p/>
     <form id="captchaForm" action="captcha" method="post">
-      <div id="captchaFormDiv">
-        To continue, please type the characters below:
-        <p/>
-        <img id="captchaImage" alt="Please enable images"/>
-        <p/>
-        <div><input id="captchaAnswer" name="answer" type="text" size="12"/> <input type="submit" value="Submit"/></div>
-      </div>
+      To continue, please type the characters below:
+      <p/>
+      <img id="captchaImage" alt="Please enable images"/>
+      <p/>
+      <div><input id="captchaAnswer" name="answer" type="text" size="12"/> <input type="submit" value="Submit"/></div>
     </form>
     <p/>
     <a id="moreButton" href="#" class="hidden">More…</a>
