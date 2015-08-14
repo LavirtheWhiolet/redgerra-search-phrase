@@ -24,16 +24,11 @@ module Google
       super()
       # 
       @browser = begin
-        # Optimize.
         browser.max_history = 0
-        # Make Google to send results as for...
         browser.user_agent = "Lynx/2.8.8pre.4 libwww-FM/2.14 SSL-MM/1.4.1"
-        #
         browser
       end
-      # 
       @next_page_url = "https://google.com/search?q=#{CGI::escape(query)}"
-      # 
       @cached_results = []
     end
     
