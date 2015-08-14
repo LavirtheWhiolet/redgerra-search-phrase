@@ -47,18 +47,13 @@ module Redgerra
           phrases.
           select do |phrase|
             phrase_downcase = phrase.downcase
-            phrase_downcase_split_by_sloch = phrase_downcase.split(sloch)
             #
             not m.mentioned_before?(phrase.to_s) and
             not phrase.upcase? and
             phrase.words_count <= 20 and
             phrase_downcase.include?(sloch) and
             not phrase.words.any?(&:proper_name_with_dot?) and
-            (
-              phrase_downcase_split_by_sloch.first.words_count >= 1 or
-              phrase_downcase_split_by_sloch.last.words_count >= 1
-            ) and
-            phrase_downcase_split_by_sloch[1...-1].all? { |part| part.words_count >= 1 }
+            phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
           end.
           map(&:to_s)
       end
