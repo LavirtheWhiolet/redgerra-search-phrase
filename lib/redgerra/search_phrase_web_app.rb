@@ -77,7 +77,7 @@ module Redgerra
         headers \
           "Cache-Control" => "no-cache",
           "Content-Type" => e.captcha_mime_type,
-          "Content-Length" => e.length.to_s
+          "Content-Length" => e.captcha_cached.length.to_s
         stream { |out| out << e.captcha_cached }
       end
     end
