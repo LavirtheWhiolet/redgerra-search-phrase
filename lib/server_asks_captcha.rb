@@ -8,17 +8,22 @@ class ServerAsksCaptcha < WebSearchError
   # 
   # +user_readable_message+ - see WebSearchError#new().
   # 
-  # +captcha_uri+ is the value for #captcha_uri.
+  # +captcha_mime_type is the value for #captcha_mime_type.
+  # 
+  # +captcha_io+ is the value for #captcha_io.
   # 
   # +submit+ is the implementation of #submit().
   # 
-  def initialize(user_readable_message, captcha_uri, &submit)
+  def initialize(user_readable_message, captcha_mime_type, captcha_io, &submit)
     super(user_readable_message)
-    @captcha_uri = captcha_uri
+    @captcha_mime_type = captcha_mime_type
+    @captcha_io = captcha_io
     @submit = submit
   end
   
-  attr_reader :captcha_uri
+  attr_reader :captcha_mime_type
+  
+  attr_reader :captcha_io
   
   # 
   # submits an answer to the captcha.
