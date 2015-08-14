@@ -37,11 +37,10 @@ module Redgerra
     m = Memory.new
     # 
     phrases =
-#       web_search.(%("#{sloch}"), "en", browser).
-#       lazy_cached_filter do |web_search_result|
-#         [web_search_result.page_excerpt]
-#       end.
-    ["This is what Zeno was getting at, this is not what Lanza was getting at."].
+      web_search.(%("#{sloch}"), "en", browser).
+      lazy_cached_filter do |web_search_result|
+        [web_search_result.page_excerpt]
+      end.
       lazy_cached_filter do |text_block|
         Text.new(text_block.squeeze_unicode_whitespace).
           phrases.
@@ -343,5 +342,3 @@ module Redgerra
   end
   
 end
-
-p Redgerra::search_phrase("What * was getting at", nil, nil).to_a
