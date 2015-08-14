@@ -150,7 +150,7 @@ module Google
             # submit function
             &lambda do |captcha_answer|
               mon_synchronize do
-                if not captcha_answered then
+                if not is_captcha_answered then
                   captcha_form.field(name: "captcha").value = captcha_answer
                   @next_page = rescue_browser_exceptions { captcha_form.submit() }
                   @next_page_url = @next_page.uri
