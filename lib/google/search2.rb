@@ -159,7 +159,7 @@ begin
   end
 rescue ServerAsksCaptcha => e
   puts "Captcha URL: #{e.captcha_uri}"
-  answer = STDIN.gets.chomp
+  answer = (print "Answer: "; STDIN.gets.chomp)
   before_each = lambda { e.submit(answer) }
   retry
 end

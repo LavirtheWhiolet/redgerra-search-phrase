@@ -15,6 +15,7 @@ class ServerAsksCaptcha < WebSearchError
   def initialize(user_readable_message, captcha_uri, &submit)
     super(user_readable_message)
     @captcha_uri = captcha_uri
+    @submit = submit
   end
   
   attr_reader :captcha_uri
