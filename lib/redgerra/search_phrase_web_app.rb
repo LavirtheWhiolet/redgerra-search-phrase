@@ -72,12 +72,13 @@ module Redgerra
       halt 400, "Sloch is not specified" if sloch.nil? or sloch.empty?
       #
       with_session(sloch) do |session|
-        halt 404 unless session.server_asks_captcha
+        e = session.server_asks_captcha
+        halt 404 unless e
         headers \
           "Cache-Control" => "no-cache",
-          "Content-Type" => session.server_asks_captcha.captcha_mime_type,
-          "Content-Length" => session.server_asks_captcha.captcha_cached.length.to_s
-        stream { |out| out << session.server_asks_captcha.captcha_cached }
+          "Content-Type" => e.captcha_mime_type,
+          "Content-Length" => e.length.to_s
+        stream { |out| out << e.captcha_cached }
       end
     end
     
