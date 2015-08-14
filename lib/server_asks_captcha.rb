@@ -34,6 +34,11 @@ class ServerAsksCaptcha < WebSearchError
   
   alias captcha captcha_io
   
+  # Cached version of #captcha_io (in the form of String).
+  def captcha_cached
+    @captcha_cached ||= captcha_io.().read
+  end
+  
   # 
   # submits an answer to the captcha.
   # 
