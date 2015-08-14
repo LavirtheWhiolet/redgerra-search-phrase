@@ -129,7 +129,11 @@ module Google
           raise ServerAsksCaptcha.new(
             "Google thinks you are bot and asks to solve a captcha",
             "image/jpeg",
-            lambda { @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content },
+            lambda do
+              mon_synchronize do
+                @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+              end
+            end,
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
               @next_page_url = @next_page.uri
