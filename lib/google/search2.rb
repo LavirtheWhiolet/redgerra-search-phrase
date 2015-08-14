@@ -122,10 +122,8 @@ module Google
             @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content,
             &lambda do |captcha_answer|
               captcha_form.field(name: "captcha").value = captcha_answer
-              handling_browser_exceptions do
-                
-                @next_page_url = captcha_form.submit().uri
-              end
+              page_after_captcha = handling_browser_exceptions { captcha_form.submit() }
+              @next_page_url = page_after_captcha.uri
             end
           )
         # In case of other errors...
