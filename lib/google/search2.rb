@@ -1,4 +1,4 @@
-xrequire 'mechanize'
+require 'mechanize'
 require 'monitor'
 require 'nokogiri'
 require 'object/not_nil'
