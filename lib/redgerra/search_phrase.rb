@@ -344,4 +344,4 @@ module Redgerra
   
 end
 
-p Redgerra::search_phrase("What was this * getting at", nil, nil).to_a
+p Redgerra::search_phrase("What * was getting at", nil, nil).to_a
