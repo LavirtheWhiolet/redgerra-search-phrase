@@ -5,6 +5,7 @@ require 'object/not_nil'
 require 'object/in'
 require 'object/not_empty'
 require 'web_search_error'
+require 'server_asks_captcha'
 require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
@@ -12,7 +13,7 @@ require 'cgi'
 module Google
   
   # 
-  # Results of Google::search2().
+  # A collection of WebSearchResult-s.
   # 
   # This class is thread-safe.
   # 
@@ -37,30 +38,30 @@ module Google
       @next_page_url =
         "https://google.com/search?q=#{CGI::escape(query)}" +
         if language then "&hl=#{language}" else "" end
+      # It must be a Mechanize::Page and must be either nil or
+      # correspond to @next_page_url.
+      @next_page = nil
       # 
       @cached_results = []
     end
     
+    # returns +index+-th WebSearchResult.
+    # 
+    # It may raise WebSearchError.
+    # 
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
-          # Go to next page/start the search.
           page =
-            begin
-              @browser.get(@next_page_url)
-            rescue Mechanize::ResponseCodeError => e
-              # If Google asks captcha...
-              if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
-                raise WebSearchError.new("Google thinks you are bot and asks to solve a captcha")
-              # In case of other errors...
-              else
-                raise WebSearchError.new(e.page.content)
-              end
+            if @next_page then
+              if @next_page.uri != @next_page_url then raise %((@next_page.uri == @next_page_url) = (#{@next_page.uri.to_s.inspect} == #{@next_page_url.to_s.inspect}) = false!); end
+              @next_page
+            else
+              rescue_browser_exceptions { @browser.get(@next_page_url) }
             end
-          # 
           @cached_results.concat(web_search_results_from page.root)
-          #
           @next_page_url = next_page_url_from page.root, page.uri
+          @next_page = nil
         end
         return @cached_results[index]
       end
@@ -124,6 +125,45 @@ module Google
         find { |param| param.start_with? param_prefix }
       return nil unless r
       CGI::unescape(r[param_prefix.size..-1])
+    end
+    
+    def rescue_browser_exceptions(&action)
+      begin
+        action.()
+      rescue Mechanize::ResponseCodeError => e
+        # If Google asks captcha...
+        if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
+          # To prevent answering captcha twice.
+          is_captcha_answered = false
+          # 
+          raise ServerAsksCaptcha.new(
+            # user readable message
+            "Google thinks you are bot and asks to solve a captcha",
+            # captcha MIME type
+            "image/jpeg",
+            # captcha IO function
+            lambda do
+              mon_synchronize do
+                @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+              end
+            end,
+            # submit function
+            &lambda do |captcha_answer|
+              mon_synchronize do
+                if not is_captcha_answered then
+                  captcha_form.field(name: "captcha").value = captcha_answer
+                  @next_page = rescue_browser_exceptions { captcha_form.submit() }
+                  @next_page_url = @next_page.uri
+                  is_captcha_answered = true
+                end
+              end
+            end
+          )
+        # In case of other errors...
+        else
+          raise WebSearchError.new(e.page.content)
+        end
+      end
     end
     
   end
