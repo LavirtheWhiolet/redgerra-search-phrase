@@ -183,7 +183,7 @@
                 addHTMLItemToResultsList('<span class="error">Networking error</span>');
               }
               else {
-                if (statusCode == 503 && responseText = "Server asks captcha") {
+                if (statusCode == 503 && responseText == "Server asks captcha") {
                   hide(loadingSymbol);
                   captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "#" + new Date().getTime();
                   show(captchaForm);
