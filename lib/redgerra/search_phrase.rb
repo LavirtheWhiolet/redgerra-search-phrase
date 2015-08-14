@@ -291,7 +291,10 @@ module Redgerra
       @str = str
       @encoded_regexp = Regexp.new(
         Text.new(str).to_encoded_string.
-        gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
+          # Escape everything except "*".
+          split("*").map { |part| Regexp.escape(part) }.
+          # Replace "*" with...
+          join("#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       )
     end
     
