@@ -88,11 +88,9 @@ module Redgerra
       #
       with_session(sloch) do |session|
         halt 404 unless session.server_asks_captcha
-        rescuing_web_search_errors do
-          session.server_asks_captcha.submit(answer)
-          session.server_asks_captcha = nil
-          ""
-        end
+        rescuing_web_search_errors { session.server_asks_captcha.submit(answer) }
+        session.server_asks_captcha = nil
+        ""
       end
     end
     
