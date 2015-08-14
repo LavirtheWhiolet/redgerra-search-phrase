@@ -36,7 +36,7 @@
     
     <form action="index.html" method="get" class="search-form">
       <table>
-        <tr> <td>Sloch:</td> <td class="input-col" width="100%"><input name="sloch" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
+        <tr> <td>Sloch:</td> <td class="input-col" width="100%"><input id="slochInput" name="sloch" type="text" value="<%=Rack::Utils.escape_html(sloch)%>"/></td> <td><input type="submit" value="Search"/></td> </tr>
       </table>
     </form>
     
@@ -46,16 +46,28 @@
     <ul id="resultsList">
       <li id="loadingSymbol"><img src="loading.gif"/></li>
     </ul>
+    <p/>
+    <form id="captchaForm" action="captcha" method="post" style="">
+      To continue, please type the characters below:
+      <p/>
+      <img id="captchaImage" alt="Please enable images" style="border: 1px solid"/>
+      <p/>
+      <input id="captchaAnswer" name="answer" type="text" size="12"/> <input type="submit">
+      <p/>
+    </form>
     <a id="moreButton" href="#" class="hidden">More…</a>
     
     <script>
       
       var resultsPerPage = <%=@results_per_page%>;
-      var slochCGIEscaped = "<%=Rack::Utils.escape(sloch)%>";
       
+      var slochInput = document.getElementById("slochInput");
       var resultsList = document.getElementById("resultsList");
       var loadingSymbol = document.getElementById("loadingSymbol");
       var moreButton = document.getElementById("moreButton");
+      var captchaForm = document.getElementById("captchaForm");
+      var captchaImage = document.getElementById("captchaImage");
+      var captchaAnswer = document.getElementById("captchaAnswer");
       
       /**
        * Send request via XMLHttpRequest and process response.
@@ -125,6 +137,10 @@
         addNodeToResultsList(li);
       }
       
+      function sloch() {
+        return slochInput.value;
+      }
+      
       var currentIndex = 0;
       
       function more() {
@@ -134,13 +150,14 @@
         }
         // Implementation.
         hide(moreButton);
+        hide(captchaForm);
         show(loadingSymbol);
         var stopIndex = currentIndex + resultsPerPage;
         function loop() {
           request(
             "GET",
-            "phrase?sloch=" + slochCGIEscaped + "&offset=" + currentIndex.toString(),
-            /* okF = */ function(responseText) {
+            "phrase?sloch=" + encodeURIComponent(sloch()) + "&offset=" + currentIndex.toString(),
+            /* okF */ function(responseText) {
               if (hasNoMorePhrases(responseText)) {
                 hide(loadingSymbol);
                 if (currentIndex == 0) {
@@ -160,13 +177,20 @@
                 }
               }
             },
-            /* errorF = */ function(statusCode, responseText, isNetworkingError) {
+            /* errorF */ function(statusCode, responseText, isNetworkingError) {
               hide(loadingSymbol);
               if (isNetworkingError) {
                 addHTMLItemToResultsList('<span class="error">Networking error</span>');
               }
               else {
-                addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + '—' + responseText + '</span>');
+                if (statusCode == 503 && responseText == "Server asks captcha") {
+                  hide(loadingSymbol);
+                  captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "#" + new Date().getTime();
+                  show(captchaForm);
+                }
+                else {
+                  addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + '—' + responseText + '</span>');
+                }
               }
             }
           );
@@ -176,6 +200,20 @@
       
       moreButton.onclick = function(event) {
         more();
+        event.preventDefault();
+      }
+      
+      captchaForm.onsubmit = function(event) {
+        request(
+          "POST",
+          "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" + encodeURIComponent(captchaAnswer.value),
+          /* okF */ function(responseText) {
+            more();
+          },
+          /* errorF */ function(statusCode, responseText, isNetworkingError) {
+            more();
+          }
+        );
         event.preventDefault();
       }
       

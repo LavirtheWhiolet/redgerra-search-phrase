@@ -134,8 +134,12 @@ module Google
             "Google thinks you are bot and asks to solve a captcha",
             # captcha MIME type
             "image/jpeg",
-            # captcha IO
-            @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content,
+            # captcha IO function
+            lambda do
+              mon_synchronize do
+                @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+              end
+            end,
             # submit function
             &lambda do |captcha_answer|
               mon_synchronize do

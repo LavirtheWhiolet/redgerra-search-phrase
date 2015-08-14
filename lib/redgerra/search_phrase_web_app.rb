@@ -3,6 +3,7 @@ require 'sinatra/base'
 require 'expiring_hash_map2'
 require 'redgerra/search_phrase'
 require 'web_search_error'
+require 'server_asks_captcha'
 
 module Redgerra
 
@@ -51,25 +52,74 @@ module Redgerra
     
     get "/index.html" do
       erb :index, locals: {
-        sloch: (params[:"sloch"] || ""),
-        
+        sloch: (params[:"sloch"] || "")
       }
     end
     
     get "/phrase" do
       # 
-      sloch = params[:"sloch"]
+      sloch = params[:sloch]
       halt 400, "Sloch is not specified" if sloch.nil? or sloch.empty?
       offset = (params[:offset] || "0").to_i
       # 
+      with_session(sloch) do |session|
+        rescue_web_search_errors(session) { session.phrases[offset] || "" }
+      end
+    end
+    
+    get "/captcha" do
+      sloch = params[:sloch]
+      halt 400, "Sloch is not specified" if sloch.nil? or sloch.empty?
+      #
+      with_session(sloch) do |session|
+        e = session.server_asks_captcha
+        halt 404 unless e
+        headers \
+          "Cache-Control" => "no-cache",
+          "Content-Type" => e.captcha_mime_type,
+          "Content-Length" => e.captcha_cached.length.to_s
+        stream { |out| out << e.captcha_cached }
+      end
+    end
+    
+    post "/captcha" do
+      sloch = params[:sloch]
+      halt 400, "Sloch is not specified" if sloch.nil? or sloch.empty?
+      answer = params[:answer] || ""
+      #
+      with_session(sloch) do |session|
+        halt 404 unless session.server_asks_captcha
+        rescue_web_search_errors(session) do
+          session.server_asks_captcha.submit(answer)
+        end
+        session.server_asks_captcha = nil
+        ""
+      end
+    end
+    
+    def with_session(sloch, &f)
+      s = @sessions[sloch]
+      s.mon_synchronize do
+        f.(s)
+      end
+    end
+    
+    def rescue_web_search_errors(session, &action)
       begin
-        @sessions[sloch].phrases[offset] || ""
+        action.()
+      rescue ServerAsksCaptcha => e
+        session.server_asks_captcha = e
+        halt 503, "Server asks captcha"
       rescue WebSearchError => e
         halt 503, e.user_readable_message
       end
     end
     
     class Session < Struct.new :browser, :phrases
+      
+      include MonitorMixin
+      
+      attr_accessor :server_asks_captcha
       
       def close()
         browser.close()
