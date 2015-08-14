@@ -25,11 +25,11 @@ module Redgerra
   # - preferred language (a two-letter code, e. g.: "en", "ru", fr");
   # - +browser+.
   # 
-  # +web_search+ must return RandomAccessible collection of WebSearchResult-s
-  # and may raise WebSearchError.
+  # +web_search+ must return RandomAccessible collection of WebSearchResult-s.
+  # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  # This method returns thread-safe RandomAccessible collection of String-s and
-  # may raise WebSearchError.
+  # This method returns thread-safe RandomAccessible collection of String-s.
+  # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
     #
@@ -291,7 +291,10 @@ module Redgerra
       @str = str
       @encoded_regexp = Regexp.new(
         Text.new(str).to_encoded_string.
-        gsub("*", "#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
+          # Escape everything except "*".
+          split("*").map { |part| Regexp.escape(part) }.
+          # Replace "*" with...
+          join("#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
       )
     end
     
