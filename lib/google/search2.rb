@@ -159,8 +159,8 @@ begin
     puts x.page_title
   end
 rescue ServerAsksCaptcha => e
-  puts "Captcha URL: #{e.captcha_uri}"
-  answer = (print "Answer: "; STDIN.gets.chomp)
+  File.write("../c.jpg", e.captcha.read)
+  answer = (print "Captcha answer: "; STDIN.gets.chomp)
   before_each = lambda { e.submit(answer) }
   retry
 end
