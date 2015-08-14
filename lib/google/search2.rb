@@ -39,22 +39,8 @@ module Google
     def [](index)
       mon_synchronize do
         until @cached_results[index].not_nil? or @next_page_url.nil?
-          # Go to next page/start the search.
-          page =
-            begin
-              @browser.get(@next_page_url)
-            rescue Mechanize::ResponseCodeError => e
-              # If Google asks captcha...
-              if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
-                raise WebSearchError.new("Google thinks you are bot and asks to solve a captcha")
-              # In case of other errors...
-              else
-                raise WebSearchError.new(e.page.content)
-              end
-            end
-          # 
+          page = handling_browser_exceptions { @browser.get(@next_page_url) }
           @cached_results.concat(web_search_results_from page.root)
-          #
           @next_page_url = next_page_url_from page.root, page.uri
         end
         return @cached_results[index]
@@ -119,6 +105,20 @@ module Google
         find { |param| param.start_with? param_prefix }
       return nil unless r
       CGI::unescape(r[param_prefix.size..-1])
+    end
+    
+    def handling_browser_exceptions(&action)
+      begin
+        action.()
+      rescue Mechanize::ResponseCodeError => e
+        # If Google asks captcha...
+        if e.response_code == "503" and e.page.root.xpath("//form[@action='CaptchaRedirect']").not_empty?
+          raise WebSearchError.new("Google thinks you are bot and asks to solve a captcha")
+        # In case of other errors...
+        else
+          raise WebSearchError.new(e.page.content)
+        end
+      end
     end
     
   end
