@@ -153,21 +153,21 @@
       
       /**
        * The same as more_() but with <code>beforeRequests</code> doing nothing
-       * (just calling <code>continuation</code> passed to it).
+       * (just calling <code>cont</code> passed to it).
        */
       function more() {
-        more_(function(continuation) { continuation(); });
+        more_(function(cont) { cont(); });
       }
       
       /**
        * @param beforeRequests is a function which is called right before any
        * request to the server. It is passed with a function
-       * <code>continuation</code> and it must call <code>continuation</code>
+       * <code>cont</code> and it must call <code>cont</code>
        * with no arguments after it has finished.
        * 
        * Example:
        * <pre>
-       * more_(function(continuation) { doSomeStuff(); continuation(); });
+       * more_(function(cont) { doSomeStuff(); cont(); });
        * </pre>
        */
       function more_(beforeRequests) {
@@ -233,15 +233,15 @@
       }
       
       captchaForm.onsubmit = function(event) {
-        more_(function(continuation) {
+        more_(function(cont) {
           request(
             "POST",
             "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" + encodeURIComponent(captchaAnswer.value),
             /* okF */ function(responseText) {
-              continuation();
+              cont();
             },
             /* errorF */ function(statusCode, responseText, isNetworkingError) {
-              continuation();
+              cont();
             }
           );
         });
