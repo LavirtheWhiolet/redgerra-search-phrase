@@ -151,13 +151,10 @@
       
       var currentIndex = 0;
       
-      function more() {
-        more_(function() {});
-      }
-      
       /**
-       * @param beforeRequests is called before any requests are made to the
-       * server.
+       * @param beforeRequests is a <code>function(f)</code> (a function which
+       * is passed with another function <code>f</code>). It is called
+       * right before any request to the server. It must call <code>f</code>.
        */
       function more_(beforeRequests) {
         // Utils.
@@ -168,7 +165,6 @@
         hide(moreButton);
         hide(captchaForm);
         show(loadingSymbol);
-        beforeRequests();
         var stopIndex = currentIndex + resultsPerPage;
         function loop() {
           request(
