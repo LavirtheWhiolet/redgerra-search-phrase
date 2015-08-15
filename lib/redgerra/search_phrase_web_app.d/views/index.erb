@@ -232,15 +232,15 @@
       }
       
       captchaForm.onsubmit = function(event) {
-        more_(function() {
+        more_(function(f) {
           request(
             "POST",
             "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" + encodeURIComponent(captchaAnswer.value),
             /* okF */ function(responseText) {
-              more();
+              f();
             },
             /* errorF */ function(statusCode, responseText, isNetworkingError) {
-              more();
+              f();
             }
           );
         });
