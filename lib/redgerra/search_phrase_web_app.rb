@@ -75,7 +75,11 @@ module Redgerra
         e = session.server_asks_captcha
         halt 404 unless e
         headers \
-          "Cache-Control" => "no-cache",
+          "Pragma-directive" => "no-cache",
+          "Cache-directive" => "no-cache",
+          "Cache-control" => "no-cache",
+          "Pragma" => "no-cache",
+          "Expires" => "0",
           "Content-Type" => e.captcha_mime_type,
           "Content-Length" => e.captcha_cached.length.to_s
         stream { |out| out << e.captcha_cached }
