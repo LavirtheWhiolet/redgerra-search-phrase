@@ -215,6 +215,7 @@
                   captchaAnswer.value = "";
                   hide(loadingSymbol);
                   show(captchaForm);
+                  captchaAnswer.focus();
                 }
                 else {
                   addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + '—' + responseText + '</span>');
