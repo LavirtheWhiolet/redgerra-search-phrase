@@ -211,7 +211,7 @@
               }
               else {
                 if (statusCode == 503 && responseText == "Server asks captcha") {
-                  captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "?random=" + new Date().getTime();
+                  captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "&" + new Date().getTime();
                   captchaAnswer.value = "";
                   hide(loadingSymbol);
                   show(captchaForm);
