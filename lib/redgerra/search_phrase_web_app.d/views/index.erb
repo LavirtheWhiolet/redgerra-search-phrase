@@ -180,7 +180,7 @@
         hide(captchaForm);
         show(loadingSymbol);
         var stopIndex = currentIndex + resultsPerPage;
-        function loop() {
+        var loop = function() {
           request(
             "GET",
             "phrase?sloch=" + encodeURIComponent(sloch()) + "&offset=" + currentIndex.toString(),
@@ -222,8 +222,8 @@
               }
             }
           );
-        }
-        loop();
+        };
+        beforeRequests(loop);
       }
       
       moreButton.onclick = function(event) {
