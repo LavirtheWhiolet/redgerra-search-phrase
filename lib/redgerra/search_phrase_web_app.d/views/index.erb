@@ -151,13 +151,24 @@
       
       var currentIndex = 0;
       
+      /**
+       * The same as more_() but with <code>beforeRequests</code> doing nothing
+       * (just calling <code>cont</code> passed to it).
+       */
       function more() {
-        more_(function() {});
+        more_(function(cont) { cont(); });
       }
       
       /**
-       * @param beforeRequests is called before any requests are made to the
-       * server.
+       * @param beforeRequests is a function which is called right before any
+       * request to the server. It is passed with a function
+       * <code>cont</code> and it must call <code>cont</code>
+       * with no arguments after it has finished.
+       * 
+       * Example:
+       * <pre>
+       * more_(function(cont) { doSomeStuff(); cont(); });
+       * </pre>
        */
       function more_(beforeRequests) {
         // Utils.
@@ -168,9 +179,8 @@
         hide(moreButton);
         hide(captchaForm);
         show(loadingSymbol);
-        beforeRequests();
         var stopIndex = currentIndex + resultsPerPage;
-        function loop() {
+        var loop = function() {
           request(
             "GET",
             "phrase?sloch=" + encodeURIComponent(sloch()) + "&offset=" + currentIndex.toString(),
@@ -201,7 +211,7 @@
               }
               else {
                 if (statusCode == 503 && responseText == "Server asks captcha") {
-                  captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "#" + new Date().getTime();
+                  captchaImage.src = "captcha?sloch=" + encodeURIComponent(sloch()) + "&" + new Date().getTime();
                   captchaAnswer.value = "";
                   hide(loadingSymbol);
                   show(captchaForm);
@@ -212,8 +222,9 @@
               }
             }
           );
-        }
-        loop();
+        };
+        //
+        beforeRequests(loop);
       }
       
       moreButton.onclick = function(event) {
@@ -222,15 +233,15 @@
       }
       
       captchaForm.onsubmit = function(event) {
-        more_(function() {
+        more_(function(cont) {
           request(
             "POST",
             "captcha?sloch=" + encodeURIComponent(sloch()) + "&answer=" + encodeURIComponent(captchaAnswer.value),
             /* okF */ function(responseText) {
-              more();
+              cont();
             },
             /* errorF */ function(statusCode, responseText, isNetworkingError) {
-              more();
+              cont();
             }
           );
         });
