@@ -47,7 +47,7 @@ module Redgerra
           select do |phrase|
             phrase_downcase = phrase.downcase
             #
-            not m.mentioned_before?(phrase.to_s) and
+            not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
             not phrase.upcase? and
             phrase.words_count <= 20 and
             phrase_downcase.include?(sloch) and
