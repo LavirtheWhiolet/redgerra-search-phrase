@@ -179,7 +179,7 @@ module Redgerra
     
     def phrases
       punctuation_and_whitespace = "[\\,\\ ]"
-      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+)/o).map(&:first).
+      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+[\!\?\.\;…]*)/o).map(&:first).
         map do |encoded_phrase|
           encoded_phrase.gsub(/^#{punctuation_and_whitespace}*|#{punctuation_and_whitespace}*$/o, "")
         end.
