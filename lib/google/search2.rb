@@ -176,7 +176,7 @@ module Google
         end
       #
       rescue Mechanize::Error => e
-        raise WebSearchError.new(e.message)
+        raise WebSearchError.new(e.message, e)
       end
     end
     
