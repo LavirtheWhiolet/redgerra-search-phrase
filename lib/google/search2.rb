@@ -131,6 +131,7 @@ module Google
     def rescue_browser_exceptions(&action)
       begin
         action.()
+      #
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
         if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
@@ -161,7 +162,7 @@ module Google
                     @next_page = captcha_form.submit()
                     @next_page_url = @next_page.uri
                     is_captcha_answered = true
-                    true
+                    nil
                   rescue Mechanize::Error => e
                     return e  # for debugging purposes.
                   end
@@ -173,6 +174,7 @@ module Google
         else
           raise WebSearchError.new(e.page.content)
         end
+      #
       rescue Mechanize::Error => e
         raise WebSearchError.new(e.message)
       end
