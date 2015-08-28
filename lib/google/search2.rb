@@ -157,7 +157,7 @@ module Google
                     @next_page_url = @next_page.uri
                     is_captcha_answered = true
                     true
-                  rescue Mechanize::ResponseCodeError => e
+                  rescue Mechanize::Error => e
                     return e  # for debugging purposes.
                   end
                 end
