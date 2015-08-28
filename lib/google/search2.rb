@@ -135,8 +135,6 @@ module Google
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
         if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
-          # To prevent answering captcha twice.
-          is_captcha_answered = false
           # 
           raise ServerAsksCaptcha.new(
             # user readable message
@@ -156,16 +154,14 @@ module Google
             # submit function
             &lambda do |captcha_answer|
               mon_synchronize do
-                if not is_captcha_answered then
-                  begin
-                    captcha_form.field(name: "captcha").value = captcha_answer
-                    @next_page = captcha_form.submit()
-                    @next_page_url = @next_page.uri
-                    is_captcha_answered = true
-                    nil
-                  rescue Mechanize::Error => e
-                    return e  # for debugging purposes.
-                  end
+                begin
+                  captcha_form.field(name: "captcha").value = captcha_answer
+                  @next_page = captcha_form.submit()
+                  @next_page_url = @next_page.uri
+                  is_captcha_answered = true
+                  nil
+                rescue Mechanize::Error => e
+                  return e  # for debugging purposes.
                 end
               end
             end
