@@ -172,7 +172,7 @@ module Google
           )
         # In case of other errors...
         else
-          raise WebSearchError.new(e.page.content)
+          raise WebSearchError.new(e.page.content, e)
         end
       #
       rescue Mechanize::Error => e
