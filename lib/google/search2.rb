@@ -9,6 +9,7 @@ require 'server_asks_captcha'
 require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
+require 'stringio'
 
 module Google
   
@@ -130,6 +131,7 @@ module Google
     def rescue_browser_exceptions(&action)
       begin
         action.()
+      #
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
         if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
@@ -144,25 +146,37 @@ module Google
             # captcha IO function
             lambda do
               mon_synchronize do
-                @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+                begin
+                  @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+                rescue Mechanize::Error
+                  StringIO.new("")
+                end
               end
             end,
             # submit function
             &lambda do |captcha_answer|
               mon_synchronize do
                 if not is_captcha_answered then
-                  captcha_form.field(name: "captcha").value = captcha_answer
-                  @next_page = rescue_browser_exceptions { captcha_form.submit() }
-                  @next_page_url = @next_page.uri
-                  is_captcha_answered = true
+                  begin
+                    captcha_form.field(name: "captcha").value = captcha_answer
+                    @next_page = captcha_form.submit()
+                    @next_page_url = @next_page.uri
+                    is_captcha_answered = true
+                    nil
+                  rescue Mechanize::Error => e
+                    return e  # for debugging purposes.
+                  end
                 end
               end
             end
           )
         # In case of other errors...
         else
-          raise WebSearchError.new(e.page.content)
+          raise WebSearchError.new(e.page.content, e)
         end
+      #
+      rescue Mechanize::Error => e
+        raise WebSearchError.new(e.message, e)
       end
     end
     
