@@ -168,6 +168,8 @@ module Google
         else
           raise WebSearchError.new(e.page.content)
         end
+      rescue Mechanize::Error => e
+        raise WebSearchError.new(e.message)
       end
     end
     
