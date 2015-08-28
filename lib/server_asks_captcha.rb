@@ -42,8 +42,6 @@ class ServerAsksCaptcha < WebSearchError
   # 
   # submits an answer to the captcha.
   # 
-  # It may raise WebSearchError.
-  # 
   def submit(captcha_answer)
     @submit_f.(captcha_answer)
   end
