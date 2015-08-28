@@ -9,6 +9,7 @@ require 'server_asks_captcha'
 require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
+require 'stringio'
 
 module Google
   
@@ -144,7 +145,11 @@ module Google
             # captcha IO function
             lambda do
               mon_synchronize do
-                @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+                begin
+                  @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
+                rescue Mechanize::Error
+                  StringIO.new("")
+                end
               end
             end,
             # submit function
