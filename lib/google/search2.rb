@@ -149,13 +149,18 @@ module Google
             end,
             # submit function
             &lambda do |captcha_answer|
-              mon_synchronize do
-                if not is_captcha_answered then
-                  captcha_form.field(name: "captcha").value = captcha_answer
-                  @next_page = rescue_browser_exceptions { captcha_form.submit() }
-                  @next_page_url = @next_page.uri
-                  is_captcha_answered = true
+              begin
+                mon_synchronize do
+                  if not is_captcha_answered then
+                    captcha_form.field(name: "captcha").value = captcha_answer
+                    @next_page = captcha_form.submit()
+                    @next_page_url = @next_page.uri
+                    is_captcha_answered = true
+                    true
+                  end
                 end
+              rescue
+                false
               end
             end
           )
