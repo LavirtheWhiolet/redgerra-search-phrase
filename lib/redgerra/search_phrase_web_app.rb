@@ -63,7 +63,14 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       with_session(sloch) do |session|
-        rescue_web_search_errors(session) { session.phrases[offset] || "" }
+        begin
+          session.phrases[offset] || ""
+        rescue ServerAsksCaptcha => e
+          session.server_asks_captcha = e
+          halt 503, "Server asks captcha"
+        rescue WebSearchError => e
+          halt 503, e.user_readable_message
+        end
       end
     end
     
@@ -93,9 +100,7 @@ module Redgerra
       #
       with_session(sloch) do |session|
         halt 404 unless session.server_asks_captcha
-        rescue_web_search_errors(session) do
-          session.server_asks_captcha.submit(answer)
-        end
+        session.server_asks_captcha.submit(answer)
         session.server_asks_captcha = nil
         ""
       end
@@ -105,17 +110,6 @@ module Redgerra
       s = @sessions[sloch]
       s.mon_synchronize do
         f.(s)
-      end
-    end
-    
-    def rescue_web_search_errors(session, &action)
-      begin
-        action.()
-      rescue ServerAsksCaptcha => e
-        session.server_asks_captcha = e
-        halt 503, "Server asks captcha"
-      rescue WebSearchError => e
-        halt 503, e.user_readable_message
       end
     end
     
