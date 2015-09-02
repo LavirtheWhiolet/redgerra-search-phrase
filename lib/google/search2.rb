@@ -115,7 +115,7 @@ module Google
       a = page.xpath("//a").find { |a| text_from(a).strip == "Next" }
       return nil unless a
       href = a["href"]
-      url = "#{page_uri.scheme}://#{page_uri.host}#{href.value}"
+      url = "#{page_uri.scheme}://#{page_uri.host}#{href}"
       return nil if url == @next_page_url
       url
     end
