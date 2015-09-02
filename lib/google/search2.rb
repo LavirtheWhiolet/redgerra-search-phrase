@@ -112,7 +112,10 @@ module Google
     end
     
     def next_page_url_from(page, page_uri)
-      a = page.xpath("//a").find { |a| text_from(a).strip == "Next" }
+      a = page.xpath("//a").find do |a|
+        a["href"].start_with? "/search?" and
+        text_from(a).strip == "Next"
+      end
       return nil unless a
       href = a["href"]
       url = "#{page_uri.scheme}://#{page_uri.host}#{href}"
