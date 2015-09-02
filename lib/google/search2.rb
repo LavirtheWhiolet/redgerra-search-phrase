@@ -125,7 +125,7 @@ module Google
         end
       return nil unless href
       @returned_starts.add(param_value(href, "start"))
-      return "#{page_uri.scheme}://#{page_uri.host}#{href}".tap { |href| STDERR.puts "NEXT PAGE: #{href}" }
+      return "#{page_uri.scheme}://#{page_uri.host}#{href}"
     end
     
     def param_value(url, param_name)
