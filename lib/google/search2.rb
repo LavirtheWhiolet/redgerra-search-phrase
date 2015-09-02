@@ -10,6 +10,7 @@ require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
 require 'stringio'
+require 'set'
 
 module Google
   
@@ -112,12 +113,11 @@ module Google
     end
     
     def next_page_url_from(page, page_uri)
-      a = page.xpath("//a").find do |a|
-        a["href"].start_with? "/search?" and
-        text_from(a).strip == "Next"
-      end
-      return nil unless a
-      href = a["href"]
+      href =
+        page.xpath("//a[strong]/@href").
+        map(&:value).
+        find { |href| href.start_with? "/search?" }
+      return nil unless href
       url = "#{page_uri.scheme}://#{page_uri.host}#{href}"
       return nil if url == @next_page_url
       url
