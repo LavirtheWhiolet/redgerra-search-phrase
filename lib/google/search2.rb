@@ -116,7 +116,7 @@ module Google
     
     def next_page_url_from(page, page_uri)
       href =
-        page.xpath("//a/@href").map(&:value).
+        page.xpath("//a[strong]/@href").map(&:value).
         find do |href|
           start = param_value(href, "start")
           href.start_with?("/search?") and
