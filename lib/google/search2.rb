@@ -115,6 +115,7 @@ module Google
     end
     
     def next_page_url_from(page, page_uri)
+      File.write("page.html", page.to_s)
       href =
         page.xpath("//a[strong]/@href").map(&:value).
         find do |href|
