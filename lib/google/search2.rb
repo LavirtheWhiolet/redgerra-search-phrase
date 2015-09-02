@@ -46,7 +46,7 @@ module Google
       # 
       @cached_results = []
       # Used by next_page_url_from(...) only.
-      @returned_starts = Set.new
+      @returned_starts = Set.new(["0"])
     end
     
     # returns +index+-th WebSearchResult.
