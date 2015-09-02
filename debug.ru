@@ -11,5 +11,5 @@ require 'mechanize/close'
 run Redgerra::SearchPhraseWebApp.new(
   lambda { |query, lang, browser| Google.search2(query, lang, browser) },
   lambda { Mechanize.new },
-  10
+  100
 )
