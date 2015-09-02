@@ -10,6 +10,7 @@ require 'web_search_result'
 require 'random_accessible'
 require 'cgi'
 require 'stringio'
+require 'set'
 
 module Google
   
@@ -44,6 +45,8 @@ module Google
       @next_page = nil
       # 
       @cached_results = []
+      # Used by next_page_url_from(...) only.
+      @returned_starts = Set.new(["0"])
     end
     
     # returns +index+-th WebSearchResult.
@@ -112,12 +115,17 @@ module Google
     end
     
     def next_page_url_from(page, page_uri)
-      a = page.xpath("//a").find { |a| text_from(a).strip == "Next" }
-      return nil unless a
-      href = a["href"]
-      url = "#{page_uri.scheme}://#{page_uri.host}#{href}"
-      return nil if url == @next_page_url
-      url
+      href =
+        page.xpath("//a[strong]/@href").map(&:value).
+        find do |href|
+          start = param_value(href, "start")
+          href.start_with?("/search?") and
+            start and
+            not @returned_starts.include?(start)
+        end
+      return nil unless href
+      @returned_starts.add(param_value(href, "start"))
+      return "#{page_uri.scheme}://#{page_uri.host}#{href}"
     end
     
     def param_value(url, param_name)
