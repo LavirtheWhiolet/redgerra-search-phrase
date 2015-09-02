@@ -45,6 +45,8 @@ module Google
       @next_page = nil
       # 
       @cached_results = []
+      # Used by next_page_url_from(...) only.
+      @returned_starts = Set.new
     end
     
     # returns +index+-th WebSearchResult.
@@ -114,13 +116,16 @@ module Google
     
     def next_page_url_from(page, page_uri)
       href =
-        page.xpath("//a[strong]/@href").
-        map(&:value).
-        find { |href| href.start_with? "/search?" }
+        page.xpath("//a/@href").map(&:value).
+        find do |href|
+          start = param_value(href, "start")
+          href.start_with?("/search?") and
+            start and
+            not @returned_starts.include?(start)
+        end
       return nil unless href
-      url = "#{page_uri.scheme}://#{page_uri.host}#{href}"
-      return nil if url == @next_page_url
-      url
+      @returned_starts.add(param_value(href, "start"))
+      return "#{page_uri.scheme}://#{page_uri.host}#{href}"
     end
     
     def param_value(url, param_name)
