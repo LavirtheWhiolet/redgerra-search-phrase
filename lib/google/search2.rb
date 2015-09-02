@@ -198,12 +198,3 @@ module Google
   module_function :search2
   
 end
-
-m = Mechanize.new
-begin
-  Google::search2(%("getting the better of"), "ru", m).each do |r|
-    p r.page_excerpt
-  end
-ensure
-  m.shutdown
-end
