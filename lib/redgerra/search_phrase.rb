@@ -40,22 +40,22 @@ module Redgerra
       web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
         [web_search_result.page_excerpt]
-      end.
-      lazy_cached_filter do |text_block|
-        Text.new(text_block.squeeze_unicode_whitespace).
-          phrases.
-          select do |phrase|
-            phrase_downcase = phrase.downcase
-            #
-            not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
-            not phrase.upcase? and
-            phrase.words_count <= 20 and
-            phrase_downcase.include?(sloch) and
-            not phrase.words.any?(&:proper_name_with_dot?) and
-            phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
-          end.
-          map(&:to_s)
       end
+#       lazy_cached_filter do |text_block|
+#         Text.new(text_block.squeeze_unicode_whitespace).
+#           phrases.
+#           select do |phrase|
+#             phrase_downcase = phrase.downcase
+#             #
+#             not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
+#             not phrase.upcase? and
+#             phrase.words_count <= 20 and
+#             phrase_downcase.include?(sloch) and
+#             not phrase.words.any?(&:proper_name_with_dot?) and
+#             phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
+#           end.
+#           map(&:to_s)
+#       end
     #
     return ThreadSafeRandomAccessible.new(phrases)
   end
