@@ -112,8 +112,9 @@ module Google
     end
     
     def next_page_url_from(page, page_uri)
-      href = page.xpath("//a[img[@src='nav_next_2.gif']]/@href").first
-      return nil unless href
+      a = page.xpath("//a").find { |a| text_from(a).strip == "Next" }
+      return nil unless a
+      href = a["href"]
       url = "#{page_uri.scheme}://#{page_uri.host}#{href.value}"
       return nil if url == @next_page_url
       url
