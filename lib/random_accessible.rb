@@ -1,5 +1,5 @@
 require 'object/not_nil'
-require 'enumerable/filter'
+require 'enumerable/filter2'
 
 module RandomAccessible
   
@@ -34,7 +34,7 @@ module RandomAccessible
   # :call-seq:
   #   lazy_cached_filter() { |item| ... } → RandomAccessible
   # 
-  # Lazy, cached version of Enumerable#filter(). It returns RandomAccessible.
+  # Lazy, cached version of Enumerable#filter2(). It returns RandomAccessible.
   # 
   def lazy_cached_filter(&f)
     LazyCachedFiltered.new(self, &f)
@@ -70,7 +70,7 @@ module RandomAccessible
     
     # It is used to reduce context of lambdas.
     def self.f1_filter_f2(f1, f2)
-      lambda { |item| f1.(item).filter(&f2) }
+      lambda { |item| f1.(item).filter2(&f2) }
     end
     
   end

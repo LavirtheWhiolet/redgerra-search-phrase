@@ -16,7 +16,7 @@ module Enumerable
   #   [1, 2, 3, 4].filter { |x| if x.odd? then [x] else [] end }.to_a
   #     #=> [1, 3]
   # 
-  def filter(&f)
+  def filter2(&f)
     r = []
     for item in self
       r.concat(f.(item))
