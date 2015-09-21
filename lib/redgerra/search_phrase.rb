@@ -173,7 +173,7 @@ module Redgerra
   
   # Inversion of #hex_encode().
   def hex_decode(str)
-    
+    str.gsub(/\h\h/) { |code| code.hex.chr }
   end
   
   # Calls +f+ and returns true.
