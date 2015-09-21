@@ -51,23 +51,37 @@ module Redgerra
   
   private
   
+  # --------------------------------------
+  # :section: Used by #phrases_from() only
+  # --------------------------------------
+  
+  def self.oo(str)
+    "O#{t.hex_encode}O"
+  end
+  
+  def self.words(encoded_part)
+    encoded_part.scan(/#{word}/o)
+  end
+  
+  OTHER = "O\\h+O"
+  WORD = "W[01]\\h+Y\\h+W"
+  SLOCH_OCCURENCE = "S\\h+S"
+  WS = oo " "
+  COMMA = oo ","
+  EXCLAMATION = oo "!"
+  QUESTION = oo "?"
+  DOT = oo "."
+  SEMICOLON = oo ";"
+  ELLIPSIS = oo "…"
+  
+  # ---------
+  # :section:
+  # ---------
+  
   def self.phrases_from(str, sloch)
-    # 
-    other = "O\\h+O"
-    word = "W[01]\\h+Y\\h+W"
-    sloch_occurence = "S\\h+S"
-    oo = lambda { |t| "O#{t.hex_encode}O" }
-    words = lambda { |encoded_part| encoded_part.scan(/#{word}/o) }
-    ws = oo.(" ")
-    comma = oo.(",")
-    exclamation = oo.("!")
-    question = oo.("?")
-    dot = oo.(".")
-    semicolon = oo.(";")
-    ellipsis = oo.("…")
     # Encode this string:
-    # - word → /#{word}/
-    # - other → /#{other}/
+    # - word → /#{WORD}/
+    # - other → /#{OTHER}/
     # In word the /[01]/ is a flag: if the word is a proper name with "." in it
     # then the flag is "1", otherwise "0".
     encoded_str = str.
@@ -79,7 +93,7 @@ module Redgerra
             if token.include? "." then "1" else "0" end
           "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
         when :other
-          oo.(token)
+          oo(token)
         end
       end
     # 
@@ -93,45 +107,45 @@ module Redgerra
         when :other
           case token
           when "*"
-            "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
+            "#{WORD}(#{WS}?#{COMMA}?#{WS}?#{WORD})?"
           else
-            oo.(token)
+            oo(token)
           end
         end
       end.
       to_regexp
-    # Search for sloch and replace it with /#{sloch_occurence}/.
+    # Search for sloch and replace it with /#{SLOCH_OCCURENCE}/.
     encoded_str.
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
     # Search for all phrases containing the sloch.
     encoded_phrases = encoded_str.
-      scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first).
+      scan(/((#{WORD}|#{COMMA}|#{WS})*#{SLOCH_OCCURENCE}(#{WORD}|#{COMMA}|#{WS}|#{SLOCH_OCCURENCE})*(#{EXCLAMATION}|#{QUESTION}|#{DOT}|#{SEMICOLON}|#{ELLIPSIS})*)/o).map(&:first).
       map do |encoded_phrase|
-        encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
+        encoded_phrase.gsub(/^(#{COMMA}|#{WS})+|(#{COMMA}|#{WS})+$/o, "")
       end
-    # Filter phrases (stage 1, /#{sloch_occurence}/ is required).
+    # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
     encoded_phrases.select! do |encoded_phrase|
-      # There must be another words except /#{sloch_occurence}/.
-      encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
-        words.(encoded_part).not_empty?
+      # There must be another words except /#{SLOCH_OCCURENCE}/.
+      encoded_phrase.split(/#{SLOCH_OCCURENCE}/o).any? do |encoded_part|
+        words(encoded_part).not_empty?
       end
     end
-    # Replace /#{sloch_occurence}/ with the original encoded strings.
+    # Replace /#{SLOCH_OCCURENCE}/ with the original encoded strings.
     encoded_phrases.map! do |encoded_phrase|
-      encoded_phrase.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+      encoded_phrase.gsub(/#{SLOCH_OCCURENCE}/o) { |match| match[1...-1].hex_decode }
     end
     # Filter phrases (stage 2, phrases must be encoded).
     encoded_phrases.select! do |encoded_phrase|
       # 
-      words.(encoded_phrase).size <= 20 and
+      words(encoded_phrase).size <= 20 and
       # There must not be any word which is the proper name with ".".
-      not words.(encoded_phrase).any? { |word| word[1] == "1" }
+      not words(encoded_phrase).any? { |word| word[1] == "1" }
     end
     # Decode phrases.
     phrases = encoded_phrases.
       map do |encoded_phrase|
         encoded_phrase.
-          gsub(/#{word}|#{other}/o) do |match|
+          gsub(/#{WORD}|#{OTHER}/o) do |match|
             case match[0]
             when "W"
               match[/Y(\h+)W/, 1].hex_decode
@@ -150,6 +164,10 @@ module Redgerra
   
   class ::String
     
+    # Used by Redgerra#phrases_from() only.
+    # 
+    # 
+    # 
     def parse(&block)
       result = ""
       s = StringScanner.new(self)
