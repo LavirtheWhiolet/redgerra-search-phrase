@@ -96,6 +96,10 @@ module Redgerra
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
       encoded_phrases = encoded_str.
         scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first)
+      encoded_phrases.
+        select! do |encoded_phrase|
+          
+        end
       phrases = encoded_phrases.
         map do |encoded_phrase|
           encoded_phrase.
