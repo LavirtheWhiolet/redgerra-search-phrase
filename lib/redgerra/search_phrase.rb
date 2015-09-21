@@ -55,18 +55,18 @@ module Redgerra
     
     def phrases(sloch)
       # 
-      oo = lambda { |t| "O#{t.hex_encode}O" }
       other = "O\\h+O"
       word = "W\\h+Y\\h+W"
+      sloch_occurence = "S\\h+S"
+      oo = lambda { |t| "O#{t.hex_encode}O" }
+      words = lambda { |encoded_part| encoded_part.scan(/#{word}/o) }
       ws = oo.(" ")
       comma = oo.(",")
-      sloch_occurence = "S\\h+S"
       exclamation = oo.("!")
       question = oo.("?")
       dot = oo.(".")
       semicolon = oo.(";")
       ellipsis = oo.("…")
-      words = lambda { |encoded_part| encoded_part.scan(/#{word}/o) }
       # 
       encoded_str = self.
         squeeze_unicode_whitespace.
