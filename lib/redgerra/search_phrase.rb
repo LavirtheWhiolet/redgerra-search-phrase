@@ -7,6 +7,7 @@ require 'random_accessible'
 require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
+require 'object/not_empty'
 
 # For Redgerra::text_blocks_from*().
 require 'open-uri'
@@ -32,8 +33,7 @@ module Redgerra
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
-    #
-    sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
+    # 
     m = Memory.new
     # 
     phrases =
@@ -42,25 +42,172 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        Text.new(text_block.squeeze_unicode_whitespace).
-          phrases.
-          select do |phrase|
-            phrase_downcase = phrase.downcase
-            #
-            not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
-            not phrase.upcase? and
-            phrase.words_count <= 20 and
-            phrase_downcase.include?(sloch) and
-            not phrase.words.any?(&:proper_name_with_dot?) and
-            phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
-          end.
-          map(&:to_s)
+        phrases_from(text_block, sloch).
+          reject { |phrase| m.mentioned_before? phrase }
       end
     #
     return ThreadSafeRandomAccessible.new(phrases)
   end
   
   private
+  
+  # --------------------------------------
+  # :section: Used by #phrases_from() only
+  # --------------------------------------
+  
+  def self.oo(str)
+    "O#{str.hex_encode}O"
+  end
+  
+  def self.words(encoded_part)
+    encoded_part.scan(/#{WORD}/o)
+  end
+  
+  OTHER = "O\\h+O"
+  WORD = "W[01]\\h+Y\\h+W"
+  SLOCH_OCCURENCE = "S\\h+S"
+  
+  # ---------
+  # :section:
+  # ---------
+  
+  def self.phrases_from(str, sloch)
+    # Encode this string:
+    # - word → /#{WORD}/
+    # - other → /#{OTHER}/
+    # In word the /[01]/ is a flag: if the word is a proper name with "." in it
+    # then the flag is "1", otherwise "0".
+    encoded_str = str.
+      squeeze_unicode_whitespace.
+      encode_ do |token, type|
+        case type
+        when :word
+          is_proper_name_with_dot_flag =
+            if token.include? "." then "1" else "0" end
+          "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+        when :other
+          oo(token)
+        end
+      end
+    # 
+    encoded_sloch_regexp = sloch.
+      squeeze_unicode_whitespace.
+      downcase.
+      encode_ do |token, type|
+        case type
+        when :word
+          "W[01]#{token.downcase.hex_encode}Y\\h+W"
+        when :other
+          case token
+          when "*"
+            "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
+          else
+            oo(token)
+          end
+        end
+      end.
+      to_regexp
+    # Search for sloch and replace it with /#{SLOCH_OCCURENCE}/.
+    encoded_str.
+      gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
+    # Search for all phrases containing the sloch.
+    encoded_phrases = encoded_str.
+      scan(/((#{WORD}|#{oo ','}|#{oo ' '})*#{SLOCH_OCCURENCE}(#{WORD}|#{oo ','}|#{oo ' '}|#{SLOCH_OCCURENCE})*(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
+      map do |encoded_phrase|
+        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
+      end
+    # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
+    encoded_phrases.select! do |encoded_phrase|
+      # There must be another words except /#{SLOCH_OCCURENCE}/.
+      encoded_phrase.split(/#{SLOCH_OCCURENCE}/o).any? do |encoded_part|
+        words(encoded_part).not_empty?
+      end
+    end
+    # Replace /#{SLOCH_OCCURENCE}/ with the original encoded strings.
+    encoded_phrases.map! do |encoded_phrase|
+      encoded_phrase.gsub(/#{SLOCH_OCCURENCE}/o) { |match| match[1...-1].hex_decode }
+    end
+    # Filter phrases (stage 2, phrases must be encoded).
+    encoded_phrases.select! do |encoded_phrase|
+      # 
+      words(encoded_phrase).size <= 20 and
+      # There must not be any word which is the proper name with ".".
+      not words(encoded_phrase).any? { |word| word[1] == "1" }
+    end
+    # Decode phrases.
+    phrases = encoded_phrases.
+      map do |encoded_phrase|
+        encoded_phrase.
+          gsub(/#{WORD}|#{OTHER}/o) do |match|
+            case match[0]
+            when "W"
+              match[/Y(\h+)W/, 1].hex_decode
+            when "O"
+              match[1...-1].hex_decode
+            end
+          end
+      end
+    # Filter phrases (stage 3, original phrases).
+    phrases.select! do |phrase|
+      not phrase.upcase?
+    end
+    #
+    return phrases
+  end
+  
+  class ::String
+    
+    # Used by Redgerra#phrases_from() only.
+    # 
+    # Passes +block+ with:
+    # - word, :word - if it encounters a word.
+    # - other, :other - if it encounters a character.
+    # 
+    # Returns this String with all parts replaced with results of +block+.
+    # 
+    def encode_(&block)
+      result = ""
+      s = StringScanner.new(self)
+      until s.eos?
+        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+          result << block.(word, :word)
+        end) or
+        (other = s.getch and act do
+          result << block.(other, :other)
+        end)
+      end
+      return result
+    end
+    
+    # returns this String encoded into regular expression "\h+".
+    def hex_encode
+      r = ""
+      self.each_byte do |byte|
+        r << byte.to_s(16)
+      end
+      r
+    end
+    
+    # Inversion of #hex_encode().
+    def hex_decode
+      self.scan(/\h\h/).map { |code| code.hex }.pack('C*').force_encoding('utf-8')
+    end
+    
+    def upcase?
+      /[a-z]/ !~ self.to_s
+    end
+    
+    def to_regexp
+      Regexp.new(self)
+    end
+    
+    # calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
+  end
   
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
@@ -121,184 +268,20 @@ module Redgerra
     return text_blocks
   end
   
-  class Text
+  class ThreadSafeRandomAccessible
     
-    class << self
-      
-      # Private.
-      alias __original_new__ new
-      
-      # 
-      # +str+ must be String#squeeze_unicode_whitespace()-ed.
-      # 
-      def new(str)
-        __original_new__(str, nil)
+    include RandomAccessible
+    include MonitorMixin
+    
+    def initialize(source)
+      super()
+      @source = source
+    end
+    
+    def [](index)
+      mon_synchronize do
+        @source[index]
       end
-      
-      def from_encoded_string(encoded_string)
-        __original_new__(nil, encoded_string)
-      end
-    
-    end
-    
-    def to_s
-      @str ||= begin
-        @encoded_str.gsub(/#{Word::ENCODED_REGEXP}/o) do |encoded_word|
-          Word.from_encoded_string(encoded_word).to_s
-        end
-      end
-    end
-    
-    def to_encoded_string
-      @encoded_str ||= begin
-        result = ""
-        s = StringScanner.new(@str)
-        until s.eos?
-          (slang = s.scan(/\'[Cc]ause/) and act do
-            result << Word.new(slang).to_encoded_string
-          end)
-          (word = s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o) and act do
-            is_proper_name_with_dot = word.include?(".")
-            result << Word.new(word, is_proper_name_with_dot).to_encoded_string
-          end) or
-          (other = s.getch and act do
-            result << other
-          end)
-        end
-        result
-      end
-    end
-    
-    def inspect
-      "#<Text #{to_s.inspect}>"
-    end
-    
-    def include?(sloch)
-      sloch.to_encoded_regexp === self.to_encoded_string
-    end
-    
-    def phrases
-      punctuation_and_whitespace = "[\\,\\ ]"
-      self.to_encoded_string.scan(/((#{Word::ENCODED_REGEXP}|#{punctuation_and_whitespace})+[\!\?\.\;…]*)/o).map(&:first).
-        map do |encoded_phrase|
-          encoded_phrase.gsub(/^#{punctuation_and_whitespace}*|#{punctuation_and_whitespace}*$/o, "")
-        end.
-        reject(&:empty?).
-        map { |encoded_phrase| Text.from_encoded_string(encoded_phrase) }
-    end
-    
-    def words
-      self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).map do |encoded_word|
-        Word.from_encoded_string(encoded_word)
-      end
-    end
-    
-    def words_count
-      self.to_encoded_string.scan(/#{Word::ENCODED_REGEXP}/o).size
-    end
-    
-    def upcase?
-      /[a-z]/ !~ self.to_s
-    end
-    
-    def downcase
-      Text.new(self.to_s.downcase)
-    end
-    
-    def split(sloch)
-      self.to_encoded_string.
-        # Split by <tt>sloch.to_encoded_regexp</tt>.
-        gsub(sloch.to_encoded_regexp, "|").split("|", -1).
-        # 
-        map { |part| Text.from_encoded_string(part) }
-    end
-    
-    private
-    
-    def initialize(str, encoded_str)  # :not-new:
-      @str = str
-      @encoded_str = encoded_str
-    end
-    
-    # calls +f+ and returns true.
-    def act(&f)
-      f.()
-      return true
-    end
-    
-  end
-  
-  class Word
-    
-    # 
-    # Regular expression matching #to_encoded_string().
-    # 
-    # It matches only Word#to_encoded_string() in Text#to_encoded_string() and
-    # nothing else. It also never matches a part of Word#to_encoded_string().
-    # 
-    ENCODED_REGEXP = "W[01]\\h+W"
-    
-    def initialize(str, is_proper_name_with_dot = false)
-      @str = str
-      @is_proper_name_with_dot = is_proper_name_with_dot
-    end
-    
-    def inspect
-      "#{@str.inspect}#{if proper_name_with_dot? then "(.)" else "" end}"
-    end
-    
-    def to_s
-      @str
-    end
-    
-    # 
-    # See also ENCODED_REGEXP, ::from_encoded_string().
-    # 
-    def to_encoded_string
-      r = "W#{if proper_name_with_dot? then "1" else "0" end}"
-      @str.each_codepoint do |code|
-        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-        r << code.to_s(16)
-      end
-      r << "W"
-      return r
-    end
-    
-    def self.from_encoded_string(encoded_str)
-      Word.new(
-        encoded_str[2...-1].gsub(/\h\h/) { |code| code.hex.chr },
-        encoded_str[1] == "1"
-      )
-    end
-    
-    def proper_name_with_dot?
-      @is_proper_name_with_dot
-    end
-    
-  end
-  
-  class Sloch
-    
-    # 
-    # +str+ must be String#squeeze_unicode_whitespace()-ed.
-    # 
-    def initialize(str)
-      @str = str
-      @encoded_regexp = Regexp.new(
-        Text.new(str).to_encoded_string.
-          # Escape everything except "*".
-          split("*").map { |part| Regexp.escape(part) }.
-          # Replace "*" with...
-          join("#{Word::ENCODED_REGEXP}( ?,? ?#{Word::ENCODED_REGEXP})?")
-      )
-    end
-    
-    def to_encoded_regexp
-      @encoded_regexp
-    end
-    
-    def to_s
-      @str
     end
     
   end
@@ -318,24 +301,6 @@ module Redgerra
       else
         @impl.add x
         return false
-      end
-    end
-    
-  end
-  
-  class ThreadSafeRandomAccessible
-    
-    include RandomAccessible
-    include MonitorMixin
-    
-    def initialize(source)
-      super()
-      @source = source
-    end
-    
-    def [](index)
-      mon_synchronize do
-        @source[index]
       end
     end
     
