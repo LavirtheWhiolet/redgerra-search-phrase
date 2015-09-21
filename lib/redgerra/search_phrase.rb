@@ -86,7 +86,8 @@ module Redgerra
             end
           end
         end
-      p encoded_sloch
+      encoded_sloch_regexp = Regexp.new(encoded_sloch)
+      p encoded_sloch_regexp
       encoded_str.gsub!(encoded_sloch) { |match| "S#{match.hex_encode}S" }
       p encoded_str
       [""]
