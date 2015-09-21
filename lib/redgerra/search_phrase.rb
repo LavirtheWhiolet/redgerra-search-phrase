@@ -309,4 +309,4 @@ module Redgerra
 end
 
 t = "everybody, do the, again flop start, again!"
-p Redgerra::search_phrase(t, "do * flop")
+p Redgerra::phrases_from(t, "do * flop")
