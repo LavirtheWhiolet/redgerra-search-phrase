@@ -51,7 +51,7 @@ module Redgerra
   
   private
   
-  def phrases_from(str, sloch)
+  def self.phrases_from(str, sloch)
     # 
     other = "O\\h+O"
     word = "W[01]\\h+Y\\h+W"
