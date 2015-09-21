@@ -64,6 +64,32 @@ module Redgerra
   
   class ::String
     
+    # Returns phrases from this String which include +sloch+.
+    def phrases(sloch)
+      encoded_str = self.
+        gsub_words { |word| "W#{word.downcase.hex_encode}Y#{word.hex_encode}W" }
+      encoded_word_regexp = "W\\h+Y\\h+W"
+      # Convert sloch to Regexp for searching in encoded_str.
+      sloch = sloch.
+        downcase.
+        gsub_words { |word| "W#{word.hex_encode}Y\\h+W" }.
+        split("*").map { |part| Regexp.escape(part) }.
+        join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        to_regexp
+      # Replace sloch occurences with "S\h+S"
+      encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
+      encoded_sloch_regexp = "S\\h+S"
+      # 
+      in_phrase_punct_and_ws = "[\\,\\ ]"
+      encoded_phrases = encoded_str.
+        scan(/((#{encoded_word_regexp}|#{encoded_sloch_regexp}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+        map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
+        reject(&:empty?).
+        map do |encoded_phrase|
+          
+        end
+    end
+    
     # Passes +block+ with each word from this String and replaces the word with
     # the +block+'s result.
     # 
@@ -84,7 +110,7 @@ module Redgerra
     end
     
     # Returns this String encoded into regular expression "\h+".
-    def hex_encode()
+    def hex_encode
       self.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
@@ -92,12 +118,16 @@ module Redgerra
     end
     
     # Inversion of #hex_encode().
-    def hex_decode()
+    def hex_decode
       self.gsub(/\h\h/) { |code| code.hex.chr }
     end
     
     def upcase?
       /[a-z]/ !~ self.to_s
+    end
+    
+    def to_regexp
+      Regexp.new(self
     end
     
     private
