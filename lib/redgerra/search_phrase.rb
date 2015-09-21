@@ -101,13 +101,17 @@ module Redgerra
         select! do |encoded_phrase|
           encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
             words.(encoded_part).not_empty?
-          end and
+          end
+        end
+      encoded_phrases.
+        gsub!(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+      encoded_phrases.
+        select! do |encoded_phrase|
           words.(encoded_phrase).size <= 20
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
           encoded_phrase.
-            gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }.
             gsub(/#{word}|#{other}/o) do |match|
               case match[0]
               when "W" then match[/Y(\h+)W/, 1].hex_decode
