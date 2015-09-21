@@ -208,7 +208,7 @@ module Redgerra
     end
     
   end
-    
+  
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
     #
