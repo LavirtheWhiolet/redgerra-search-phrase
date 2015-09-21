@@ -83,7 +83,7 @@ module Redgerra
         in_phrase_punct_and_ws = "[\\,\\ ]"
         encoded_str.
           # Scan for all phrase candidates.
-          scan(/((#{encoded_word_regexp}|#{encoded_sloch_occurence_regexp}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+          scan(/((#{encoded_word_regexp}|#{in_phrase_punct_and_ws})*#{encoded_sloch_occurence_regexp}(#{encoded_word_regexp}|#{in_phrase_punct_and_ws})*[\!\?\.\;…]*)/o).map(&:first).
           # Strip bordering punctuation and whitespace.
           map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
           # Filter phrases (1).
