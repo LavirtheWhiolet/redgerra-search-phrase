@@ -66,17 +66,22 @@ module Redgerra
     
     # Returns phrases from this String which include +sloch+.
     def phrases(sloch)
+      # Encode words in +str+.
       encoded_str = self.
-        gsub_words { |word| "W#{word.downcase.hex_encode}Y#{word.hex_encode}W" }
-      encoded_word = "W\\h+Y\\h+W"
+        gsub_words do |word|
+          is_proper_name_with_dot_flag =
+            if word.include? "." then "1" else "0" end
+          "W#{is_proper_name_with_dot_flag}#{word.downcase.hex_encode}Y#{word.hex_encode}W"
+        end
+      encoded_word = "W[01]\\h+Y\\h+W"
       # Convert sloch to Regexp for searching in encoded_str.
       sloch = sloch.
         #
         downcase.
         # 
-        gsub_words { |word| "W#{word.hex_encode}Y\\h+W" }.
+        gsub_words { |downcase_sloch_word| "W[01]#{downcase_sloch_word.hex_encode}Y\\h+W" }.
         # Replace "*" with...
-        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word}( ?,? ?#{encoded_word})?").
         #
         to_regexp
       # Replace sloch occurences with "S\h+S"
