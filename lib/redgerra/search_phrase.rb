@@ -52,9 +52,47 @@ module Redgerra
   
   class ::String
     
+    def phrases(sloch)
+      to_o = lambda { |t| "O#{t.hex_encode}O" }
+      # 
+      p self
+      encoded_str = self.
+        squeeze_unicode_whitespace.
+        parse do |token, type|
+          case type
+          when :word
+            "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+          when :other
+            to_o.(token)
+          end
+        end
+      p encoded_str
+      encoded_sloch = sloch.
+        squeeze_unicode_whitespace.
+        downcase.
+        parse do |token, type|
+          case type
+          when :word
+            "W#{token.downcase.hex_encode}Y\\h+W"
+          when :other
+            case token
+            when "*"
+              word = "W\\h+Y\\h+W"
+              ws = to_o.(" ")
+              comma = to_o.(",")
+              "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
+            else
+              to_o.(token)
+            end
+          end
+        end
+      p encoded_sloch
+      encoded_str.gsub!(encoded_sloch) { |match| "S#{match.hex_encode}S" }
+      p encoded_str
+      [""]
+    end
     
-    
-    def parse(str, &block)
+    def parse(&block)
       result = ""
       s = StringScanner.new(self)
       until s.eos?
