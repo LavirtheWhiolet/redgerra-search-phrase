@@ -307,5 +307,3 @@ module Redgerra
   end
   
 end
-
-
