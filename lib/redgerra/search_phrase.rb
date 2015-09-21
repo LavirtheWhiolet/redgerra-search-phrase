@@ -62,21 +62,54 @@ module Redgerra
   
   private
   
-  # Passes +block+ with each word from +str+ and replaces the word with the
-  # +block+'s result.
-  def gsub_words(str, &block)
-    result = ""
-    s = StringScanner.new(@str)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        result << block.(word)
-      end) or
-      (other = s.getch and act do
-        result << other
-      end)
+  class ::String
+    
+    # Passes +block+ with each word from this String and replaces the word with
+    # the +block+'s result.
+    # 
+    # Returns this String with the words replaced.
+    # 
+    def gsub_words(&block)
+      result = ""
+      s = StringScanner.new(self)
+      until s.eos?
+        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+          result << block.(word)
+        end) or
+        (other = s.getch and act do
+          result << other
+        end)
+      end
+      return result
     end
-    return result
+    
+    # Returns this String encoded into regular expression "\h+".
+    def hex_encode()
+      self.each_codepoint do |code|
+        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+        r << code.to_s(16)
+      end
+    end
+    
+    # Inversion of #hex_encode().
+    def hex_decode()
+      self.gsub(/\h\h/) { |code| code.hex.chr }
+    end
+    
+    def upcase?
+      /[a-z]/ !~ self.to_s
+    end
+    
+    private
+    
+    # Calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
   end
+  
   
   ENCODED_WORD_REGEXP = /W\h+W/
   ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
@@ -133,29 +166,6 @@ module Redgerra
   # to #encode_sloch_occurences().
   def decode_sloch_occurences(str)
     str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
-  end
-  
-  # Returns +str+ encoded into regular expression "\h+".
-  def hex_encode(str)
-    str.each_codepoint do |code|
-      raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-      r << code.to_s(16)
-    end
-  end
-  
-  # Inversion of #hex_encode().
-  def hex_decode(str)
-    str.gsub(/\h\h/) { |code| code.hex.chr }
-  end
-  
-  # Calls +f+ and returns true.
-  def act(&f)
-    f.()
-    return true
-  end
-  
-  def upcase?(str)
-    /[a-z]/ !~ self.to_s
   end
   
   # returns Array of String-s.
