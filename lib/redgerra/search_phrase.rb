@@ -82,10 +82,6 @@ module Redgerra
     return result
   end
   
-  def upcase?(str)
-    /[a-z]/ !~ self.to_s
-  end
-  
   # Inversion of #encode_words().
   def decode_words(str)
     str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
@@ -142,17 +138,8 @@ module Redgerra
     return true
   end
   
-  class Word
-    
-    # Accessible to #words_from() only.
-    def initialize(is_proper_name_with_dot)
-      @is_proper_name_with_dot = is_proper_name_with_dot
-    end
-    
-    def proper_name_with_dot?
-      @is_proper_name_with_dot
-    end
-    
+  def upcase?(str)
+    /[a-z]/ !~ self.to_s
   end
   
   # returns Array of String-s.
@@ -212,6 +199,19 @@ module Redgerra
     end
     this.(element)
     return text_blocks
+  end
+  
+  class Word
+    
+    # Accessible to #words_from() only.
+    def initialize(is_proper_name_with_dot)
+      @is_proper_name_with_dot = is_proper_name_with_dot
+    end
+    
+    def proper_name_with_dot?
+      @is_proper_name_with_dot
+    end
+    
   end
   
   class ThreadSafeRandomAccessible
