@@ -98,16 +98,13 @@ module Redgerra
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
       encoded_phrases.
-        select! do |encoded_phrase|
-          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
-            words.(encoded_part).not_empty?
-          end
-        end
-      encoded_phrases.
         gsub!(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
       encoded_phrases.
         select! do |encoded_phrase|
-          words.(encoded_phrase).size <= 20
+          words.(encoded_phrase).size <= 20 and
+          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
+            words.(encoded_part).not_empty?
+          end
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
