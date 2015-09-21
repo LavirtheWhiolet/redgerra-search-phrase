@@ -54,6 +54,7 @@ module Redgerra
   class ::String
     
     def phrases(sloch)
+      # 
       oo = lambda { |t| "O#{t.hex_encode}O" }
       other = "O\\h+O"
       word = "W\\h+Y\\h+W"
@@ -65,6 +66,7 @@ module Redgerra
       dot = oo.(".")
       semicolon = oo.(";")
       ellipsis = oo.("…")
+      words = lambda { |encoded_part| encoded_part.scan(/#{word}/o) }
       # 
       encoded_str = self.
         squeeze_unicode_whitespace.
@@ -100,7 +102,7 @@ module Redgerra
       encoded_phrases.
         select! do |encoded_phrase|
           encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
-            encoded_part.scan(/#{word}/o).not_empty?
+            words.(encoded_part).not_empty?
           end
         end
       phrases = encoded_phrases.
