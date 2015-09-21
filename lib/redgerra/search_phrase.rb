@@ -139,6 +139,11 @@ module Redgerra
     return result
   end
   
+  # Inversion of #encode_words().
+  def decode_words(str)
+    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[1...-1]) }
+  end
+  
   # Returns +str+ with sloch occurences encoded into
   # ENCODED_SLOCH_OCCURENCE_REGEXP.
   # 
@@ -155,15 +160,10 @@ module Redgerra
     encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
   end
   
-  # Returns original String passed to #encode_sloch_occurences() or
-  # #encode_words().
-  # 
-  # +str+ is result of #encode_sloch_occurences() or #encode_words().
-  # 
-  def decode(str)
-    str.
-      gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }.
-      gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[1...-1]) }
+  # Inversion of #encode_sloch_occurences(). Returns only +encoded_str+ passed
+  # to #encode_sloch_occurences().
+  def decode_sloch_occurences(str)
+    str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
   end
   
   # Returns +str+ encoded into regular expression "\h+".
