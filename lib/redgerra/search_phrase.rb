@@ -65,7 +65,7 @@ module Redgerra
             to_o.(token)
           end
         end
-      encoded_sloch = sloch.
+      encoded_sloch_regexp = sloch.
         squeeze_unicode_whitespace.
         downcase.
         parse do |token, type|
@@ -83,12 +83,12 @@ module Redgerra
               to_o.(token)
             end
           end
-        end
-      encoded_sloch_regexp =
-        Regexp.new(encoded_sloch)
+        end.
+        to_regexp
       encoded_str.
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
-      
+      encoded_phrases = encoded_str.
+        scan(//o)
       [""]
     end
     
