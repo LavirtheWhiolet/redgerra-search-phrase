@@ -139,7 +139,8 @@ module Redgerra
     return result
   end
   
-  # Returns +str+ with sloch occurences encoded into ENCODED_SLOCH_OCCURENCE_REGEXP.
+  # Returns +str+ with sloch occurences encoded into
+  # ENCODED_SLOCH_OCCURENCE_REGEXP.
   # 
   # +encoded_str+ is result of #encode_words().
   # 
