@@ -138,7 +138,7 @@ module Redgerra
     
     # Inversion of #hex_encode().
     def hex_decode
-      self.pack('C*').force_encoding('utf-8')
+      self.scan(/\h\h/).map { |code| code.hex }.pack('C*').force_encoding('utf-8')
     end
     
     def upcase?
