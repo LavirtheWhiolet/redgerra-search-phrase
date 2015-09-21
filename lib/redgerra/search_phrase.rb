@@ -167,7 +167,9 @@ module Redgerra
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
     # Search for all phrases containing the sloch.
     encoded_phrases = encoded_str.
+      # Scan for all phrases!
       scan(/((#{WORD}#{PUNCT_AND_WS}){,10}(#{oo '"'}#{PUNCT_AND_WS}(#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(#{PUNCT_AND_WS}(#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT})/o).map(&:first).
+      # Strip the phrases from unwanted characters.
       map do |encoded_phrase|
         encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '}|#{oo '"'})+|(#{oo ','}|#{oo ' '})+$/o, "")
       end
