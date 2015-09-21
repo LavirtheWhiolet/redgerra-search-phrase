@@ -53,7 +53,16 @@ module Redgerra
   class ::String
     
     def phrases(sloch)
-      to_o = lambda { |t| "O#{t.hex_encode}O" }
+      oo = lambda { |t| "O#{t.hex_encode}O" }
+      word = "W\\h+Y\\h+W"
+      ws = oo.(" ")
+      comma = oo.(",")
+      sloch_occurence = "S\\h+S"
+      exclamation = oo.("!")
+      question = oo.("?")
+      dot = oo.(".")
+      semicolon = oo.(";")
+      ellipsis = oo.("…")
       # 
       encoded_str = self.
         squeeze_unicode_whitespace.
@@ -62,7 +71,7 @@ module Redgerra
           when :word
             "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
           when :other
-            to_o.(token)
+            oo.(token)
           end
         end
       encoded_sloch_regexp = sloch.
@@ -75,12 +84,9 @@ module Redgerra
           when :other
             case token
             when "*"
-              word = "W\\h+Y\\h+W"
-              ws = to_o.(" ")
-              comma = to_o.(",")
               "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
             else
-              to_o.(token)
+              oo.(token)
             end
           end
         end.
@@ -88,8 +94,11 @@ module Redgerra
       encoded_str.
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
       encoded_phrases = encoded_str.
-        scan(//o)
-      [""]
+        scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first)
+# #           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
+# #           # Strip bordering punctuation and whitespace.
+# #           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
+        
     end
     
     def parse(&block)
