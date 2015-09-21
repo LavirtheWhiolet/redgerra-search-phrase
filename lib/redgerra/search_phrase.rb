@@ -66,13 +66,6 @@ module Redgerra
   OTHER = "O\\h+O"
   WORD = "W[01]\\h+Y\\h+W"
   SLOCH_OCCURENCE = "S\\h+S"
-  WS = oo " "
-  COMMA = oo ","
-  EXCLAMATION = oo "!"
-  QUESTION = oo "?"
-  DOT = oo "."
-  SEMICOLON = oo ";"
-  ELLIPSIS = oo "…"
   
   # ---------
   # :section:
@@ -107,7 +100,7 @@ module Redgerra
         when :other
           case token
           when "*"
-            "#{WORD}(#{WS}?#{COMMA}?#{WS}?#{WORD})?"
+            "#{WORD}(#{oo ' '}?#{oo ','}?#{oo ' '}?#{WORD})?"
           else
             oo(token)
           end
@@ -119,9 +112,9 @@ module Redgerra
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
     # Search for all phrases containing the sloch.
     encoded_phrases = encoded_str.
-      scan(/((#{WORD}|#{COMMA}|#{WS})*#{SLOCH_OCCURENCE}(#{WORD}|#{COMMA}|#{WS}|#{SLOCH_OCCURENCE})*(#{EXCLAMATION}|#{QUESTION}|#{DOT}|#{SEMICOLON}|#{ELLIPSIS})*)/o).map(&:first).
+      scan(/((#{WORD}|#{oo ','}|#{oo ' '})*#{SLOCH_OCCURENCE}(#{WORD}|#{oo ','}|#{oo ' '}|#{SLOCH_OCCURENCE})*(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
       map do |encoded_phrase|
-        encoded_phrase.gsub(/^(#{COMMA}|#{WS})+|(#{COMMA}|#{WS})+$/o, "")
+        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
       end
     # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
     encoded_phrases.select! do |encoded_phrase|
