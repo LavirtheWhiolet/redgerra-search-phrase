@@ -73,7 +73,7 @@ module Redgerra
             if word.include? "." then "1" else "0" end
           "W#{is_proper_name_with_dot_flag}#{word.downcase.hex_encode}Y#{word.hex_encode}W"
         end
-      encoded_word = "W[01]\\h+Y\\h+W"
+      encoded_word_regexp = "W[01]\\h+Y\\h+W"
       # Convert sloch to Regexp for searching in encoded_str.
       sloch = sloch.
         #
@@ -81,28 +81,29 @@ module Redgerra
         # 
         gsub_words { |downcase_sloch_word| "W[01]#{downcase_sloch_word.hex_encode}Y\\h+W" }.
         # Replace "*" with...
-        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word}( ?,? ?#{encoded_word})?").
+        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
         #
         to_regexp
       # Replace sloch occurences with "S\h+S"
       encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
-      encoded_sloch_occurence = "S\\h+S"
+      encoded_sloch_occurence_regexp = "S\\h+S"
       # 
       encoded_phrases = begin
         in_phrase_punct_and_ws = "[\\,\\ ]"
         encoded_str.
           # Scan for all phrase candidates.
-          scan(/((#{encoded_word}|#{encoded_sloch}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+          scan(/((#{encoded_word_regexp}|#{encoded_sloch_occurence_regexp}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
           # Strip bordering punctuation and whitespace.
           map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
           # Filter phrases (1).
           select do |encoded_phrase|
             not encoded_phrase.empty? and
-            encoded_phrase.scan(/#{encoded_word}/o).size <= 20
+            encoded_phrase.scan(/#{encoded_word}/o).size <= 20 and
+            not encoded_phrase =~ /W1\h+Y\h+W/
           end
       end
+      # Decode phrases.
       phrases = encoded_phrases.
-        # Decode phrases.
         map do |encoded_phrase|
           encoded_phrase.
             gsub(/#{encoded_sloch_regexp}/o) { |s| s[1...-1].hex_decode }.
