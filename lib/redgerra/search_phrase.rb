@@ -121,8 +121,6 @@ module Redgerra
     return text_blocks
   end
   
-  
-  
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
@@ -136,6 +134,26 @@ module Redgerra
     def [](index)
       mon_synchronize do
         @source[index]
+      end
+    end
+    
+  end
+  
+  class Memory
+    
+    def initialize()
+      @impl = Set.new
+    end
+    
+    # 
+    # returns false once for every +x+. In other cases it returns true.
+    # 
+    def mentioned_before?(x)
+      if @impl.include? x then
+        return true
+      else
+        @impl.add x
+        return false
       end
     end
     
