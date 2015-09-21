@@ -66,7 +66,7 @@ module Redgerra
       encoded_sloch = sloch.
         squeeze_unicode_whitespace.
         downcase.
-        gsub_words { |downcase_sloch_word| "W[01]\\h+Y\\h+W" }.
+        gsub_words { |downcase_sloch_word| "W[01]#{downcase_sloch_word.hex_encode}Y\\h+W" }.
         # Replace "*" with...
         split("*").map { |part| Regexp.escape(part) }.join("W[01]\\h+Y\\h+W( ?,? ?W[01]\\h+Y\\h+W)?").
         #
@@ -74,33 +74,35 @@ module Redgerra
       # Replace sloch occurences with "S\h+S"
       p self
       p encoded_str
+      p encoded_sloch
       encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
       p encoded_str
-      # 
-      encoded_phrases = begin
-        pws = "[\\,\\ ]"
-        s = encoded_sloch_occurence_regexp
-        w = encoded_word_regexp
-        encoded_str.
-          # Scan for all phrase candidates.
-          scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
-          # Strip bordering punctuation and whitespace.
-          map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
-          # Filter phrases (1).
-          select do |encoded_phrase|
-#             not encoded_phrase.empty? and
-#             encoded_phrase.scan(/#{encoded_word_regexp}/o).size <= 20 and
-#             not encoded_phrase =~ /W1\h+Y\h+W/
-            true
-          end
-      end
-      # Decode phrases.
-      phrases = encoded_phrases.
-        map do |encoded_phrase|
-          encoded_phrase.
-            gsub(/#{encoded_sloch_occurence_regexp}/o) { |s| s[1...-1].hex_decode }.
-            gsub(/#{encoded_word_regexp}/o) { |w| w[/Y(\h+)W/, 1].hex_decode }
-        end
+      [""]
+#       # 
+#       encoded_phrases = begin
+#         pws = "[\\,\\ ]"
+#         s = encoded_sloch_occurence_regexp
+#         w = encoded_word_regexp
+#         encoded_str.
+#           # Scan for all phrase candidates.
+#           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
+#           # Strip bordering punctuation and whitespace.
+#           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
+#           # Filter phrases (1).
+#           select do |encoded_phrase|
+# #             not encoded_phrase.empty? and
+# #             encoded_phrase.scan(/#{encoded_word_regexp}/o).size <= 20 and
+# #             not encoded_phrase =~ /W1\h+Y\h+W/
+#             true
+#           end
+#       end
+#       # Decode phrases.
+#       phrases = encoded_phrases.
+#         map do |encoded_phrase|
+#           encoded_phrase.
+#             gsub(/#{encoded_sloch_occurence_regexp}/o) { |s| s[1...-1].hex_decode }.
+#             gsub(/#{encoded_word_regexp}/o) { |w| w[/Y(\h+)W/, 1].hex_decode }
+#         end
     end
     
     # Passes +block+ with each word from this String and replaces the word with
