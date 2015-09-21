@@ -68,23 +68,34 @@ module Redgerra
     def phrases(sloch)
       encoded_str = self.
         gsub_words { |word| "W#{word.downcase.hex_encode}Y#{word.hex_encode}W" }
-      encoded_word_regexp = "W\\h+Y\\h+W"
+      encoded_word = "W\\h+Y\\h+W"
       # Convert sloch to Regexp for searching in encoded_str.
       sloch = sloch.
+        #
         downcase.
+        # 
         gsub_words { |word| "W#{word.hex_encode}Y\\h+W" }.
-        split("*").map { |part| Regexp.escape(part) }.
-        join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        # Replace "*" with...
+        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        #
         to_regexp
       # Replace sloch occurences with "S\h+S"
       encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
-      encoded_sloch_regexp = "S\\h+S"
+      encoded_sloch_occurence = "S\\h+S"
       # 
       in_phrase_punct_and_ws = "[\\,\\ ]"
       encoded_phrases = encoded_str.
-        scan(/((#{encoded_word_regexp}|#{encoded_sloch_regexp}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+        # Scan for all phrase candidates.
+        scan(/((#{encoded_word}|#{encoded_sloch}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+        # Strip bordering punctuation and whitespace.
         map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
-        reject(&:empty?).
+        # Filter phrases (1).
+        select do |encoded_phrase|
+          not encoded_phrase.empty? and
+          encoded_phrase.scan(/#{encoded_word}/o).size <= 20
+        end
+      phrases = encoded_phrases.
+        # Decode phrases.
         map do |encoded_phrase|
           encoded_phrase.
             gsub(/#{encoded_sloch_regexp}/o) { |s| s[1...-1].hex_decode }.
