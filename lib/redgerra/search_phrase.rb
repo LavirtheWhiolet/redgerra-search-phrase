@@ -130,7 +130,9 @@ module Redgerra
     s = StringScanner.new(@str)
     until s.eos?
       (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        result << "W#{hex_encode(word)}W"
+        is_proper_name_with_dot_flag =
+          if word.include?(".") then "1" else "0" end
+        result << "W#{is_proper_name_with_dot_flag}#{hex_encode(word)}W"
       end) or
       (other = s.getch and act do
         result << other
@@ -141,7 +143,7 @@ module Redgerra
   
   # Inversion of #encode_words().
   def decode_words(str)
-    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[1...-1]) }
+    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
   end
   
   # Returns +str+ with sloch occurences encoded into
