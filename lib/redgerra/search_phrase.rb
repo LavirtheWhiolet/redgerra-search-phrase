@@ -169,7 +169,7 @@ module Redgerra
     encoded_phrases = encoded_str.
       scan(/((#{WORD}#{PUNCT_AND_WS}){,10}(#{oo '"'}#{PUNCT_AND_WS}(#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(#{PUNCT_AND_WS}(#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT})/o).map(&:first).
       map do |encoded_phrase|
-        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
+        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '}|#{oo '"'})+|(#{oo ','}|#{oo ' '})+$/o, "")
       end
     # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
     encoded_phrases.select! do |encoded_phrase|
@@ -307,5 +307,5 @@ module Redgerra
   
 end
 
-t = %(abc, " he said, then fired)
+t = %(!! and then he said, then fired)
 p Redgerra::phrases_from(t, "he said")
