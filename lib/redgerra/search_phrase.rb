@@ -54,6 +54,7 @@ module Redgerra
     
     def phrases(sloch)
       oo = lambda { |t| "O#{t.hex_encode}O" }
+      other = "O\\h+O"
       word = "W\\h+Y\\h+W"
       ws = oo.(" ")
       comma = oo.(",")
@@ -95,6 +96,14 @@ module Redgerra
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
       encoded_phrases = encoded_str.
         scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first)
+      phrases = encoded_phrases.
+        map do |encoded_phrase|
+          encoded_phrase.
+            gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }.
+            gsub(/#{word}|#{other}/o) do |match|
+              case match[0]
+              when "W" then match[/Y(\h+)W/, 1].hex_decode
+            end
 # #           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
 # #           # Strip bordering punctuation and whitespace.
 # #           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
@@ -126,7 +135,7 @@ module Redgerra
     
     # Inversion of #hex_encode().
     def hex_decode
-      self.gsub(/\h\h/) { |code| code.hex.chr }
+      self.pack('C*').force_encoding('utf-8')
     end
     
     def upcase?
