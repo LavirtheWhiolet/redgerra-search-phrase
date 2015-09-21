@@ -158,8 +158,8 @@ module Redgerra
     # Used by Redgerra#phrases_from() only.
     # 
     # Passes +block+ with:
-    # - word, :word - if it encounters a word.
-    # - other, :other - if it encounters a character.
+    # - (word, :word) - if it encounters a word.
+    # - (other, :other) - if it encounters a character.
     # 
     # Returns this String with all parts replaced with results of +block+.
     # 
