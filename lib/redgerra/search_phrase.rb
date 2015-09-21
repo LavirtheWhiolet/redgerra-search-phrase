@@ -313,6 +313,6 @@ module Redgerra
 end
 
 t = <<TEXT
-do the again Flop a!
+Everybody likes do the again flop
 TEXT
 p Redgerra.phrases_from(t, "do * flop")
