@@ -32,8 +32,7 @@ module Redgerra
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
-    #
-    sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
+    # 
     m = Memory.new
     # 
     phrases =
@@ -42,19 +41,8 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        Text.new(text_block.squeeze_unicode_whitespace).
-          phrases.
-          select do |phrase|
-            phrase_downcase = phrase.downcase
-            #
-            not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
-            not phrase.upcase? and
-            phrase.words_count <= 20 and
-            phrase_downcase.include?(sloch) and
-            not phrase.words.any?(&:proper_name_with_dot?) and
-            phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
-          end.
-          map(&:to_s)
+        text_block.phrases(sloch).
+          reject { |phrase| m.mentioned_before? phrase }
       end
     #
     return ThreadSafeRandomAccessible.new(phrases)
@@ -62,114 +50,108 @@ module Redgerra
   
   private
   
-  # Passes +block+ with each word from +str+ and replaces the word with the
-  # +block+'s result.
-  def gsub_words(str, &block)
-    result = ""
-    s = StringScanner.new(@str)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        result << block.(word)
-      end) or
-      (other = s.getch and act do
-        result << other
-      end)
-    end
-    return result
-  end
-  
-  # Returns phrases from +str+ which contain +sloch+.
-  def phrases_from(str, sloch)
-    str = gsub_words(str) do |word|
-      "W#{hex_encode(word)}Y#{hex_encode(word.downcase)}W"
-    end
-    sloch_regexp =  Regexp.new(
-      gsub_words(sloch.downcase) { |word| "W\\h+Y#{hex_encode(word.downcase)}W" }
-        # Escape everything except "*".
-        split("*").map { |part| Regexp.escape(part) }.
+  class ::String
+    
+    # Returns phrases from this String which include +sloch+.
+    def phrases(sloch)
+      # Encode words in +str+.
+      encoded_str = self.
+        squeeze_unicode_whitespace.
+        gsub_words do |word|
+          is_proper_name_with_dot_flag =
+            if word.include? "." then "1" else "0" end
+          "W#{is_proper_name_with_dot_flag}#{word.downcase.hex_encode}Y#{word.hex_encode}W"
+        end
+      encoded_word_regexp = "W[01]\\h+Y\\h+W"
+      # Convert sloch to Regexp for searching in encoded_str.
+      sloch = sloch.
+        #
+        squeeze_unicode_whitespace.
+        #
+        downcase.
+        # 
+        gsub_words { |downcase_sloch_word| "W[01]#{downcase_sloch_word.hex_encode}Y\\h+W" }.
         # Replace "*" with...
-        join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
-    )
-  end
-  
-  ENCODED_WORD_REGEXP = /W\h+W/
-  ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
-  
-  # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
-  def encode_words(str)
-    result = ""
-    s = StringScanner.new(@str)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        is_proper_name_with_dot_flag =
-          if word.include?(".") then "1" else "0" end
-        result << "W#{is_proper_name_with_dot_flag}#{hex_encode(word)}W"
-      end) or
-      (other = s.getch and act do
-        result << other
-      end)
+        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        #
+        to_regexp
+      # Replace sloch occurences with "S\h+S"
+      encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
+      encoded_sloch_occurence_regexp = "S\\h+S"
+      # 
+      encoded_phrases = begin
+        in_phrase_punct_and_ws = "[\\,\\ ]"
+        encoded_str.
+          # Scan for all phrase candidates.
+          scan(/((#{encoded_word_regexp}|#{encoded_sloch_occurence_regexp}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+          # Strip bordering punctuation and whitespace.
+          map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
+          # Filter phrases (1).
+          select do |encoded_phrase|
+            not encoded_phrase.empty? and
+            encoded_phrase.scan(/#{encoded_word}/o).size <= 20 and
+            not encoded_phrase =~ /W1\h+Y\h+W/
+          end
+      end
+      # Decode phrases.
+      phrases = encoded_phrases.
+        map do |encoded_phrase|
+          encoded_phrase.
+            gsub(/#{encoded_sloch_regexp}/o) { |s| s[1...-1].hex_decode }.
+            gsub(/#{encoded_word_regexp}/o) { |w| w[/Y(\h+)W/, 1].hex_decode }
+        end
     end
-    return result
-  end
-  
-  # Inversion of #encode_words().
-  def decode_words(str)
-    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
-  end
-  
-  # Returns Array of Word-s.
-  # 
-  # +encoded_str+ is a result of #encode_words().
-  # 
-  def words_from(encoded_str)
-    str.scan(ENCODED_WORD_REGEXP).map do |encoded_word|
-      Word.new(encoded_word[1] == "1")
+    
+    # Passes +block+ with each word from this String and replaces the word with
+    # the +block+'s result.
+    # 
+    # Returns this String with the words replaced.
+    # 
+    def gsub_words(&block)
+      result = ""
+      s = StringScanner.new(self)
+      until s.eos?
+        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+          result << block.(word)
+        end) or
+        (other = s.getch and act do
+          result << other
+        end)
+      end
+      return result
     end
-  end
-  
-  # Returns +encoded_str+ with sloch occurences encoded into
-  # ENCODED_SLOCH_OCCURENCE_REGEXP.
-  # 
-  # +encoded_str+ is result of #encode_words().
-  # 
-  def encode_sloch_occurences(encoded_str, sloch)
-    encoded_sloch_regexp = Regexp.new(
-      encode_words(sloch).
-      # Escape everything except "*".
-      split("*").map { |part| Regexp.escape(part) }.
-      # Replace "*" with...
-      join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
-    )
-    encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
-  end
-  
-  # Inversion of #encode_sloch_occurences(). Returns only +encoded_str+ passed
-  # to #encode_sloch_occurences().
-  def decode_sloch_occurences(str)
-    str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
-  end
-  
-  # Returns +str+ encoded into regular expression "\h+".
-  def hex_encode(str)
-    str.each_codepoint do |code|
-      raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-      r << code.to_s(16)
+    
+    # Returns this String encoded into regular expression "\h+".
+    def hex_encode
+      r = ""
+      self.each_codepoint do |code|
+        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+        r << code.to_s(16)
+      end
+      r
     end
-  end
-  
-  # Inversion of #hex_encode().
-  def hex_decode(str)
-    str.gsub(/\h\h/) { |code| code.hex.chr }
-  end
-  
-  # Calls +f+ and returns true.
-  def act(&f)
-    f.()
-    return true
-  end
-  
-  def upcase?(str)
-    /[a-z]/ !~ self.to_s
+    
+    # Inversion of #hex_encode().
+    def hex_decode
+      self.gsub(/\h\h/) { |code| code.hex.chr }
+    end
+    
+    def upcase?
+      /[a-z]/ !~ self.to_s
+    end
+    
+    def to_regexp
+      Regexp.new(self)
+    end
+    
+    private
+    
+    # Calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
   end
   
   # returns Array of String-s.
