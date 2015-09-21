@@ -131,9 +131,11 @@ module Redgerra
               end
             end
         end
-      phrases.select! do |phrase|
-        not phrase.upcase?
-      end
+      phrases.
+        select! do |phrase|
+          not phrase.upcase?
+        end
+      phrases
     end
     
     def parse(&block)
