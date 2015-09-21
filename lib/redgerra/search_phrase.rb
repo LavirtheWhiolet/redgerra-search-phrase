@@ -123,10 +123,12 @@ module Redgerra
     
     # Returns this String encoded into regular expression "\h+".
     def hex_encode
+      r = ""
       self.each_codepoint do |code|
         raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
         r << code.to_s(16)
       end
+      r
     end
     
     # Inversion of #hex_encode().
