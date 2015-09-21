@@ -142,6 +142,11 @@ module Redgerra
     /[a-z]/ !~ self.to_s
   end
   
+  # Returns phrases from +str+ which contain +sloch+.
+  def phrases_from(str, sloch)
+    
+  end
+  
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
     #
