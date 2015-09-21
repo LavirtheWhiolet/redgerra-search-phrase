@@ -55,6 +55,59 @@ module Redgerra
   # :section: Used by #phrases_from() only
   # --------------------------------------
   
+  class ::String
+    
+    # 
+    # Passes +block+ with:
+    # - (word, :word) - if it encounters a word.
+    # - (other, :other) - if it encounters a character.
+    # 
+    # Returns this String with all parts replaced with results of +block+.
+    # 
+    def encode_(&block)
+      result = ""
+      s = StringScanner.new(self)
+      until s.eos?
+        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+          result << block.(word, :word)
+        end) or
+        (other = s.getch and act do
+          result << block.(other, :other)
+        end)
+      end
+      return result
+    end
+    
+    # returns this String encoded into regular expression "\h+".
+    def hex_encode
+      r = ""
+      self.each_byte do |byte|
+        r << byte.to_s(16)
+      end
+      r
+    end
+    
+    # Inversion of #hex_encode().
+    def hex_decode
+      self.scan(/\h\h/).map { |code| code.hex }.pack('C*').force_encoding('utf-8')
+    end
+    
+    def upcase?
+      /[a-z]/ !~ self.to_s
+    end
+    
+    def to_regexp
+      Regexp.new(self)
+    end
+    
+    # calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
+  end
+
   def self.oo(str)
     "O#{str.hex_encode}O"
   end
@@ -153,61 +206,7 @@ module Redgerra
     end
     #
     return phrases
-  end
-  
-  class ::String
-    
-    # Used by Redgerra#phrases_from() only.
-    # 
-    # Passes +block+ with:
-    # - (word, :word) - if it encounters a word.
-    # - (other, :other) - if it encounters a character.
-    # 
-    # Returns this String with all parts replaced with results of +block+.
-    # 
-    def encode_(&block)
-      result = ""
-      s = StringScanner.new(self)
-      until s.eos?
-        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-          result << block.(word, :word)
-        end) or
-        (other = s.getch and act do
-          result << block.(other, :other)
-        end)
-      end
-      return result
-    end
-    
-    # returns this String encoded into regular expression "\h+".
-    def hex_encode
-      r = ""
-      self.each_byte do |byte|
-        r << byte.to_s(16)
-      end
-      r
-    end
-    
-    # Inversion of #hex_encode().
-    def hex_decode
-      self.scan(/\h\h/).map { |code| code.hex }.pack('C*').force_encoding('utf-8')
-    end
-    
-    def upcase?
-      /[a-z]/ !~ self.to_s
-    end
-    
-    def to_regexp
-      Regexp.new(self)
-    end
-    
-    # calls +f+ and returns true.
-    def act(&f)
-      f.()
-      return true
-    end
-    
-  end
+  end  
   
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
