@@ -121,6 +121,35 @@ module Redgerra
     return text_blocks
   end
   
+  # Returns +str+ with words encoded into regular expressions "W\h+W"
+  def encode_words(str)
+    result = ""
+    s = StringScanner.new(@str)
+    until s.eos?
+      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+        result << "W#{hex_encode(slang)}W"
+      end) or
+      (other = s.getch and act do
+        result << other
+      end)
+    end
+    return result
+  end
+  
+  # Returns +str+ encoded into regular expression "\h+".
+  def hex_encode(str)
+    str.each_codepoint do |code|
+      raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+      r << code.to_s(16)
+    end
+  end
+  
+  # Calls +f+ and returns true.
+  def act(&f)
+    f.()
+    return true
+  end
+  
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
