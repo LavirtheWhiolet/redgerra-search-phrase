@@ -148,7 +148,7 @@ module Redgerra
     end
     
     def to_regexp
-      Regexp.new(self
+      Regexp.new(self)
     end
     
     private
@@ -159,64 +159,6 @@ module Redgerra
       return true
     end
     
-  end
-  
-  
-  ENCODED_WORD_REGEXP = /W\h+W/
-  ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
-  
-  # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
-  def encode_words(str)
-    result = ""
-    s = StringScanner.new(@str)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        is_proper_name_with_dot_flag =
-          if word.include?(".") then "1" else "0" end
-        result << "W#{is_proper_name_with_dot_flag}#{hex_encode(word)}W"
-      end) or
-      (other = s.getch and act do
-        result << other
-      end)
-    end
-    return result
-  end
-  
-  # Inversion of #encode_words().
-  def decode_words(str)
-    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
-  end
-  
-  # Returns Array of Word-s.
-  # 
-  # +encoded_str+ is a result of #encode_words().
-  # 
-  def words_from(encoded_str)
-    str.scan(ENCODED_WORD_REGEXP).map do |encoded_word|
-      Word.new(encoded_word[1] == "1")
-    end
-  end
-  
-  # Returns +encoded_str+ with sloch occurences encoded into
-  # ENCODED_SLOCH_OCCURENCE_REGEXP.
-  # 
-  # +encoded_str+ is result of #encode_words().
-  # 
-  def encode_sloch_occurences(encoded_str, sloch)
-    encoded_sloch_regexp = Regexp.new(
-      encode_words(sloch).
-      # Escape everything except "*".
-      split("*").map { |part| Regexp.escape(part) }.
-      # Replace "*" with...
-      join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
-    )
-    encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
-  end
-  
-  # Inversion of #encode_sloch_occurences(). Returns only +encoded_str+ passed
-  # to #encode_sloch_occurences().
-  def decode_sloch_occurences(str)
-    str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
   end
   
   # returns Array of String-s.
