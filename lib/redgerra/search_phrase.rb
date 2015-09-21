@@ -134,10 +134,6 @@ module Redgerra
       phrases.select! do |phrase|
         not phrase.upcase?
       end
-# #           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
-# #           # Strip bordering punctuation and whitespace.
-# #           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
-        
     end
     
     def parse(&block)
