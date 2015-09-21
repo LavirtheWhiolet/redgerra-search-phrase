@@ -32,8 +32,7 @@ module Redgerra
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
   def self.search_phrase(sloch, web_search, browser)
-    #
-    sloch = Sloch.new(sloch.squeeze_unicode_whitespace.strip.downcase)
+    # 
     m = Memory.new
     # 
     phrases =
@@ -42,19 +41,8 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        Text.new(text_block.squeeze_unicode_whitespace).
-          phrases.
-          select do |phrase|
-            phrase_downcase = phrase.downcase
-            #
-            not m.mentioned_before?(phrase_downcase.to_s.chomp("'")) and
-            not phrase.upcase? and
-            phrase.words_count <= 20 and
-            phrase_downcase.include?(sloch) and
-            not phrase.words.any?(&:proper_name_with_dot?) and
-            phrase_downcase.split(sloch).any? { |part| part.words_count >= 1 }
-          end.
-          map(&:to_s)
+        text_block.phrases(sloch).
+          reject { |phrase| m.mentioned_before? phrase }
       end
     #
     return ThreadSafeRandomAccessible.new(phrases)
@@ -68,6 +56,7 @@ module Redgerra
     def phrases(sloch)
       # Encode words in +str+.
       encoded_str = self.
+        squeeze_unicode_whitespace.
         gsub_words do |word|
           is_proper_name_with_dot_flag =
             if word.include? "." then "1" else "0" end
@@ -76,6 +65,8 @@ module Redgerra
       encoded_word_regexp = "W[01]\\h+Y\\h+W"
       # Convert sloch to Regexp for searching in encoded_str.
       sloch = sloch.
+        #
+        squeeze_unicode_whitespace.
         #
         downcase.
         # 
