@@ -122,7 +122,7 @@ module Redgerra
   end
   
   ENCODED_WORD_REGEXP = "W\h+W"
-  ENCODED_SLOCH_OCCURENCE = "S\h+S"
+  ENCODED_SLOCH_OCCURENCE_REGEXP = "S\h+S"
   
   # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
   def encode_words(str)
@@ -139,7 +139,7 @@ module Redgerra
     return result
   end
   
-  # Returns +str+ with sloch occurences encoded into ENCODED_SLOCH_OCCURENCE.
+  # Returns +str+ with sloch occurences encoded into ENCODED_SLOCH_OCCURENCE_REGEXP.
   # 
   # +encoded_str+ is result of #encode_words().
   # 
@@ -160,7 +160,9 @@ module Redgerra
   # +str+ is result of #encode_sloch_occurences() or #encode_words().
   # 
   def decode(str)
-    
+    str.
+      gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }.
+      gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[1...-1]) }
   end
   
   # Returns +str+ encoded into regular expression "\h+".
