@@ -121,7 +121,10 @@ module Redgerra
     return text_blocks
   end
   
-  # Returns +str+ with words encoded into regular expressions "W\h+W"
+  ENCODED_WORD_REGEXP = "W\h+W"
+  ENCODED_SLOCH_OCCURENCE = "S\h+S"
+  
+  # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
   def encode_words(str)
     result = ""
     s = StringScanner.new(@str)
@@ -134,6 +137,21 @@ module Redgerra
       end)
     end
     return result
+  end
+  
+  # Returns +str+ with sloch occurences encoded into ENCODED_SLOCH_OCCURENCE.
+  # 
+  # +encoded_str+ is result of #encode_words().
+  # 
+  def encode_sloch_occurences(encoded_str, sloch)
+    encoded_sloch_regexp = Regexp.new(
+      encode_words(sloch).
+      # Escape everything except "*".
+      split("*").map { |part| Regexp.escape(part) }.
+      # Replace "*" with...
+      join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
+    )
+    encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
   end
   
   # Returns +str+ encoded into regular expression "\h+".
