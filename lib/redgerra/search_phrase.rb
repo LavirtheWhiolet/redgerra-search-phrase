@@ -130,7 +130,7 @@ module Redgerra
     s = StringScanner.new(@str)
     until s.eos?
       (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        result << "W#{hex_encode(slang)}W"
+        result << "W#{hex_encode(word)}W"
       end) or
       (other = s.getch and act do
         result << other
@@ -154,12 +154,26 @@ module Redgerra
     encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
   end
   
+  # Returns original String passed to #encode_sloch_occurences() or
+  # #encode_words().
+  # 
+  # +str+ is result of #encode_sloch_occurences() or #encode_words().
+  # 
+  def decode(str)
+    
+  end
+  
   # Returns +str+ encoded into regular expression "\h+".
   def hex_encode(str)
     str.each_codepoint do |code|
       raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
       r << code.to_s(16)
     end
+  end
+  
+  # Inversion of #hex_encode().
+  def hex_decode(str)
+    
   end
   
   # Calls +f+ and returns true.
