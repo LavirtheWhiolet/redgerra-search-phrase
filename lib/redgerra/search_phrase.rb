@@ -103,7 +103,10 @@ module Redgerra
             gsub(/#{word}|#{other}/o) do |match|
               case match[0]
               when "W" then match[/Y(\h+)W/, 1].hex_decode
+              when "O" then match[1...-1].hex_decode
+              end
             end
+        end
 # #           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
 # #           # Strip bordering punctuation and whitespace.
 # #           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
