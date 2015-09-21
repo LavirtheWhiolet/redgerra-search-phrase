@@ -105,14 +105,19 @@ module Redgerra
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
       encoded_phrases.
-        map! do |p|
-          p.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+        select! do |encoded_phrase|
+          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
+            words.(encoded_part).not_empty?
+          end
+        end
+      encoded_phrases.
+        map! do |encoded_phrase|
+          encoded_phrase.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
         end
       encoded_phrases.
         select! do |encoded_phrase|
           words.(encoded_phrase).size <= 20 and
-          encoded_phrase.split(/#{sloch_occurence}/o).any? { |encoded_part| words.(encoded_part).not_empty? } and
-          words.(encoded_phrase).all? { |word| word[1] == "0" }
+          not words.(encoded_phrase).any? { |word| word[1] == "1" }
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
@@ -126,6 +131,9 @@ module Redgerra
               end
             end
         end
+      phrases.select! do |phrase|
+        not phrase.upcase?
+      end
 # #           scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
 # #           # Strip bordering punctuation and whitespace.
 # #           map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
