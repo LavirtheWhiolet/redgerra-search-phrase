@@ -55,7 +55,6 @@ module Redgerra
     def phrases(sloch)
       to_o = lambda { |t| "O#{t.hex_encode}O" }
       # 
-      p self
       encoded_str = self.
         squeeze_unicode_whitespace.
         parse do |token, type|
@@ -66,7 +65,6 @@ module Redgerra
             to_o.(token)
           end
         end
-      p encoded_str
       encoded_sloch = sloch.
         squeeze_unicode_whitespace.
         downcase.
@@ -86,11 +84,11 @@ module Redgerra
             end
           end
         end
-      encoded_sloch_regexp = Regexp.new(encoded_sloch)
-      p encoded_sloch_regexp
-      encoded_str = encoded_str.
-        gsub(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
-      p encoded_str
+      encoded_sloch_regexp =
+        Regexp.new(encoded_sloch)
+      encoded_str.
+        gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
+      
       [""]
     end
     
