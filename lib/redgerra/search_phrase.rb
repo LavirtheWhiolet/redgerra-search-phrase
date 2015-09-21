@@ -56,7 +56,7 @@ module Redgerra
     def phrases(sloch)
       # 
       other = "O\\h+O"
-      word = "W\\h+Y\\h+W"
+      word = "W[01]\\h+Y\\h+W"
       sloch_occurence = "S\\h+S"
       oo = lambda { |t| "O#{t.hex_encode}O" }
       words = lambda { |encoded_part| encoded_part.scan(/#{word}/o) }
@@ -72,8 +72,12 @@ module Redgerra
         squeeze_unicode_whitespace.
         parse do |token, type|
           case type
-          when :word then "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
-          when :other then oo.(token)
+          when :word
+            is_proper_name_with_dot_flag =
+              if token.include? "." then "1" else "0" end
+            "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+          when :other
+            oo.(token)
           end
         end
       encoded_sloch_regexp = sloch.
@@ -81,11 +85,14 @@ module Redgerra
         downcase.
         parse do |token, type|
           case type
-          when :word then "W#{token.downcase.hex_encode}Y\\h+W"
-          when :other then 
+          when :word
+            "W[01]#{token.downcase.hex_encode}Y\\h+W"
+          when :other
             case token
-            when "*" then "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
-            else oo.(token)
+            when "*"
+              "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
+            else
+              oo.(token)
             end
           end
         end.
@@ -98,21 +105,24 @@ module Redgerra
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
       encoded_phrases.
-        gsub!(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+        map! do |p|
+          p.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+        end
       encoded_phrases.
         select! do |encoded_phrase|
           words.(encoded_phrase).size <= 20 and
-          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
-            words.(encoded_part).not_empty?
-          end
+          encoded_phrase.split(/#{sloch_occurence}/o).any? { |encoded_part| words.(encoded_part).not_empty? } and
+          words.(encoded_phrase).all? { |word| word[1] == "0" }
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
           encoded_phrase.
             gsub(/#{word}|#{other}/o) do |match|
               case match[0]
-              when "W" then match[/Y(\h+)W/, 1].hex_decode
-              when "O" then match[1...-1].hex_decode
+              when "W"
+                match[/Y(\h+)W/, 1].hex_decode
+              when "O"
+                match[1...-1].hex_decode
               end
             end
         end
