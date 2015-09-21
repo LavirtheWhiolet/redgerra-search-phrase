@@ -101,7 +101,8 @@ module Redgerra
         select! do |encoded_phrase|
           encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
             words.(encoded_part).not_empty?
-          end
+          end and
+          words.(encoded_phrase).size <= 20
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
