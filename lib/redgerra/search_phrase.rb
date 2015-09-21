@@ -72,10 +72,8 @@ module Redgerra
         squeeze_unicode_whitespace.
         parse do |token, type|
           case type
-          when :word
-            "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
-          when :other
-            oo.(token)
+          when :word then "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+          when :other then oo.(token)
           end
         end
       encoded_sloch_regexp = sloch.
@@ -83,14 +81,11 @@ module Redgerra
         downcase.
         parse do |token, type|
           case type
-          when :word
-            "W#{token.downcase.hex_encode}Y\\h+W"
-          when :other
+          when :word then "W#{token.downcase.hex_encode}Y\\h+W"
+          when :other then 
             case token
-            when "*"
-              "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
-            else
-              oo.(token)
+            when "*" then "#{word}(#{ws}?#{comma}?#{ws}?#{word})?"
+            else oo.(token)
             end
           end
         end.
@@ -98,7 +93,10 @@ module Redgerra
       encoded_str.
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
       encoded_phrases = encoded_str.
-        scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first)
+        scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first).
+        map do |encoded_phrase|
+          encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
+        end
       encoded_phrases.
         select! do |encoded_phrase|
           encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
