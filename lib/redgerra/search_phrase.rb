@@ -89,7 +89,6 @@ module Redgerra
           oo(token)
         end
       end
-    p encoded_str
     # 
     encoded_sloch_regexp = sloch.
       squeeze_unicode_whitespace.
@@ -108,9 +107,6 @@ module Redgerra
         end
       end.
       to_regexp
-    p encoded_sloch_regexp
-    p "FOUND:"
-    p encoded_str[encoded_sloch_regexp]
     # Search for sloch and replace it with /#{SLOCH_OCCURENCE}/.
     encoded_str.
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
@@ -313,6 +309,6 @@ module Redgerra
 end
 
 t = <<TEXT
-do the again Flop a!
+Everybody do the Flop a!
 TEXT
 p Redgerra.phrases_from(t, "do * flop")
