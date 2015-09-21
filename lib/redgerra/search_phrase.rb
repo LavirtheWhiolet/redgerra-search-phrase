@@ -67,7 +67,14 @@ module Redgerra
       dot = oo.(".")
       semicolon = oo.(";")
       ellipsis = oo.("…")
-      # 
+      # Encode this string:
+      #   
+      #   word → /#{word}/
+      #   other → /#{other}/
+      #   
+      #   In word the /[01]/ is a flag: if the word is a proper name with "."
+      #   then the flag is "1", otherwise "0".
+      #   
       encoded_str = self.
         squeeze_unicode_whitespace.
         parse do |token, type|
@@ -80,6 +87,7 @@ module Redgerra
             oo.(token)
           end
         end
+      # 
       encoded_sloch_regexp = sloch.
         squeeze_unicode_whitespace.
         downcase.
@@ -97,28 +105,31 @@ module Redgerra
           end
         end.
         to_regexp
+      # Search for sloch and replace it with /#{sloch_occurence}/.
       encoded_str.
         gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
+      # Search for all phrases containing the sloch.
       encoded_phrases = encoded_str.
         scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first).
         map do |encoded_phrase|
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
-      encoded_phrases.
-        select! do |encoded_phrase|
-          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
-            words.(encoded_part).not_empty?
-          end
+      # Filter phrases (stage 1, /#{sloch_occurence}/ is required).
+      encoded_phrases.select! do |encoded_phrase|
+        encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
+          words.(encoded_part).not_empty?
         end
-      encoded_phrases.
-        map! do |encoded_phrase|
-          encoded_phrase.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
-        end
-      encoded_phrases.
-        select! do |encoded_phrase|
-          words.(encoded_phrase).size <= 20 and
-          not words.(encoded_phrase).any? { |word| word[1] == "1" }
-        end
+      end
+      # Replace /#{sloch_occurence}/ with the original encoded strings.
+      encoded_phrases.map! do |encoded_phrase|
+        encoded_phrase.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+      end
+      # Filter phrases (stage 2, phrases must be encoded).
+      encoded_phrases.select! do |encoded_phrase|
+        words.(encoded_phrase).size <= 20 and
+        not words.(encoded_phrase).any? { |word| word[1] == "1" }
+      end
+      # Decode phrases.
       phrases = encoded_phrases.
         map do |encoded_phrase|
           encoded_phrase.
@@ -131,10 +142,10 @@ module Redgerra
               end
             end
         end
-      phrases.
-        select! do |phrase|
-          not phrase.upcase?
-        end
+      # Filter phrases (stage 3, original phrases).
+      phrases.select! do |phrase|
+        not phrase.upcase?
+      end
       phrases
     end
     
