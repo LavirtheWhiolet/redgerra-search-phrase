@@ -55,111 +55,12 @@ module Redgerra
   # :section: Used by #phrases_from() only
   # --------------------------------------
   
-  def self.oo(str)
-    "O#{str.hex_encode}O"
-  end
-  
-  def self.words(encoded_part)
-    encoded_part.scan(/#{WORD}/o)
-  end
-  
-  OTHER = "O\\h+O"
-  WORD = "W[01]\\h+Y\\h+W"
-  SLOCH_OCCURENCE = "S\\h+S"
-  
-  # ---------
-  # :section:
-  # ---------
-  
-  def self.phrases_from(str, sloch)
-    # Encode this string:
-    # - word → /#{WORD}/
-    # - other → /#{OTHER}/
-    # In word the /[01]/ is a flag: if the word is a proper name with "." in it
-    # then the flag is "1", otherwise "0".
-    encoded_str = str.
-      squeeze_unicode_whitespace.
-      encode_ do |token, type|
-        case type
-        when :word
-          is_proper_name_with_dot_flag =
-            if token.include? "." then "1" else "0" end
-          "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
-        when :other
-          oo(token)
-        end
-      end
-    # 
-    encoded_sloch_regexp = sloch.
-      squeeze_unicode_whitespace.
-      downcase.
-      encode_ do |token, type|
-        case type
-        when :word
-          "W[01]#{token.downcase.hex_encode}Y\\h+W"
-        when :other
-          case token
-          when "*"
-            "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
-          else
-            oo(token)
-          end
-        end
-      end.
-      to_regexp
-    # Search for sloch and replace it with /#{SLOCH_OCCURENCE}/.
-    encoded_str.
-      gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
-    # Search for all phrases containing the sloch.
-    encoded_phrases = encoded_str.
-      scan(/((#{WORD}(#{oo ','}|#{oo ' '})*){,10}#{SLOCH_OCCURENCE}((#{oo ','}|#{oo ' '})*(#{WORD}|#{SLOCH_OCCURENCE})){,10}(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
-      map do |encoded_phrase|
-        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
-      end
-    # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
-    encoded_phrases.select! do |encoded_phrase|
-      # There must be another words except /#{SLOCH_OCCURENCE}/.
-      encoded_phrase.split(/#{SLOCH_OCCURENCE}/o).any? do |encoded_part|
-        words(encoded_part).not_empty?
-      end
-    end
-    # Replace /#{SLOCH_OCCURENCE}/ with the original encoded strings.
-    encoded_phrases.map! do |encoded_phrase|
-      encoded_phrase.gsub(/#{SLOCH_OCCURENCE}/o) { |match| match[1...-1].hex_decode }
-    end
-    # Filter phrases (stage 2, phrases must be encoded).
-    encoded_phrases.select! do |encoded_phrase|
-      # There must not be any word which is the proper name with ".".
-      not words(encoded_phrase).any? { |word| word[1] == "1" }
-    end
-    # Decode phrases.
-    phrases = encoded_phrases.
-      map do |encoded_phrase|
-        encoded_phrase.
-          gsub(/#{WORD}|#{OTHER}/o) do |match|
-            case match[0]
-            when "W"
-              match[/Y(\h+)W/, 1].hex_decode
-            when "O"
-              match[1...-1].hex_decode
-            end
-          end
-      end
-    # Filter phrases (stage 3, original phrases).
-    phrases.select! do |phrase|
-      not phrase.upcase?
-    end
-    #
-    return phrases
-  end
-  
   class ::String
     
-    # Used by Redgerra#phrases_from() only.
     # 
     # Passes +block+ with:
-    # - word, :word - if it encounters a word.
-    # - other, :other - if it encounters a character.
+    # - (word, :word) - if it encounters a word.
+    # - (other, :other) - if it encounters a character.
     # 
     # Returns this String with all parts replaced with results of +block+.
     # 
@@ -206,6 +107,106 @@ module Redgerra
     end
     
   end
+
+  def self.oo(str)
+    "O#{str.hex_encode}O"
+  end
+  
+  def self.words(encoded_part)
+    encoded_part.scan(/#{WORD}/o)
+  end
+  
+  OTHER = "O\\h+O"
+  WORD = "W[01]\\h+Y\\h+W"
+  SLOCH_OCCURENCE = "S\\h+S"
+  PUNCT_AND_WS = "(#{oo ','}|#{oo ' '})*"
+  FINAL_PUNCT = "(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*"
+  
+  # ---------
+  # :section:
+  # ---------
+  
+  def self.phrases_from(str, sloch)
+    # Encode this string:
+    # - word → /#{WORD}/
+    # - other → /#{OTHER}/
+    # In word the /[01]/ is a flag: if the word is a proper name with "." in it
+    # then the flag is "1", otherwise "0".
+    encoded_str = str.
+      squeeze_unicode_whitespace.
+      encode_ do |token, type|
+        case type
+        when :word
+          is_proper_name_with_dot_flag =
+            if token.include? "." then "1" else "0" end
+          "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+        when :other
+          oo(token)
+        end
+      end
+    # 
+    encoded_sloch_regexp = sloch.
+      squeeze_unicode_whitespace.
+      downcase.
+      encode_ do |token, type|
+        case type
+        when :word
+          "W[01]#{token.downcase.hex_encode}Y\\h+W"
+        when :other
+          case token
+          when "*"
+            "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
+          else
+            oo(token)
+          end
+        end
+      end.
+      to_regexp
+    # Search for sloch and replace it with /#{SLOCH_OCCURENCE}/.
+    encoded_str.
+      gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
+    # Search for all phrases containing the sloch.
+    encoded_phrases = encoded_str.
+      scan(/((#{WORD}#{PUNCT_AND_WS}){,10}(#{oo '"'}#{PUNCT_AND_WS}(#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(#{PUNCT_AND_WS}(#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT})/o).map(&:first).
+      map do |encoded_phrase|
+        encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '}|#{oo '"'})+|(#{oo ','}|#{oo ' '})+$/o, "")
+      end
+    # Filter phrases (stage 1, /#{SLOCH_OCCURENCE}/ is required).
+    encoded_phrases.select! do |encoded_phrase|
+      # There must be another words except /#{SLOCH_OCCURENCE}/.
+      encoded_phrase.split(/#{SLOCH_OCCURENCE}/o).any? do |encoded_part|
+        words(encoded_part).not_empty?
+      end
+    end
+    # Replace /#{SLOCH_OCCURENCE}/ with the original encoded strings.
+    encoded_phrases.map! do |encoded_phrase|
+      encoded_phrase.gsub(/#{SLOCH_OCCURENCE}/o) { |match| match[1...-1].hex_decode }
+    end
+    # Filter phrases (stage 2, phrases must be encoded).
+    encoded_phrases.select! do |encoded_phrase|
+      # There must not be any word which is the proper name with ".".
+      not words(encoded_phrase).any? { |word| word[1] == "1" }
+    end
+    # Decode phrases.
+    phrases = encoded_phrases.
+      map do |encoded_phrase|
+        encoded_phrase.
+          gsub(/#{WORD}|#{OTHER}/o) do |match|
+            case match[0]
+            when "W"
+              match[/Y(\h+)W/, 1].hex_decode
+            when "O"
+              match[1...-1].hex_decode
+            end
+          end
+      end
+    # Filter phrases (stage 3, original phrases).
+    phrases.select! do |phrase|
+      not phrase.upcase?
+    end
+    #
+    return phrases
+  end  
   
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
