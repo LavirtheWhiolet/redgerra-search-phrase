@@ -164,7 +164,7 @@ module Redgerra
       return result
     end
     
-    # Returns this String encoded into regular expression "\h+".
+    # returns this String encoded into regular expression "\h+".
     def hex_encode
       r = ""
       self.each_byte do |byte|
@@ -186,7 +186,7 @@ module Redgerra
       Regexp.new(self)
     end
     
-    # Calls +f+ and returns true.
+    # calls +f+ and returns true.
     def act(&f)
       f.()
       return true
