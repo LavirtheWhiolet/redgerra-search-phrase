@@ -307,6 +307,3 @@ module Redgerra
   end
   
 end
-
-t = "everybody, do the, again flop start, again!"
-p Redgerra::search_phrase(t, "do * flop")
