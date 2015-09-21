@@ -307,4 +307,4 @@ module Redgerra
 end
 
 t = %(abc, " he said, then fired)
-Redgerra::phrases_from(t, "he said")
+p Redgerra::phrases_from(t, "he said")
