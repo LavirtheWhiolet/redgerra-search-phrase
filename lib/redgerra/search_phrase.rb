@@ -241,19 +241,6 @@ module Redgerra
     return text_blocks
   end
   
-  class Word
-    
-    # Accessible to #words_from() only.
-    def initialize(is_proper_name_with_dot)
-      @is_proper_name_with_dot = is_proper_name_with_dot
-    end
-    
-    def proper_name_with_dot?
-      @is_proper_name_with_dot
-    end
-    
-  end
-  
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
