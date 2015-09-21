@@ -113,6 +113,7 @@ module Redgerra
         end
       # Filter phrases (stage 1, /#{sloch_occurence}/ is required).
       encoded_phrases.select! do |encoded_phrase|
+        # There must be another words except /#{sloch_occurence}/.
         encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
           words.(encoded_part).not_empty?
         end
@@ -123,7 +124,9 @@ module Redgerra
       end
       # Filter phrases (stage 2, phrases must be encoded).
       encoded_phrases.select! do |encoded_phrase|
+        # 
         words.(encoded_phrase).size <= 20 and
+        # There must not be any word which is the proper name with ".".
         not words.(encoded_phrase).any? { |word| word[1] == "1" }
       end
       # Decode phrases.
@@ -143,7 +146,8 @@ module Redgerra
       phrases.select! do |phrase|
         not phrase.upcase?
       end
-      phrases
+      #
+      return phrases
     end
     
     def parse(&block)
