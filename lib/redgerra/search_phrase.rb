@@ -62,6 +62,22 @@ module Redgerra
   
   private
   
+  # Passes +block+ with each word from +str+ and replaces the word with the
+  # +block+'s result.
+  def gsub_words(str, &block)
+    result = ""
+    s = StringScanner.new(@str)
+    until s.eos?
+      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+        result << block.(word)
+      end) or
+      (other = s.getch and act do
+        result << other
+      end)
+    end
+    return result
+  end
+  
   ENCODED_WORD_REGEXP = /W\h+W/
   ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
   
@@ -140,11 +156,6 @@ module Redgerra
   
   def upcase?(str)
     /[a-z]/ !~ self.to_s
-  end
-  
-  # Returns phrases from +str+ which contain +sloch+.
-  def phrases_from(str, sloch)
-    
   end
   
   # returns Array of String-s.
