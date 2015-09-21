@@ -104,9 +104,10 @@ module Redgerra
         map do |encoded_phrase|
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
-      encoded_phrases.map |p|
-        p.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
-      end
+      encoded_phrases.
+        map! |p|
+          p.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
+        end
       encoded_phrases.
         select! do |encoded_phrase|
           words.(encoded_phrase).size <= 20 and
