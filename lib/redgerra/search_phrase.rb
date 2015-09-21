@@ -68,8 +68,8 @@ module Redgerra
       semicolon = oo.(";")
       ellipsis = oo.("…")
       # Encode this string:
-      #   word → /#{word}/
-      #   other → /#{other}/
+      # - word → /#{word}/
+      # - other → /#{other}/
       # In word the /[01]/ is a flag: if the word is a proper name with "."
       # then the flag is "1", otherwise "0".
       encoded_str = self.
