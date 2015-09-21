@@ -62,6 +62,95 @@ module Redgerra
   
   private
   
+  ENCODED_WORD_REGEXP = /W\h+W/
+  ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
+  
+  # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
+  def encode_words(str)
+    result = ""
+    s = StringScanner.new(@str)
+    until s.eos?
+      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+        is_proper_name_with_dot_flag =
+          if word.include?(".") then "1" else "0" end
+        result << "W#{is_proper_name_with_dot_flag}#{hex_encode(word)}W"
+      end) or
+      (other = s.getch and act do
+        result << other
+      end)
+    end
+    return result
+  end
+  
+  # Inversion of #encode_words().
+  def decode_words(str)
+    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
+  end
+  
+  # Returns Array of Word-s.
+  # 
+  # +encoded_str+ is a result of #encode_words().
+  # 
+  def words_from(encoded_str)
+    str.scan(ENCODED_WORD_REGEXP).map do |encoded_word|
+      Word.new(encoded_word[1] == "1")
+    end
+  end
+  
+  # Returns +encoded_str+ with sloch occurences encoded into
+  # ENCODED_SLOCH_OCCURENCE_REGEXP.
+  # 
+  # +encoded_str+ is result of #encode_words().
+  # 
+  def encode_sloch_occurences(encoded_str, sloch)
+    encoded_sloch_regexp = Regexp.new(
+      encode_words(sloch).
+      # Escape everything except "*".
+      split("*").map { |part| Regexp.escape(part) }.
+      # Replace "*" with...
+      join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
+    )
+    encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
+  end
+  
+  # Inversion of #encode_sloch_occurences(). Returns only +encoded_str+ passed
+  # to #encode_sloch_occurences().
+  def decode_sloch_occurences(str)
+    str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
+  end
+  
+  # Returns +str+ encoded into regular expression "\h+".
+  def hex_encode(str)
+    str.each_codepoint do |code|
+      raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+      r << code.to_s(16)
+    end
+  end
+  
+  # Inversion of #hex_encode().
+  def hex_decode(str)
+    str.gsub(/\h\h/) { |code| code.hex.chr }
+  end
+  
+  # Calls +f+ and returns true.
+  def act(&f)
+    f.()
+    return true
+  end
+  
+  class Word
+    
+    # Accessible to #words_from() only.
+    def initialize(is_proper_name_with_dot)
+      @is_proper_name_with_dot = is_proper_name_with_dot
+    end
+    
+    def proper_name_with_dot?
+      @is_proper_name_with_dot
+    end
+    
+  end
+  
   # returns Array of String-s.
   def self.text_blocks_from_page_at(uri)
     #
@@ -119,72 +208,6 @@ module Redgerra
     end
     this.(element)
     return text_blocks
-  end
-  
-  ENCODED_WORD_REGEXP = "W\h+W"
-  ENCODED_SLOCH_OCCURENCE_REGEXP = "S\h+S"
-  
-  # Returns +str+ with words encoded into ENCODED_WORD_REGEXP.
-  def encode_words(str)
-    result = ""
-    s = StringScanner.new(@str)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        is_proper_name_with_dot_flag =
-          if word.include?(".") then "1" else "0" end
-        result << "W#{is_proper_name_with_dot_flag}#{hex_encode(word)}W"
-      end) or
-      (other = s.getch and act do
-        result << other
-      end)
-    end
-    return result
-  end
-  
-  # Inversion of #encode_words().
-  def decode_words(str)
-    str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
-  end
-  
-  # Returns +encoded_str+ with sloch occurences encoded into
-  # ENCODED_SLOCH_OCCURENCE_REGEXP.
-  # 
-  # +encoded_str+ is result of #encode_words().
-  # 
-  def encode_sloch_occurences(encoded_str, sloch)
-    encoded_sloch_regexp = Regexp.new(
-      encode_words(sloch).
-      # Escape everything except "*".
-      split("*").map { |part| Regexp.escape(part) }.
-      # Replace "*" with...
-      join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
-    )
-    encoded_str.gsub(sloch) { |match| "S#{hex_encode(match)}S" }
-  end
-  
-  # Inversion of #encode_sloch_occurences(). Returns only +encoded_str+ passed
-  # to #encode_sloch_occurences().
-  def decode_sloch_occurences(str)
-    str.gsub(ENCODED_SLOCH_OCCURENCE_REGEXP) { |match| hex_decode(match[1...-1]) }
-  end
-  
-  # Returns +str+ encoded into regular expression "\h+".
-  def hex_encode(str)
-    str.each_codepoint do |code|
-      raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
-      r << code.to_s(16)
-    end
-  end
-  
-  # Inversion of #hex_encode().
-  def hex_decode(str)
-    str.gsub(/\h\h/) { |code| code.hex.chr }
-  end
-  
-  # Calls +f+ and returns true.
-  def act(&f)
-    f.()
-    return true
   end
   
   class ThreadSafeRandomAccessible
