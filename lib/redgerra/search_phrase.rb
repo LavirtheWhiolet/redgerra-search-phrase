@@ -89,7 +89,7 @@ module Redgerra
           # Filter phrases (1).
           select do |encoded_phrase|
             not encoded_phrase.empty? and
-            encoded_phrase.scan(/#{encoded_word}/o).size <= 20 and
+            encoded_phrase.scan(/#{encoded_word_regexp}/o).size <= 20 and
             not encoded_phrase =~ /W1\h+Y\h+W/
           end
       end
