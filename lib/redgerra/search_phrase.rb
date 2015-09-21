@@ -7,6 +7,7 @@ require 'random_accessible'
 require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
+require 'object/not_empty'
 
 # For Redgerra::text_blocks_from*().
 require 'open-uri'
@@ -98,7 +99,9 @@ module Redgerra
         scan(/((#{word}|#{comma}|#{ws})*#{sloch_occurence}(#{word}|#{comma}|#{ws}|#{sloch_occurence})*(#{exclamation}|#{question}|#{dot}|#{semicolon}|#{ellipsis})*)/o).map(&:first)
       encoded_phrases.
         select! do |encoded_phrase|
-          
+          encoded_phrase.split(/#{sloch_occurence}/o).any? do |encoded_part|
+            encoded_part.scan(/#{word}/o).not_empty?
+          end
         end
       phrases = encoded_phrases.
         map do |encoded_phrase|
