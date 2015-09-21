@@ -56,11 +56,11 @@ module Redgerra
   # --------------------------------------
   
   def self.oo(str)
-    "O#{t.hex_encode}O"
+    "O#{str.hex_encode}O"
   end
   
   def self.words(encoded_part)
-    encoded_part.scan(/#{word}/o)
+    encoded_part.scan(/#{WORD}/o)
   end
   
   OTHER = "O\\h+O"
@@ -100,7 +100,7 @@ module Redgerra
         when :other
           case token
           when "*"
-            "#{WORD}(#{oo ' '}?#{oo ','}?#{oo ' '}?#{WORD})?"
+            "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
           else
             oo(token)
           end
@@ -307,5 +307,3 @@ module Redgerra
   end
   
 end
-
-
