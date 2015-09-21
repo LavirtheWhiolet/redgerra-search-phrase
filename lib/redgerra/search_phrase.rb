@@ -42,7 +42,7 @@ module Redgerra
         [web_search_result.page_excerpt]
       end.
       lazy_cached_filter do |text_block|
-        text_block.phrases(sloch).
+        phrases_from(text_block, sloch).
           reject { |phrase| m.mentioned_before? phrase }
       end
     #
@@ -147,7 +147,7 @@ module Redgerra
     #
     return phrases
   end
-    
+  
   class ::String
     
     def parse(&block)
