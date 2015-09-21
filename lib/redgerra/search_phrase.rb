@@ -112,7 +112,7 @@ module Redgerra
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
     # Search for all phrases containing the sloch.
     encoded_phrases = encoded_str.
-      scan(/((#{WORD}(#{oo ','}|#{oo ' '})*)*#{SLOCH_OCCURENCE}((#{oo ','}|#{oo ' '})*(#{WORD}|#{SLOCH_OCCURENCE}))*(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
+      scan(/((#{WORD}(#{oo ','}|#{oo ' '})*){,10}#{SLOCH_OCCURENCE}((#{oo ','}|#{oo ' '})*(#{WORD}|#{SLOCH_OCCURENCE})){,10}(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
       map do |encoded_phrase|
         encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
       end
@@ -129,8 +129,6 @@ module Redgerra
     end
     # Filter phrases (stage 2, phrases must be encoded).
     encoded_phrases.select! do |encoded_phrase|
-      # 
-      words(encoded_phrase).size <= 20 and
       # There must not be any word which is the proper name with ".".
       not words(encoded_phrase).any? { |word| word[1] == "1" }
     end
