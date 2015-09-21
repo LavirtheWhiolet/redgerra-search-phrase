@@ -56,7 +56,7 @@ module Redgerra
   # --------------------------------------
   
   def self.oo(str)
-    "O#{t.hex_encode}O"
+    "O#{str.hex_encode}O"
   end
   
   def self.words(encoded_part)
