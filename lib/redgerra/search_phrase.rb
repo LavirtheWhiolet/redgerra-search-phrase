@@ -97,7 +97,7 @@ module Redgerra
       phrases = encoded_phrases.
         map do |encoded_phrase|
           encoded_phrase.
-            gsub(/#{encoded_sloch_regexp}/o) { |s| s[1...-1].hex_decode }.
+            gsub(/#{encoded_sloch_occurence_regexp}/o) { |s| s[1...-1].hex_decode }.
             gsub(/#{encoded_word_regexp}/o) { |w| w[/Y(\h+)W/, 1].hex_decode }
         end
     end
