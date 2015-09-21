@@ -78,6 +78,20 @@ module Redgerra
     return result
   end
   
+  # Returns phrases from +str+ which contain +sloch+.
+  def phrases_from(str, sloch)
+    str = gsub_words(str) do |word|
+      "W#{hex_encode(word)}Y#{hex_encode(word.downcase)}W"
+    end
+    sloch_regexp =  Regexp.new(
+      gsub_words(sloch.downcase) { |word| "W\\h+Y#{hex_encode(word.downcase)}W" }
+        # Escape everything except "*".
+        split("*").map { |part| Regexp.escape(part) }.
+        # Replace "*" with...
+        join("#{ENCODED_WORD_REGEXP}( ?,? ?#{ENCODED_WORD_REGEXP})?")
+    )
+  end
+  
   ENCODED_WORD_REGEXP = /W\h+W/
   ENCODED_SLOCH_OCCURENCE_REGEXP = /S\h+S/
   
