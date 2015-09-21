@@ -86,7 +86,9 @@ module Redgerra
         map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
         reject(&:empty?).
         map do |encoded_phrase|
-          
+          encoded_phrase.
+            gsub(/#{encoded_sloch_regexp}/o) { |s| s[1...-1].hex_decode }.
+            gsub(/#{encoded_word_regexp}/o) { |w| w[/Y(\h+)W/, 1].hex_decode }
         end
     end
     
