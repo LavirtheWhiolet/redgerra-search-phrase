@@ -80,17 +80,20 @@ module Redgerra
       encoded_sloch_occurence_regexp = "S\\h+S"
       # 
       encoded_phrases = begin
-        in_phrase_punct_and_ws = "[\\,\\ ]"
+        pws = "[\\,\\ ]"
+        s = encoded_sloch_occurence_regexp
+        w = encoded_word_regexp
         encoded_str.
           # Scan for all phrase candidates.
-          scan(/((#{encoded_word_regexp}|#{in_phrase_punct_and_ws})*#{encoded_sloch_occurence_regexp}(#{encoded_word_regexp}|#{in_phrase_punct_and_ws})*[\!\?\.\;…]*)/o).map(&:first).
+          scan(/((#{w}|#{pws})*#{s}(#{w}|#{pws})*[\!\?\.\;…]*)/o).map(&:first).
           # Strip bordering punctuation and whitespace.
-          map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
+          map { |encoded_phrase| encoded_phrase.gsub(/^#{pws}+|#{pws}+$/o, "") }.
           # Filter phrases (1).
           select do |encoded_phrase|
-            not encoded_phrase.empty? and
-            encoded_phrase.scan(/#{encoded_word_regexp}/o).size <= 20 and
-            not encoded_phrase =~ /W1\h+Y\h+W/
+#             not encoded_phrase.empty? and
+#             encoded_phrase.scan(/#{encoded_word_regexp}/o).size <= 20 and
+#             not encoded_phrase =~ /W1\h+Y\h+W/
+            true
           end
       end
       # Decode phrases.
