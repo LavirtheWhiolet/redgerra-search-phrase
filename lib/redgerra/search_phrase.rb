@@ -101,7 +101,7 @@ module Redgerra
         when :other
           case token
           when "*"
-            "#{WORD}(#{oo ' '}?#{oo ','}?#{oo ' '}?#{WORD})?"
+            "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
           else
             oo(token)
           end
