@@ -105,7 +105,7 @@ module Redgerra
           encoded_phrase.gsub(/^(#{comma}|#{ws})+|(#{comma}|#{ws})+$/o, "")
         end
       encoded_phrases.
-        map! |p|
+        map! do |p|
           p.gsub(/#{sloch_occurence}/o) { |match| match[1...-1].hex_decode }
         end
       encoded_phrases.
