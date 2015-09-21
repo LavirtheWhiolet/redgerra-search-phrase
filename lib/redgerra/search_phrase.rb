@@ -146,7 +146,7 @@ module Redgerra
     str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
   end
   
-  # Returns +str+ with sloch occurences encoded into
+  # Returns +encoded_str+ with sloch occurences encoded into
   # ENCODED_SLOCH_OCCURENCE_REGEXP.
   # 
   # +encoded_str+ is result of #encode_words().
