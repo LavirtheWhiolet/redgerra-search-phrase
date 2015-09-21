@@ -50,18 +50,53 @@ module Redgerra
   
   private
   
-  def parse(str, &block)
-    result = ""
-    s = StringScanner.new(self)
-    until s.eos?
-      (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
-        result << block.(word, :word)
-      end) or
-      (other = s.getch and act do
-        result << block.(other, :other)
-      end)
+  class ::String
+    
+    
+    
+    def parse(str, &block)
+      result = ""
+      s = StringScanner.new(self)
+      until s.eos?
+        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+          result << block.(word, :word)
+        end) or
+        (other = s.getch and act do
+          result << block.(other, :other)
+        end)
+      end
+      return result
     end
-    return result
+    
+    # Returns this String encoded into regular expression "\h+".
+    def hex_encode
+      r = ""
+      self.each_codepoint do |code|
+        raise "character code must be 00h–FFh: #{code}" unless code.in? 0x00..0xFF
+        r << code.to_s(16)
+      end
+      r
+    end
+    
+    # Inversion of #hex_encode().
+    def hex_decode
+      self.gsub(/\h\h/) { |code| code.hex.chr }
+    end
+    
+    def upcase?
+      /[a-z]/ !~ self.to_s
+    end
+    
+    def to_regexp
+      Regexp.new(self)
+    end
+    
+    # Calls +f+ and returns true.
+    def act(&f)
+      f.()
+      return true
+    end
+    
   end
   
 #   class ::String
