@@ -82,6 +82,10 @@ module Redgerra
     return result
   end
   
+  def upcase?(str)
+    /[a-z]/ !~ self.to_s
+  end
+  
   # Inversion of #encode_words().
   def decode_words(str)
     str.gsub(ENCODED_WORD_REGEXP) { |match| hex_decode(match[2...-1]) }
