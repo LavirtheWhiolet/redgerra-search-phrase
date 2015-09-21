@@ -88,17 +88,19 @@ module Redgerra
       encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
       encoded_sloch_occurence = "S\\h+S"
       # 
-      in_phrase_punct_and_ws = "[\\,\\ ]"
-      encoded_phrases = encoded_str.
-        # Scan for all phrase candidates.
-        scan(/((#{encoded_word}|#{encoded_sloch}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
-        # Strip bordering punctuation and whitespace.
-        map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
-        # Filter phrases (1).
-        select do |encoded_phrase|
-          not encoded_phrase.empty? and
-          encoded_phrase.scan(/#{encoded_word}/o).size <= 20
-        end
+      encoded_phrases = begin
+        in_phrase_punct_and_ws = "[\\,\\ ]"
+        encoded_str.
+          # Scan for all phrase candidates.
+          scan(/((#{encoded_word}|#{encoded_sloch}|#{in_phrase_punct_and_ws})+[\!\?\.\;…]*)/o).map(&:first).
+          # Strip bordering punctuation and whitespace.
+          map { |encoded_phrase| encoded_phrase.gsub(/^#{in_phrase_punct_and_ws}+|#{in_phrase_punct_and_ws}+$/o, "") }.
+          # Filter phrases (1).
+          select do |encoded_phrase|
+            not encoded_phrase.empty? and
+            encoded_phrase.scan(/#{encoded_word}/o).size <= 20
+          end
+      end
       phrases = encoded_phrases.
         # Decode phrases.
         map do |encoded_phrase|
