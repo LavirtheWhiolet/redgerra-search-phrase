@@ -60,7 +60,7 @@ module Redgerra
   end
   
   def self.words(encoded_part)
-    encoded_part.scan(/#{word}/o)
+    encoded_part.scan(/#{WORD}/o)
   end
   
   OTHER = "O\\h+O"
