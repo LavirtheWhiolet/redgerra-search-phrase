@@ -62,22 +62,20 @@ module Redgerra
             if word.include? "." then "1" else "0" end
           "W#{is_proper_name_with_dot_flag}#{word.downcase.hex_encode}Y#{word.hex_encode}W"
         end
-      encoded_word_regexp = "W[01]\\h+Y\\h+W"
-      # Convert sloch to Regexp for searching in encoded_str.
-      sloch = sloch.
-        #
+      # 
+      encoded_sloch = sloch.
         squeeze_unicode_whitespace.
-        #
         downcase.
-        # 
-        gsub_words { |downcase_sloch_word| "W[01]#{downcase_sloch_word.hex_encode}Y\\h+W" }.
+        gsub_words { |downcase_sloch_word| "W[01]\\h+Y\\h+W" }.
         # Replace "*" with...
-        split("*").map { |part| Regexp.escape(part) }.join("#{encoded_word_regexp}( ?,? ?#{encoded_word_regexp})?").
+        split("*").map { |part| Regexp.escape(part) }.join("W[01]\\h+Y\\h+W( ?,? ?W[01]\\h+Y\\h+W)?").
         #
         to_regexp
       # Replace sloch occurences with "S\h+S"
+      p self
+      p encoded_str
       encoded_str.gsub!(sloch) { |occurence| "S#{occurence.hex_encode}S" }
-      encoded_sloch_occurence_regexp = "S\\h+S"
+      p encoded_str
       # 
       encoded_phrases = begin
         pws = "[\\,\\ ]"
