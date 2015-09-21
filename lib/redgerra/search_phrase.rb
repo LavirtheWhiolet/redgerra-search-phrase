@@ -308,7 +308,4 @@ module Redgerra
   
 end
 
-t = <<TEXT
-Everybody do the, Again flop!
-TEXT
-Redgerra.phrases_from(t, "do    * flop")
+
