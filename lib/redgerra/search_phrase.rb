@@ -43,7 +43,7 @@ module Redgerra
       end.
       lazy_cached_filter do |text_block|
         phrases_from(text_block, sloch).
-          reject { |phrase| m.mentioned_before? phrase }
+          reject { |phrase| m.mentioned_before?(phrase.downcase.chomp("'")) }
       end
     #
     return ThreadSafeRandomAccessible.new(phrases)
