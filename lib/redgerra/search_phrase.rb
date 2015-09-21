@@ -66,6 +66,8 @@ module Redgerra
   OTHER = "O\\h+O"
   WORD = "W[01]\\h+Y\\h+W"
   SLOCH_OCCURENCE = "S\\h+S"
+  PUNCT_AND_WS = "(#{oo ','}|#{oo ' '})*"
+  FINAL_PUNCT = "(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*"
   
   # ---------
   # :section:
@@ -112,7 +114,7 @@ module Redgerra
       gsub!(encoded_sloch_regexp) { |match| "S#{match.hex_encode}S" }
     # Search for all phrases containing the sloch.
     encoded_phrases = encoded_str.
-      scan(/((#{WORD}(#{oo ','}|#{oo ' '})*){,10}(#{oo '"'}(#{oo ','}|#{oo ' '})*(#{WORD}(#{oo ','}|#{oo ' '})*){,10})?#{SLOCH_OCCURENCE}((#{oo ','}|#{oo ' '})*(#{WORD}|#{SLOCH_OCCURENCE})){,10}(#{oo '!'}|#{oo '?'}|#{oo '.'}|#{oo ';'}|#{oo '…'})*)/o).map(&:first).
+      scan(/((#{WORD}#{PUNCT_AND_WS}){,10}(#{oo '"'}#{PUNCT_AND_WS}(#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(#{PUNCT_AND_WS}(#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT})/o).map(&:first).
       map do |encoded_phrase|
         encoded_phrase.gsub(/^(#{oo ','}|#{oo ' '})+|(#{oo ','}|#{oo ' '})+$/o, "")
       end
