@@ -39,7 +39,8 @@ module Redgerra
     phrases =
       web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
-        [web_search_result.page_excerpt]
+        [web_search_result.page_excerpt] +
+          text_blocks_from_page_at(web_search_result.url)
       end.
       lazy_cached_filter do |text_block|
         phrases_from(text_block, sloch).
