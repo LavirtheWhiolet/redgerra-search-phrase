@@ -69,7 +69,6 @@ module Redgerra
           end
         rescue Timeout::Error
           halt 500, "Try again"
-        end
         rescue ServerAsksCaptcha => e
           session.server_asks_captcha = e
           halt 503, "Server asks captcha"
