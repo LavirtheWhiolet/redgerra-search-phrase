@@ -224,8 +224,8 @@
               }
             },
             /* errorF */ function(statusCode, responseText, isNetworkingError) {
-              hide(loadingSymbol);
               if (isNetworkingError) {
+                hide(loadingSymbol);
                 addHTMLItemToResultsList('<span class="error">Networking error</span>');
               }
               else {
@@ -240,6 +240,7 @@
                   loop();
                 }
                 else {
+                  hide(loadingSymbol);
                   addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + '—' + responseText + '</span>');
                 }
               }
