@@ -14,6 +14,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
 require 'string/scrub'
+require 'timeout'
 
 module Redgerra
   
@@ -29,18 +30,19 @@ module Redgerra
   # +web_search+ must return RandomAccessible collection of WebSearchResult-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
+  # +page_timeout+ is timeout per each page this function visits.
+  # 
   # This method returns thread-safe RandomAccessible collection of String-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  def self.search_phrase(sloch, web_search, browser)
+  def self.search_phrase(sloch, web_search, browser, page_timeout = 25)
     # 
     m = Memory.new
     # 
     phrases =
       web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
-        [web_search_result.page_excerpt] +
-          text_blocks_from_page_at(web_search_result.url)
+        text_blocks_from_page_at(web_search_result.url, page_timeout)
       end.
       lazy_cached_filter do |text_block|
         phrases_from(text_block, sloch).
@@ -212,11 +214,11 @@ module Redgerra
   end  
   
   # returns Array of String-s.
-  def self.text_blocks_from_page_at(uri)
+  def self.text_blocks_from_page_at(uri, timeout)
     #
     page_io =
       begin
-        open(uri)
+        Timeout::timeout(timeout) { open(uri) }
       rescue
         return []
       end
