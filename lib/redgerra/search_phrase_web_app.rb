@@ -121,10 +121,22 @@ module Redgerra
       
       include MonitorMixin
       
+      def initialize()
+        @cached_threads = Hash.new
+      end
+      
       attr_accessor :server_asks_captcha
       
       def close()
         browser.close()
+      end
+      
+      # Creates new Thread corresponding to +keys+ or returns an existing one.
+      # 
+      # +block+ is passed to the new Thread.
+      # 
+      def cached_thread(*keys, &block)
+        @cached_threads[keys] ||= Thread.new(&block)
       end
       
     end
