@@ -236,6 +236,9 @@
                   show(captchaForm);
                   captchaAnswer.focus();
                 }
+                else if (statusCode == 500 && responseText == "Try again") {
+                  loop();
+                }
                 else {
                   addHTMLItemToResultsList('<span class="error">Error: ' + statusCode.toString() + '—' + responseText + '</span>');
                 }
