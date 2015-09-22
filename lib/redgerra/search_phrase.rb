@@ -14,6 +14,7 @@ require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
 require 'string/scrub'
+require 'timeout'
 
 module Redgerra
   
@@ -216,7 +217,7 @@ module Redgerra
     #
     page_io =
       begin
-        open(uri)
+        Timeout::timeout(25) { open(uri) }  # TODO: Make timeout adjustable.
       rescue
         return []
       end
