@@ -64,7 +64,7 @@ module Redgerra
     # 
     # Returns this String with all parts replaced with results of +block+.
     # 
-    def encode_(&block)
+    def parse(&block)
       result = ""
       s = StringScanner.new(self)
       until s.eos?
@@ -134,7 +134,7 @@ module Redgerra
     # then the flag is "1", otherwise "0".
     encoded_str = str.
       squeeze_unicode_whitespace.
-      encode_ do |token, type|
+      parse do |token, type|
         case type
         when :word
           is_proper_name_with_dot_flag =
@@ -148,7 +148,7 @@ module Redgerra
     encoded_sloch_regexp = sloch.
       squeeze_unicode_whitespace.
       downcase.
-      encode_ do |token, type|
+      parse do |token, type|
         case type
         when :word
           "W[01]#{token.downcase.hex_encode}Y\\h+W"
