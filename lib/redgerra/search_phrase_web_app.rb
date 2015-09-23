@@ -63,18 +63,22 @@ module Redgerra
       offset = (params[:offset] || "0").to_i
       # 
       with_session(sloch) do |session|
+        t = session.cached_thread(:phrase, offset) do
+          begin
+            session.phrases[offset] || ""
+          rescue ServerAsksCaptcha => e
+            session.server_asks_captcha = e
+            halt 503, "Server asks captcha"
+          rescue WebSearchError => e
+            halt 503, e.user_readable_message
+          end
+        end
         begin
           timeout(26) do  # TODO: Make timeout adjustable.
-            session.phrases[offset] || ""
+            
           end
         rescue Timeout::Error
           halt 500, "Try again"
-        rescue ServerAsksCaptcha => e
-          session.server_asks_captcha = e
-          halt 503, "Server asks captcha"
-        rescue WebSearchError => e
-          halt 503, e.user_readable_message
-        end
       end
     end
     
