@@ -30,19 +30,19 @@ module Redgerra
   # +web_search+ must return RandomAccessible collection of WebSearchResult-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  # +page_timeout+ is timeout per each page this function visits.
+  # +timeout_per_page+ is timeout per each web-page this function visits.
   # 
   # This method returns thread-safe RandomAccessible collection of String-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  def self.search_phrase(sloch, web_search, browser, page_timeout = 25)
+  def self.search_phrase(sloch, web_search, browser, timeout_per_page = 30)
     # 
     m = Memory.new
     # 
     phrases =
       web_search.(%("#{sloch}"), "en", browser).
       lazy_cached_filter do |web_search_result|
-        text_blocks_from_page_at(web_search_result.url, page_timeout)
+        text_blocks_from_page_at(web_search_result.url, timeout_per_page)
       end.
       lazy_cached_filter do |text_block|
         phrases_from(text_block, sloch).
