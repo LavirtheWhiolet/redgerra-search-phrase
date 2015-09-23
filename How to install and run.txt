@@ -1,7 +1,7 @@
 Step 1
 ------
 
-First you need to install Ruby (http://ruby-lang.org) and dev-kit for it.
+First you need to install Ruby (http://ruby-lang.org) and development kit for it.
 
 ### Microsoft Windows XP and above ###
 
@@ -11,14 +11,15 @@ Download Development Kit from http://rubyinstaller.org/downloads/ which correspo
 
 ### GNU/Linux ###
 
-In Ubuntu (http://www.ubuntu.com/), Debian (https://www.debian.org/) you give the command (as root):
+In Ubuntu (http://www.ubuntu.com/) or Debian (https://www.debian.org/) you give the command (as root):
 
     apt-get install ruby ruby-dev
 
 Step 2
 ------
 
-You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows command prompt or in other OS's terminal give the following command (as root or as administrator):
+You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows Command Prompt or in other OS's terminal give the following commands (as root or as administrator):
 
     gem install bundler
     bundle install
+
