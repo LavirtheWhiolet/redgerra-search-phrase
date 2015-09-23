@@ -118,7 +118,7 @@
             errorF(0, "", true, false);
           }
         };
-        req.timeout(10000);
+        req.timeout = 10000;
         req.ontimeout = function() {
           errorF(0, "", false, true);
         }
