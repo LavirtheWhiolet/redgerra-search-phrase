@@ -18,8 +18,9 @@ In Ubuntu (http://www.ubuntu.com/) or Debian (https://www.debian.org/) you give 
 Step 2
 ------
 
-You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows Command Prompt or in other OS's terminal give the following commands (as root or as administrator):
-
+You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows Command Prompt or in other OS's terminal give the following commands (as root or as Administrator):
+    
+    cd <this directory>
     gem install bundler
     bundle install
 
@@ -34,4 +35,5 @@ Double-click "Launch (MS Windows).bat".
 
 In terminal give the following command:
 
+    cd <this directory>
     rackup config.ru
