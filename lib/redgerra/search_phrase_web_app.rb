@@ -26,11 +26,11 @@ module Redgerra
     #                        button is displayed. Default is 200.
     # 
     # +:cache_lifetime+ :: How long +search+ results are cached for (in
-    #                      seconds). Default is 25.
+    #                      seconds). Default is 30 minutes.
     # 
     # +:response_max_time+ :: Max. time to respond to a client (in seconds).
     #                         Request processing is not interrupted after the
-    #                         timeout. Default is 30 minutes.
+    #                         timeout. Default is 25.
     # 
     # +:timeout_per_web_page+ :: Argument +timeout_per_page+ for
     #                            Redgerra::search_phrase(). Default is 30.
@@ -41,7 +41,7 @@ module Redgerra
       @results_per_page = options[:results_per_page] || 200
       @response_max_time = options[:response_max_time] || 25
       cache_lifetime = options[:cache_lifetime] || 30*60
-      timeout_per_web_page = options[:timeout_per_web_page]
+      timeout_per_web_page = options[:timeout_per_web_page] || 30
       # 
       @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
         browser = new_web_search_browser.()
