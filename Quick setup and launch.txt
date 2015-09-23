@@ -29,7 +29,7 @@ Step 3: Launch
 
 ### Microsoft Windows XP or above ###
 
-Double-click "Launch (MS Windows).bat".
+Double-click "Quick launch (MS Windows).bat".
 
 ### Other OS ###
 
