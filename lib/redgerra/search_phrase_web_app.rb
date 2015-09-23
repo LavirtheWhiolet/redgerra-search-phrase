@@ -20,19 +20,23 @@ module Redgerra
     # for passing it to Redgerra::search_phrase(). The browser must respond to
     # <code>close()</code>.
     # 
-    # +results_per_page+ is number of results to be shown until "More..."
-    # button is displayed.
+    # +options+ is a Hash of options:
     # 
-    # +cache_lifetime+ is how long +search+ results are cached for.
+    # +:results_per_page+ :: A number of results to be shown until "More..."
+    #   button is displayed. Default is 200.
     # 
-    # +response_max_time+ is max. time to responding to a client. Request
-    # processing is not interrupted.
+    # +:cache_lifetime+ :: How long +search+ results are cached for.
+    #   Default is 25.
     # 
-    def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60, response_max_time = 25)
+    # +:response_max_time+ :: Max. time to respond to a client. Request
+    #   processing is not interrupted after the timeout. Default is 30 minutes.
+    # 
+    def initialize(search_web, new_web_search_browser, options = {})
       super()
       #
-      @results_per_page = results_per_page
-      @response_max_time = response_max_time
+      @results_per_page = options[:results_per_page] || 200
+      @response_max_time = options[:response_max_time] || 25
+      cache_lifetime = options[:cache_lifetime] || 30*60
       # 
       @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
         browser = new_web_search_browser.()
