@@ -71,7 +71,7 @@ module Redgerra
       result = ""
       s = StringScanner.new(self)
       until s.eos?
-        (word = (s.scan(/\'[Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-\.\']#{word_chars})*\'?/o)) and act do
+        (word = (s.scan(/['’][Cc]ause/) or s.scan(/#{word_chars = "[a-zA-Z0-9\\$]+"}([\-.'’]#{word_chars})*\'?/o)) and act do
           result << block.(word, :word)
         end) or
         (other = s.getch and act do
