@@ -82,7 +82,7 @@
        * Send request via XMLHttpRequest and process response.
        * 
        * okF: function(responseText).
-       * errorF: function(statusCode, responseText, isNetworkingError).
+       * errorF: function(statusCode, responseText, isNetworkingError, isTimeout).
        */
       function request(method, query, okF, errorF) {
         req = (function() {
@@ -108,16 +108,20 @@
               if (req.status == 200) {
                 okF(req.responseText);
               } else {
-                errorF(req.status, req.response, req.status == 0);
+                errorF(req.status, req.response, req.status == 0, false);
               }
             }
           }
           catch( e ) {
             // Workaround for Bugzilla Bug 238559 XMLHttpRequest needs a way to report networking errors
             // https://bugzilla.mozilla.org/show_bug.cgi?id=238559
-            errorF(0, "", true);
+            errorF(0, "", true, false);
           }
         };
+        req.timeout(10000);
+        req.ontimeout = function() {
+          errorF(0, "", false, true);
+        }
         req.send(null);
       }
       
@@ -223,10 +227,13 @@
                 }
               }
             },
-            /* errorF */ function(statusCode, responseText, isNetworkingError) {
+            /* errorF */ function(statusCode, responseText, isNetworkingError, isTimeout) {
               if (isNetworkingError) {
                 hide(loadingSymbol);
                 addHTMLItemToResultsList('<span class="error">Networking error</span>');
+              }
+              else if (isTimeout) {
+                loop();
               }
               else {
                 if (statusCode == 503 && responseText == "Server asks captcha") {
@@ -235,9 +242,6 @@
                   hide(loadingSymbol);
                   show(captchaForm);
                   captchaAnswer.focus();
-                }
-                else if (statusCode == 500 && responseText == "Try again") {
-                  loop();
                 }
                 else {
                   hide(loadingSymbol);

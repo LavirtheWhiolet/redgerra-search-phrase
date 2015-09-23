@@ -64,11 +64,7 @@ module Redgerra
       # 
       with_session(sloch) do |session|
         begin
-          timeout(26) do  # TODO: Make timeout adjustable.
-            session.phrases[offset] || ""
-          end
-        rescue Timeout::Error
-          halt 500, "Try again"
+          session.phrases[offset] || ""
         rescue ServerAsksCaptcha => e
           session.server_asks_captcha = e
           halt 503, "Server asks captcha"
