@@ -32,16 +32,20 @@ module Redgerra
     #                         Request processing is not interrupted after the
     #                         timeout. Default is 30 minutes.
     # 
+    # +:timeout_per_web_page+ :: Argument +timeout_per_page+ for
+    #                            Redgerra::search_phrase(). Default is 30.
+    # 
     def initialize(search_web, new_web_search_browser, options = {})
       super()
       #
       @results_per_page = options[:results_per_page] || 200
       @response_max_time = options[:response_max_time] || 25
       cache_lifetime = options[:cache_lifetime] || 30*60
+      timeout_per_web_page = options[:timeout_per_web_page]
       # 
       @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
         browser = new_web_search_browser.()
-        phrases = Redgerra::search_phrase(sloch, search_web, browser)
+        phrases = Redgerra::search_phrase(sloch, search_web, browser, timeout_per_web_page)
         sessions[sloch] = Session.new(browser, phrases)
       end
       @sessions.on_expire = lambda do |session|
@@ -77,7 +81,6 @@ module Redgerra
           # TODO: Potential DoS attack: If the phrase can not be found for
           #   a long time then background threads accumulate! They terminate
           #   all at once with the first found phrase though.
-          # TODO: Redgerra::search_phrase() has also +timeout_per_page+ arg.
           soft_timeout(@response_max_time) { session.phrases[offset] || "" }
         rescue Timeout::Error
           halt 500, "Try again"
