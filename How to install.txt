@@ -18,3 +18,7 @@ In Ubuntu (http://www.ubuntu.com/), Debian (https://www.debian.org/) you give th
 Step 2
 ------
 
+You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows command prompt or in other OS's terminal give the following command (as root or as administrator):
+
+    gem install bundler
+    bundle install
