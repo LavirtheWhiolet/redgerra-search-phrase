@@ -30,7 +30,7 @@ module Redgerra
   # +web_search+ must return RandomAccessible collection of WebSearchResult-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  # +timeout_per_page+ is timeout per each page this function visits.
+  # +timeout_per_page+ is timeout per each web-page this function visits.
   # 
   # This method returns thread-safe RandomAccessible collection of String-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
