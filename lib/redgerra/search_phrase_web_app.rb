@@ -4,6 +4,7 @@ require 'expiring_hash_map2'
 require 'redgerra/search_phrase'
 require 'web_search_error'
 require 'server_asks_captcha'
+require 'timeout'
 
 module Redgerra
 
@@ -64,9 +65,11 @@ module Redgerra
       # 
       with_session(sloch) do |session|
         begin
-          timeout(26) do  # TODO: Make timeout adjustable.
-            session.phrases[offset] || ""
-          end
+          # TODO: Make timeout adjustable.
+          # TODO: Potential DoS attack: If the phrase can not be found for
+          #   a long time then background threads accumulate! They terminate
+          #   all at once with the first found phrase though.
+          soft_timeout(25) { session.phrases[offset] || "" }
         rescue Timeout::Error
           halt 500, "Try again"
         rescue ServerAsksCaptcha => e
@@ -115,6 +118,14 @@ module Redgerra
       s.mon_synchronize do
         f.(s)
       end
+    end
+    
+    # The same as Timeout::timeout but does not interrupt +block+ (it continues
+    # processing in a separate Thread).
+    def soft_timeout(timeout, &block)
+      t = Thread.new(&block)
+      t.join(timeout) or raise Timeout::Error
+      t.value
     end
     
     class Session < Struct.new :browser, :phrases
