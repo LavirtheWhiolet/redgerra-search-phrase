@@ -1,7 +1,7 @@
 Step 1
 ------
 
-First you need to install Ruby (http://ruby-lang.org) and development kit for it.
+You need to install Ruby (http://ruby-lang.org) and development kit for it.
 
 ### Microsoft Windows XP and above ###
 
