@@ -1,0 +1,20 @@
+Step 1
+------
+
+First you need to install Ruby (http://ruby-lang.org) and dev-kit for it.
+
+### Microsoft Windows XP and above ###
+
+Download Ruby installer from http://rubyinstaller.org/downloads/. Version 1.9.3 or above is required. Run the installer.
+
+Download Development Kit from http://rubyinstaller.org/downloads/ which corresponds to the Ruby version you have installed previously. Unpack it into the directory with the installed Ruby.
+
+### GNU/Linux ###
+
+In Ubuntu (http://www.ubuntu.com/), Debian (https://www.debian.org/) you give the command (as root):
+
+    apt-get install ruby ruby-dev
+
+Step 2
+------
+
