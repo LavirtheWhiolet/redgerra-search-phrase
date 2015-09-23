@@ -1,0 +1,39 @@
+Step 1
+------
+
+You need to install Ruby (http://ruby-lang.org) and development kit for it.
+
+### Microsoft Windows XP and above ###
+
+Download Ruby installer from http://rubyinstaller.org/downloads/. Version 1.9.3 or above is required. Run the installer.
+
+Download Development Kit from http://rubyinstaller.org/downloads/ which corresponds to the Ruby version you have installed previously. Unpack it into the directory with the installed Ruby.
+
+### GNU/Linux ###
+
+In Ubuntu (http://www.ubuntu.com/) or Debian (https://www.debian.org/) you give the command (as root):
+
+    apt-get install ruby ruby-dev
+
+Step 2
+------
+
+You need to install Ruby gems (http://rubygems.org) required by this software. In MS Windows Command Prompt or in other OS's terminal give the following commands (as root or as Administrator):
+    
+    cd <this directory>
+    gem install bundler
+    bundle install
+
+Step 3: Launch
+--------------
+
+### Microsoft Windows XP or above ###
+
+Double-click "Quick launch (MS Windows).bat".
+
+### Other OS ###
+
+In terminal give the following command:
+
+    cd <this directory>
+    rackup config.ru
