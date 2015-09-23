@@ -35,7 +35,7 @@ module Redgerra
   # This method returns thread-safe RandomAccessible collection of String-s.
   # The collection's RandomAccessible#[] may raise WebSearchError.
   # 
-  def self.search_phrase(sloch, web_search, browser, page_timeout = 25)
+  def self.search_phrase(sloch, web_search, browser, page_timeout = 30)
     # 
     m = Memory.new
     # 
