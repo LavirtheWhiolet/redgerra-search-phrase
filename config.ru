@@ -6,6 +6,5 @@ require 'mechanize/close'
 run Redgerra::SearchPhraseWebApp.new(
   lambda { |query, lang, browser| Google.search2(query, lang, browser) },
   lambda { Mechanize.new },
-  response_max_time: 25,
-  timeout_per_web_page: 60
+  response_max_time: 25
 )
