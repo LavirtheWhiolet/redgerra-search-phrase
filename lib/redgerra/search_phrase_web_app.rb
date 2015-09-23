@@ -71,6 +71,7 @@ module Redgerra
           # TODO: Potential DoS attack: If the phrase can not be found for
           #   a long time then background threads accumulate! They terminate
           #   all at once with the first found phrase though.
+          # TODO: Redgerra::search_phrase() has also +timeout_per_page+ arg.
           soft_timeout(@response_timeout) { session.phrases[offset] || "" }
         rescue Timeout::Error
           halt 500, "Try again"
