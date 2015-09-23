@@ -23,3 +23,15 @@ You need to install Ruby gems (http://rubygems.org) required by this software. I
     gem install bundler
     bundle install
 
+Step 3: Launch
+--------------
+
+### Microsoft Windows XP or above ###
+
+Double-click "Launch (MS Windows).bat".
+
+### Other OS ###
+
+In terminal give the following command:
+
+    rackup config.ru
