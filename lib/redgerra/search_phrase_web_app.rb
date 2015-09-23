@@ -25,13 +25,14 @@ module Redgerra
     # 
     # +cache_lifetime+ is how long +search+ results are cached for.
     # 
-    # +response_timeout+ is max. time for processing a web-request.
+    # +response_max_time+ is max. time to responding to a client. Request
+    # processing is not interrupted.
     # 
-    def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60, response_timeout = 25)
+    def initialize(search_web, new_web_search_browser, results_per_page = 200, cache_lifetime = 30*60, response_max_time = 25)
       super()
       #
       @results_per_page = results_per_page
-      @response_timeout = response_timeout
+      @response_max_time = response_max_time
       # 
       @sessions = ExpiringHashMap2.new(cache_lifetime) do |sessions, sloch|
         browser = new_web_search_browser.()
@@ -72,7 +73,7 @@ module Redgerra
           #   a long time then background threads accumulate! They terminate
           #   all at once with the first found phrase though.
           # TODO: Redgerra::search_phrase() has also +timeout_per_page+ arg.
-          soft_timeout(@response_timeout) { session.phrases[offset] || "" }
+          soft_timeout(@response_max_time) { session.phrases[offset] || "" }
         rescue Timeout::Error
           halt 500, "Try again"
         rescue ServerAsksCaptcha => e
