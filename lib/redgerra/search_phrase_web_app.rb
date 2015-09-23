@@ -25,12 +25,12 @@ module Redgerra
     # +:results_per_page+ :: A number of results to be shown until "More..."
     #                        button is displayed. Default is 200.
     # 
-    # +:cache_lifetime+ :: How long +search+ results are cached for.
-    #                      Default is 25.
+    # +:cache_lifetime+ :: How long +search+ results are cached for (in
+    #                      seconds). Default is 25.
     # 
-    # +:response_max_time+ :: Max. time to respond to a client. Request
-    #                         processing is not interrupted after the timeout.
-    #                         Default is 30 minutes.
+    # +:response_max_time+ :: Max. time to respond to a client (in seconds).
+    #                         Request processing is not interrupted after the
+    #                         timeout. Default is 30 minutes.
     # 
     def initialize(search_web, new_web_search_browser, options = {})
       super()
