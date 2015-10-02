@@ -1,0 +1,32 @@
+#!/usr/bin/env ruby
+require 'redgerra/search_phrase'
+
+# Parse args.
+sloch = nil
+while true
+  case ARGV[0]
+  when "-s"
+    sloch = ARGV[1]
+    ARGV.shift(2)
+  when "-f"
+    sloch_file = ARGV[1]
+    begin
+      sloch = File.read(sloch_file)
+    rescue Exception => e
+      abort "ERROR: #{e.message}"
+    end
+    ARGV.shift(2)
+  else
+    break
+  end
+end
+dirs_or_files = ARGV
+abort %(ERROR: Sloch is not specified. Use "-f" or "-s".) unless sloch
+# Do the job!
+Redgerra.search_phrase_in_files(sloch, dirs_or_files).each do |e|
+  case e
+  when String then STDOUT.puts e
+  when Redgerra::Error then STDERR.puts e.message
+  else raise %(unknown result type: #{e.inspect})
+  end
+end
