@@ -8,6 +8,7 @@ require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
 require 'object/not_empty'
+require 'find'
 
 # For Redgerra::text_blocks_from*().
 require 'open-uri'
@@ -17,6 +18,15 @@ require 'string/scrub'
 require 'timeout'
 
 module Redgerra
+  
+  # 
+  # searches for phrases in +dirs_or_files+ which include +sloch+.
+  # 
+  # It returns Enumerable of Error and String.
+  # 
+  def self.search_phrase_in_files(sloch, *dirs_or_files)
+    
+  end
   
   # 
   # searches for phrases in WWW which include +sloch+.
@@ -51,6 +61,8 @@ module Redgerra
     #
     return ThreadSafeRandomAccessible.new(phrases)
   end
+  
+  Error = Struct.new :message
   
   private
   
@@ -305,6 +317,44 @@ module Redgerra
       else
         @impl.add x
         return false
+      end
+    end
+    
+  end
+  
+  class SearchPhraseInFiles
+    
+    include Enumerable
+    
+    def initialize(sloch, *dirs_or_files)
+      @sloch = sloch
+      @dirs_or_files = dirs_or_files
+    end
+    
+    def each
+      for dir_or_file in dirs_or_files
+        begin
+          Find.find(dir_or_file) do |entry|
+            #
+            next unless File.file? entry
+            file = entry
+            # 
+            case File.extname(file)
+            when ".txt"
+            when ".htm", ".html"
+            end
+            # 
+            content =
+              begin
+                File.read
+              rescue Exception => e
+                yield Error.new %("#{dir_or_file}": #{e.message})
+                next
+              end
+          end
+        rescue Errno::ENOENT
+          yield Error.new %("#{dir_or_file}" does not exist)
+        end
       end
     end
     
