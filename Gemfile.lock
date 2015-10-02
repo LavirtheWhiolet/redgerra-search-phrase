@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    search-phrase (0.0.4)
+    redgerra-search-phrase (0.0.6)
       mechanize
       nokogiri
       sinatra
@@ -52,4 +52,4 @@ PLATFORMS
 
 DEPENDENCIES
   puma
-  search-phrase!
+  redgerra-search-phrase!
