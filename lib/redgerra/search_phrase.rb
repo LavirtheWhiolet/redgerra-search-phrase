@@ -284,6 +284,10 @@ module Redgerra
     return text_blocks
   end
   
+  def self.text_blocks_from_plain_text(plain_text)
+    plain_text.split(/\n{2,}/)
+  end
+  
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
@@ -332,30 +336,46 @@ module Redgerra
     end
     
     def each
-      for dir_or_file in dirs_or_files
+      for dir_or_file in @dirs_or_files
         begin
           Find.find(dir_or_file) do |entry|
             #
             next unless File.file? entry
             file = entry
-            # 
-            case File.extname(file)
-            when ".txt"
-            when ".htm", ".html"
+            #
+            begin
+              text_blocks =
+                case File.extname(file)
+                when ".txt"
+                  Redgerra.text_blocks_from_plain_text(File.read(file))
+                when ".htm", ".html"
+                  Redgerra.text_blocks_from(Nokogiri::HTML(File.read(file)))
+                else
+                  raise FormatUnsupported.new
+                end
+              phrases =
+                text_blocks.filter2 { |text_block| Redgerra.phrases_from(text_block, @sloch) }
+              phrases.each { |phrase| yield phrase }
+            #
+            rescue Exception => e
+              yield Error.new %("#{file}": #{e.message})
             end
-            # 
-            content =
-              begin
-                File.read
-              rescue Exception => e
-                yield Error.new %("#{dir_or_file}": #{e.message})
-                next
-              end
           end
+        #
         rescue Errno::ENOENT
           yield Error.new %("#{dir_or_file}" does not exist)
         end
       end
+    end
+    
+    private
+    
+    class FormatUnsupported < Exception
+      
+      def initialize()
+        super("format is unsupported")
+      end
+      
     end
     
   end
