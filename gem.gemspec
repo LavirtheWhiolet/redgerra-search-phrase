@@ -3,7 +3,7 @@ Gem::Specification.new do |s|
   s.name = 'search-phrase'
   s.author = 'Lavir the Whiolet'
   s.email = 'Lavir.th.Whiolet@gmail.com'
-  s.sourcecode = 'https://github.com/LavirtheWhiolet/search-phrase'
+  s.homepage = 'https://github.com/LavirtheWhiolet/search-phrase'
   s.description = File.read("README.md")[
     /#{Regexp.escape("<!-- description -->")}(.*)#{Regexp.escape("<!-- end of description -->")}/, 1
   ] or raise %(description is not found in "README.md")
