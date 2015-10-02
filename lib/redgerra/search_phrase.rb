@@ -12,7 +12,7 @@ require 'object/not_empty'
 # For Redgerra::search_phrase_in_files().
 require 'find'
 
-# For Redgerra::text_blocks_from*().
+# For Redgerra::text_blocks_from() and Redgerra::text_blocks_from_page_at().
 require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
