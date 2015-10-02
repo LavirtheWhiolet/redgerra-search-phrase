@@ -373,7 +373,7 @@ module Redgerra
     class FormatUnsupported < Exception
       
       def initialize()
-        super("format is unsupported")
+        super("file format is unsupported")
       end
       
     end
