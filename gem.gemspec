@@ -1,7 +1,7 @@
 
 Gem::Specification.new do |s|
   #
-  s.name = 'search-phrase'
+  s.name = 'redgerra-search-phrase'
   s.author = 'Lavir the Whiolet'
   s.email = 'Lavir.th.Whiolet@gmail.com'
   s.homepage = 'https://github.com/LavirtheWhiolet/search-phrase'
