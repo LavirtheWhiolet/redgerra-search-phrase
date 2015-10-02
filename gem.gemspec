@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
   s.source_code = 'https://github.com/LavirtheWhiolet/search-phrase'
   s.homepage = s.source_code
   s.description = File.read("README.md")[
-    /#{Regexp.escape("<!-- description -->")}(.*)#{Regexp.escape("<!-- end of description -->")}/, 1/
+    /#{Regexp.escape("<!-- description -->")}(.*)#{Regexp.escape("<!-- end of description -->")}/, 1
   ] or raise %(description is not found in "README.md")
   s.summary = s.description
   s.version = '0.0.6'
