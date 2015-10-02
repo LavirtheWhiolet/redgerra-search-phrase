@@ -24,8 +24,8 @@ module Redgerra
   # 
   # It returns Enumerable of Error and String.
   # 
-  def self.search_phrase_in_files(sloch, *dirs_or_files)
-    SearchPhraseInFiles.new(sloch, *dirs_or_files)
+  def self.search_phrase_in_files(sloch, dirs_or_files)
+    SearchPhraseInFiles.new(sloch, dirs_or_files)
   end
   
   # 
@@ -330,7 +330,7 @@ module Redgerra
     
     include Enumerable
     
-    def initialize(sloch, *dirs_or_files)
+    def initialize(sloch, dirs_or_files)
       @sloch = sloch
       @dirs_or_files = dirs_or_files
     end
