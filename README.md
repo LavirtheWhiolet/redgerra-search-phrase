@@ -2,7 +2,7 @@ Redgerra-Search Phrase
 ======================
 
 <!-- description -->
-Search for the specific phrase in Internet as specified by Redgerra.
+Search for the specific phrase in files or in Internet as specified by Redgerra.
 <!-- end of description -->
 
 Requirements
