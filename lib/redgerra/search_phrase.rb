@@ -24,7 +24,7 @@ module Redgerra
   # 
   # searches for phrases in +dirs_or_files+ which include +sloch+.
   # 
-  # It returns Enumerable of Error and String.
+  # It returns Enumerable of Error-s and String-s.
   # 
   def self.search_phrase_in_files(sloch, dirs_or_files)
     SearchPhraseInFiles.new(sloch, dirs_or_files)
@@ -143,6 +143,10 @@ module Redgerra
   # :section:
   # ---------
   
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
   def self.phrases_from(str, sloch)
     # Encode this string:
     # - word → /#{WORD}/
@@ -227,7 +231,10 @@ module Redgerra
     return phrases
   end  
   
-  # returns Array of String-s.
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
   def self.text_blocks_from_page_at(uri, timeout)
     #
     page_io =
@@ -244,7 +251,9 @@ module Redgerra
     end
   end
   
-  # returns Array of String's.
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
   # 
   # +element+ is Nokogiri::Element.
   # 
@@ -286,6 +295,10 @@ module Redgerra
     return text_blocks
   end
   
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
   def self.text_blocks_from_plain_text(plain_text)
     plain_text.split(/\n{2,}/)
   end
