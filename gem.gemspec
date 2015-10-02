@@ -1,9 +1,21 @@
 
+class String
+  
+  def lchomp(prefix)
+    if self.start_with? prefix then self[prefix.length..-1]
+    else self
+    end
+  end
+  
+end
+
 Gem::Specification.new do |s|
   s.author = 'Lavir the Whiolet'
   s.email = 'Lavir.th.Whiolet@gmail.com'
   s.homepage = 'https://github.com/LavirtheWhiolet/search-phrase'
   s.files = Dir["lib/**/**"] + ["config.ru"]
+  s.bindir = "bin"
+  s.executables = Dir["bin/**/**"].map { |f| f.lchomp("bin/") }
   s.name = 'search-phrase'
   s.summary = 'Search for the specific phrase in Internet.'
   s.version = '0.0.4'
