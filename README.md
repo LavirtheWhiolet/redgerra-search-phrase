@@ -62,6 +62,6 @@ You run it with the following command:
 Here `SLOCH_OPTION` is one of the following:
 
 - `-s sloch` - use specified sloch;
-- `-f sloch_file` - read sloch from `sloch_file`.
+- `-f sloch_file` - read sloch from specified file.
 
 `dir_or_file[n]` are files or directories which to search the phrase in.
