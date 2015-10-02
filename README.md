@@ -51,13 +51,13 @@ The easiest way to start it is to give the following command:
 
 Here `PORT` is the [port](https://en.wikipedia.org/wiki/Port_%28computer_networking%29) the web-server will run on; `config.ru` is "config.ru" from this directory. After that you open http://localhost:PORT/ in your Internet browser.
 
-### `redgerra-search-phrase-in-files` ###
+### `redgerra-search-phrase` ###
 
 It is a command-line utility for searching for the phrase in local files.
 
 You run it with the following command:
 
-    redgerra-search-phrase-in-files SLOCH_OPTION dir_or_file1 dir_or_file2 ...
+    redgerra-search-phrase SLOCH_OPTION dir_or_file1 dir_or_file2 ...
 
 Here `SLOCH_OPTION` is one of the following:
 
