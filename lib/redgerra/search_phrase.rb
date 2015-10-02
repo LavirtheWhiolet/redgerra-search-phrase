@@ -300,7 +300,7 @@ module Redgerra
   # It returns Array of String-s.
   # 
   def self.text_blocks_from_plain_text(plain_text)
-    plain_text.split(/\n{2,}/)
+    plain_text.scrub.split(/\n{2,}/)
   end
   
   class ThreadSafeRandomAccessible
