@@ -65,3 +65,5 @@ Here `SLOCH_OPTION` is one of the following:
 - `-f sloch_file` - read sloch from specified file.
 
 `dir_or_file[n]` are files or directories which to search the phrase in.
+
+It writes phrases found to [standard output](https://en.wikipedia.org/wiki/Standard_streams#Standard_output_.28stdout.29) (each phrase in a separate line) and errors to [standard error](https://en.wikipedia.org/wiki/Standard_streams#Standard_error_.28stderr.29).
