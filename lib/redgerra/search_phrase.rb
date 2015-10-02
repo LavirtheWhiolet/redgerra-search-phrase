@@ -25,7 +25,7 @@ module Redgerra
   # It returns Enumerable of Error and String.
   # 
   def self.search_phrase_in_files(sloch, *dirs_or_files)
-    
+    SearchPhraseInFiles.new(sloch, *dirs_or_files)
   end
   
   # 
@@ -355,8 +355,9 @@ module Redgerra
                   raise FormatUnsupported.new
                 end
               #
-              phrases =
-                text_blocks.filter2 { |text_block| Redgerra.phrases_from(text_block, @sloch) }
+              phrases = text_blocks.filter2 do |text_block|
+                Redgerra.phrases_from(text_block, @sloch)
+              end
               #
               phrases.each { |phrase| yield phrase }
             #
