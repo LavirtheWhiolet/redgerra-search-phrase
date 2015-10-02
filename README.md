@@ -29,14 +29,14 @@ Give the following command in this directory:
 
     gem build gem.gemspec
 
-You will get an installation package named "*.gem" (e. g. "search-phrase-1.2.3.gem").
+You will get an installation package named "*.gem" (e. g. "redgerra-search-phrase-1.2.3.gem").
 
 How to install
 --------------
 
-Suppose you have got an installation package named "search-phrase-1.2.3.gem". Give the following command (as root or as Administrator):
+Suppose you have got an installation package named "redgerra-search-phrase-1.2.3.gem". Give the following command (as root or as Administrator):
 
-    gem install search-phrase-1.2.3.gem
+    gem install redgerra-search-phrase-1.2.3.gem
 
 How to use
 ----------
@@ -51,13 +51,13 @@ The easiest way to start it is to give the following command:
 
 Here `PORT` is the [port](https://en.wikipedia.org/wiki/Port_%28computer_networking%29) the web-server will run on; `config.ru` is "config.ru" from this directory. After that you open http://localhost:PORT/ in your Internet browser.
 
-### `search-phrase-in-files` ###
+### `redgerra-search-phrase-in-files` ###
 
 It is a command-line utility for searching for the phrase in local files.
 
 You run it with the following command:
 
-    search-phrase-in-files SLOCH_OPTION dir_or_file1 dir_or_file2 ...
+    redgerra-search-phrase-in-files SLOCH_OPTION dir_or_file1 dir_or_file2 ...
 
 Here `SLOCH_OPTION` is one of the following:
 
