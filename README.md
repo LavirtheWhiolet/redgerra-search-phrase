@@ -1,4 +1,4 @@
-Redgerra-search Phrase
+Redgerra-search phrase
 ======================
 
 <!-- description -->
