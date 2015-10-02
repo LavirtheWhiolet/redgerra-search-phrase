@@ -8,6 +8,8 @@ require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
 require 'object/not_empty'
+
+# For Redgerra::search_phrase_in_files().
 require 'find'
 
 # For Redgerra::text_blocks_from*().
