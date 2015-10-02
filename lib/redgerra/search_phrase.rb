@@ -341,33 +341,16 @@ module Redgerra
       for dir_or_file in @dirs_or_files
         begin
           Find.find(dir_or_file) do |entry|
-            #
             next unless File.file? entry
             file = entry
-            #
             begin
-              #
-              text_blocks =
-                case File.extname(file)
-                when ".txt"
-                  Redgerra.text_blocks_from_plain_text(File.read(file))
-                when ".htm", ".html"
-                  Redgerra.text_blocks_from(Nokogiri::HTML(File.read(file)))
-                else
-                  raise FormatUnsupported.new
-                end
-              #
-              phrases = text_blocks.filter2 do |text_block|
-                Redgerra.phrases_from(text_block, @sloch)
-              end
-              #
-              phrases.each { |phrase| yield phrase }
-            #
+              phrases = text_blocks_from(file).
+                filter2 { |text_block| Redgerra.phrases_from(text_block, @sloch) }.
+                each { |phrase| yield phrase }
             rescue Exception => e
               yield Error.new %("#{file}": #{e.message})
             end
           end
-        #
         rescue Errno::ENOENT
           yield Error.new %("#{dir_or_file}" does not exist)
         end
@@ -375,6 +358,17 @@ module Redgerra
     end
     
     private
+    
+    def text_blocks_from(file)
+      case File.extname(file)
+      when ".txt"
+        Redgerra.text_blocks_from_plain_text(File.read(file))
+      when ".htm", ".html"
+        Redgerra.text_blocks_from(Nokogiri::HTML(File.read(file)))
+      else
+        raise FormatUnsupported.new
+      end
+    end
     
     class FormatUnsupported < Exception
       
