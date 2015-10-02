@@ -1,7 +1,9 @@
 Redgerra-Search Phrase
 ======================
 
+<!-- description -->
 Search for the specific phrase in Internet as specified by Redgerra.
+<!-- end of description -->
 
 Requirements
 ------------
@@ -39,25 +41,27 @@ Suppose you have got an installation package named "search-phrase-1.2.3.gem". Gi
 How to use
 ----------
 
-### Web-application ###
+### Redgerra::SearchPhraseWebApp ###
 
-The easiest way to start the web-application is to give the following command:
+It is a [Rack](http://rack.github.io/)-compliant web-application for searching for the phrase in Internet.
+
+The easiest way to start it is to give the following command:
 
     rackup -p PORT config.ru
 
-Here `PORT` is the [port](https://en.wikipedia.org/wiki/Port_%28computer_networking%29) the web-server will run on; `config.ru` is "config.ru" from this directory.
-
-After that you open http://localhost:PORT/ in your Internet browser.
+Here `PORT` is the [port](https://en.wikipedia.org/wiki/Port_%28computer_networking%29) the web-server will run on; `config.ru` is "config.ru" from this directory. After that you open http://localhost:PORT/ in your Internet browser.
 
 ### `search-phrase-in-files` ###
 
-To search for the phrase in files you give the following command:
+It is a command-line utility for searching for the phrase in local files.
+
+You run it with the following command:
 
     search-phrase-in-files SLOCH_OPTION dir_or_file1 dir_or_file2 ...
 
 Here `SLOCH_OPTION` is one of the following:
 
-- `-s sloch` - specify sloch directly in the command;
+- `-s sloch` - use specified sloch;
 - `-f sloch_file` - read sloch from `sloch_file`.
 
-`dir_or_file[n]` is a directory or a file which to search the phrase in.
+`dir_or_file[n]` are files or directories which to search the phrase in.
