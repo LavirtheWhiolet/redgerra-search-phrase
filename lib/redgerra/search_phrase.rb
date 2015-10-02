@@ -344,6 +344,7 @@ module Redgerra
             file = entry
             #
             begin
+              #
               text_blocks =
                 case File.extname(file)
                 when ".txt"
@@ -353,8 +354,10 @@ module Redgerra
                 else
                   raise FormatUnsupported.new
                 end
+              #
               phrases =
                 text_blocks.filter2 { |text_block| Redgerra.phrases_from(text_block, @sloch) }
+              #
               phrases.each { |phrase| yield phrase }
             #
             rescue Exception => e
