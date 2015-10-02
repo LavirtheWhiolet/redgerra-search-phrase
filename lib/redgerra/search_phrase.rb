@@ -9,7 +9,10 @@ require 'string/squeeze_unicode_whitespace'
 require 'monitor'
 require 'object/not_empty'
 
-# For Redgerra::text_blocks_from*().
+# For Redgerra::search_phrase_in_files().
+require 'find'
+
+# For Redgerra::text_blocks_from() and Redgerra::text_blocks_from_page_at().
 require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
@@ -17,6 +20,15 @@ require 'string/scrub'
 require 'timeout'
 
 module Redgerra
+  
+  # 
+  # searches for phrases in +dirs_or_files+ which include +sloch+.
+  # 
+  # It returns Enumerable of Error-s and String-s.
+  # 
+  def self.search_phrase_in_files(sloch, dirs_or_files)
+    SearchPhraseInFiles.new(sloch, dirs_or_files)
+  end
   
   # 
   # searches for phrases in WWW which include +sloch+.
@@ -51,6 +63,8 @@ module Redgerra
     #
     return ThreadSafeRandomAccessible.new(phrases)
   end
+  
+  Error = Struct.new :message
   
   private
   
@@ -129,6 +143,10 @@ module Redgerra
   # :section:
   # ---------
   
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
   def self.phrases_from(str, sloch)
     # Encode this string:
     # - word → /#{WORD}/
@@ -213,7 +231,10 @@ module Redgerra
     return phrases
   end  
   
-  # returns Array of String-s.
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
   def self.text_blocks_from_page_at(uri, timeout)
     #
     page_io =
@@ -230,7 +251,9 @@ module Redgerra
     end
   end
   
-  # returns Array of String's.
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
   # 
   # +element+ is Nokogiri::Element.
   # 
@@ -272,6 +295,14 @@ module Redgerra
     return text_blocks
   end
   
+  # Private for Redgerra and its nested classes and modules.
+  # 
+  # It returns Array of String-s.
+  # 
+  def self.text_blocks_from_plain_text(plain_text)
+    plain_text.scrub.split(/\n{2,}/)
+  end
+  
   class ThreadSafeRandomAccessible
     
     include RandomAccessible
@@ -306,6 +337,58 @@ module Redgerra
         @impl.add x
         return false
       end
+    end
+    
+  end
+  
+  class SearchPhraseInFiles
+    
+    include Enumerable
+    
+    def initialize(sloch, dirs_or_files)
+      @sloch = sloch
+      @dirs_or_files = dirs_or_files
+    end
+    
+    def each
+      for dir_or_file in @dirs_or_files
+        begin
+          Find.find(dir_or_file) do |entry|
+            next unless File.file? entry
+            file = entry
+            begin
+              phrases = text_blocks_from(file).
+                filter2 { |text_block| Redgerra.phrases_from(text_block, @sloch) }.
+                each { |phrase| yield phrase }
+            rescue Exception => e
+              yield Error.new %("#{file}": #{e.message})
+            end
+          end
+        rescue Errno::ENOENT
+          yield Error.new %("#{dir_or_file}" does not exist)
+        end
+      end
+    end
+    
+    private
+    
+    def text_blocks_from(file)
+      case File.extname(file)
+      when ".txt"
+        Redgerra.text_blocks_from_plain_text(File.read(file))
+      when ".htm", ".html"
+        Redgerra.text_blocks_from(Nokogiri::HTML(File.read(file)))
+      else
+        raise FormatUnsupported.new
+      end
+    end
+    
+    class FormatUnsupported < Exception
+      
+      def initialize()
+        super("file format is unsupported")
+      end
+      
     end
     
   end
