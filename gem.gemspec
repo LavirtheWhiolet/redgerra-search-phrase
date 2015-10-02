@@ -4,6 +4,8 @@ Gem::Specification.new do |s|
   s.email = 'Lavir.th.Whiolet@gmail.com'
   s.homepage = 'https://github.com/LavirtheWhiolet/search-phrase'
   s.files = Dir["lib/**/**"] + ["config.ru"]
+  s.bindir = "bin"
+  s.executables = Dir["bin/**/**"].map { |f| f["bin/".length..-1] }
   s.name = 'search-phrase'
   s.summary = 'Search for the specific phrase in Internet.'
   s.version = '0.0.4'
