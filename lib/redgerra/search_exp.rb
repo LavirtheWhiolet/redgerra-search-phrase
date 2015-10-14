@@ -47,7 +47,7 @@ module Redgerra
     
     WORD = "W\\h+Y\\h+W"
     
-    ASTERISK = "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
+    ASTERISK = "#{WORD}(?:(?:#{oo ' '})?(?:#{oo ','})?(?:#{oo ' '})?#{WORD})?"
     
     OCCURENCE = "S\\h+S"
     
