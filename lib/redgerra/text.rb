@@ -43,7 +43,7 @@ module Redgerra
           scan(Regexp.new(search_exp.encoded_regexp_str)).
           map do |part|
             part.gsub!(/S\h+S/) { |m| m[1...-1].hex_decode }
-            decode(part)
+            Text.new(decode(part))
           end
       else
         encode(@str).
