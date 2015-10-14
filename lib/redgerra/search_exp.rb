@@ -12,6 +12,7 @@ module Reggerra
   #   between them.
   # - All combinators from Regexp ("()", "{}", "x*", "x+", "x?" etc.) have
   #   the same meaning as in Regexp.
+  # - It may include OCCURENCE, see Text#scan().
   # 
   # Example:
   #   
@@ -47,6 +48,8 @@ module Reggerra
     WORD = "W[01]\\h+Y\\h+W"
     
     ASTERISK = "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
+    
+    OCCURENCE = "S\\h+S"
     
     def initialize(str)
       @encoded_regexp_str = str

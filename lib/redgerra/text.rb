@@ -17,10 +17,33 @@ module Redgerra
       @str
     end
     
+    # :call-seq:
+    #   scan(search_exp)
+    #   scan(search_exp, used_as_search_exp_occurence)
     # 
-    # +search_exp+ is SearchExp.
+    # +search_exp+ is a SearchExp.
     # 
-    def scan(search_exp)
+    # +used_as_search_exp_occurence+ is a SearchExp.
+    # 
+    # In the 1st form it returns occurences of +search_exp+ from this Text.
+    # 
+    # In the 2nd form it returns occurences of +search_exp+ from this Text.
+    # +search_exp+ may include SearchExp::OCCURENCE which is interpreted as
+    # +used_as_search_exp_occurence+.
+    # 
+    # The 2nd form may be used for simplifying +search_exp+ and improving
+    # testability.
+    # 
+    def scan(search_exp, used_as_search_exp_occurence = nil)
+      if used_as_search_exp_occurence then
+        encode(@str).
+          gsub(used_as_search_exp_occurence.encoded_regexp_str) do |o|
+            "S#{o.hex_encode}S"
+          end.
+          scan(Regexp.new(search_exp.encoded_regexp_str)).
+          map do |part|
+            part.gsub(/S(\h*)S
+          end
       encode(@str).
         scan(Regexp.new("(#{search_exp.encoded_regexp_str})").map(&:first).
         map { |part| Text.new(decode(part)) }
