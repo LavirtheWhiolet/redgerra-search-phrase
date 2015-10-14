@@ -29,7 +29,7 @@ module Redgerra
     # 
     # In the 2nd form it returns occurences of +search_exp+ from this Text.
     # +search_exp+ may include SearchExp::OCCURENCE which is interpreted as
-    # +used_as_search_exp_occurence+.
+    # +used_as_search_exp_occurence+ (which is another SearchExp).
     # 
     # The 2nd form may be used for simplifying +search_exp+ and improving
     # testability.
