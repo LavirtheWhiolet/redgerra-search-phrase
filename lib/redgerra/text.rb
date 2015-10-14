@@ -82,7 +82,7 @@ module Redgerra
     end
     
     def decode(str)
-      str.gsub(/#{WORD}|#{OTHER}/o) do |match|
+      str.gsub(/W[01]\h+Y\h+W|O\h+O/o) do |match|
         case match[0]
         when "W"
           match[/Y(\h+)W/, 1].hex_decode
