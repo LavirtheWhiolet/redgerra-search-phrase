@@ -8,6 +8,7 @@ require 'set'
 require 'string/squeeze_unicode_whitespace'
 require 'monitor'
 require 'object/not_empty'
+require 'string/upcase_'
 
 # For Redgerra::search_phrase_in_files().
 require 'find'
