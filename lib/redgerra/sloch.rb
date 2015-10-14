@@ -3,7 +3,7 @@ require 'string/hex_encode'
 
 module Reggerra
   
-  # Sloch is a regular expression with non-standard syntax:
+  # Sloch is a regular expression with the following syntax:
   # 
   # - Sloch::escape(str) matches +str+.
   # - Sloch::WORD matches any word.
@@ -52,6 +52,9 @@ module Reggerra
     end
     
     # Accessible to Text only.
+    # 
+    # It returns Regexp.
+    # 
     attr_reader :encoded_regexp
     
   end
