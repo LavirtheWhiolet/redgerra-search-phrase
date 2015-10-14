@@ -10,8 +10,8 @@ module Reggerra
   # - WORD matches any word.
   # - ASTERISK matches 1 or 2 words, any number of " " and one optional ","
   #   between them.
-  # - All combinators from Regexp ("()", "{}", "x*", "x+", "x?") have the same
-  #   meaning as in Regexp.
+  # - All combinators from Regexp ("()", "{}", "x*", "x+", "x?" etc.) have
+  #   the same meaning as in Regexp.
   # 
   # Example:
   #   
