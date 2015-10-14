@@ -1,6 +1,6 @@
 # encoding: UTF-8
-require 'strscan'
-require 'object/in'
+require 'redgerra/search_exp'
+require 'redgerra/text'
 require 'web_search_result'
 require 'web_search_error'
 require 'random_accessible'
@@ -13,6 +13,7 @@ require 'object/not_empty'
 require 'find'
 
 # For Redgerra::text_blocks_from() and Redgerra::text_blocks_from_page_at().
+require 'object/in'
 require 'open-uri'
 require 'nokogiri'
 require 'object/not_in'
