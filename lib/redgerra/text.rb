@@ -76,7 +76,7 @@ module Redgerra
             if token.include? "." then "1" else "0" end
           "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
         when :other
-          "O#{str.hex_encode}O"
+          "O#{token.hex_encode}O"
         end
       end
     end
