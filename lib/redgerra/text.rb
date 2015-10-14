@@ -65,16 +65,14 @@ module Redgerra
     
     # returns +str+ encoded in the following way:
     # 
-    # - word → "W[01]\h+Y\h+W"
+    # - word → "W\h+Y\h+W"
     # - other → "O\h+O"
     # 
     def encode(str)
       str.parse do |token, type|
         case type
         when :word
-          is_proper_name_with_dot_flag =
-            if token.include? "." then "1" else "0" end
-          "W#{is_proper_name_with_dot_flag}#{token.downcase.hex_encode}Y#{token.hex_encode}W"
+          "W#{token.downcase.hex_encode}Y#{token.hex_encode}W"
         when :other
           "O#{token.hex_encode}O"
         end
@@ -82,7 +80,7 @@ module Redgerra
     end
     
     def decode(str)
-      str.gsub(/W[01]\h+Y\h+W|O\h+O/o) do |match|
+      str.gsub(/W\h+Y\h+W|O\h+O/o) do |match|
         case match[0]
         when "W"
           match[/Y(\h+)W/, 1].hex_decode

@@ -37,7 +37,7 @@ module Redgerra
           if case_sensitive then
             raise "not implemented"
           else
-            "W[01]#{token.downcase.hex_encode}Y\\h+W"
+            "W#{token.downcase.hex_encode}Y\\h+W"
           end
         when :other
           oo(token)
@@ -45,7 +45,7 @@ module Redgerra
       end
     end
     
-    WORD = "W[01]\\h+Y\\h+W"
+    WORD = "W\\h+Y\\h+W"
     
     ASTERISK = "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
     
