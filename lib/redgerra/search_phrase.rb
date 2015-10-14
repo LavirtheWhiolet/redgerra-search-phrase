@@ -83,30 +83,29 @@ module Redgerra
       join(SearchExp::ASTERISK)
     )
     # 
-    phrases =
-      # Search for all phrases.
-      text.scan(
+    phrases = text.scan(
         SearchExp.new("(?:#{WORD}#{PUNCT_AND_WS}){,10}(?:#{esc '"'}#{PUNCT_AND_WS}(?:#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(?:#{PUNCT_AND_WS}(?:#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT}"),
         sloch
-      ).
-      # There must be another words except sloch.
-      select do |phrase|
-        phrase.split(sloch).any? do |part|
-          part.scan(SearchExp.new(WORD)).not_empty?
-        end
-      end.
-      # Reject phrases with proper names with "." (e. g. "file.mp3").
-      reject do |phrase|
-        phrase.scan(SearchExp.new(WORD)).any? do |word|
-          word.to_s.include? "."
-        end
-      end.
-      # 
-      reject { |phrase| phrase.to_s.upcase? }.
-      # Strip the phrases from unwanted characters.
-      map do |phrase|
-        phrase.to_s.gsub(/^[, ]+|[, ]+$/, "")
+    )
+    # There must be another words except sloch.
+    phrases.select! do |phrase|
+      phrase.split(sloch).any? do |part|
+        part.scan(SearchExp.new(WORD)).not_empty?
       end
+    end
+    # Reject phrases with proper names with "." (e. g. "file.mp3").
+    phrases.reject! do |phrase|
+      phrase.scan(SearchExp.new(WORD)).any? do |word|
+        word.to_s.include? "."
+      end
+    end
+    # 
+    phrases.reject! { |phrase| phrase.to_s.upcase? }
+    # Strip the phrases from unwanted characters;
+    # convert them to String-s.
+    phrases.map! do |phrase|
+      phrase.to_s.gsub(/^[, ]+|[, ]+$/, "")
+    end
     #
     return phrases
   end
