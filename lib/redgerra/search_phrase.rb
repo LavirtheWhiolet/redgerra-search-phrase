@@ -75,18 +75,19 @@ module Redgerra
     # 
     text = Text.new(str)
     # 
-    sloch_s = sloch_search_exp_str = "(?:#{
+    sloch = SearchExp.new(
       sloch.split("*", -1).
       map { |part| esc(part, false) }.
       join(SearchExp::ASTERISK)
-    })"
-    # 
-    sloch = sloch_search_exp = SearchExp.new(sloch_s)
+    )
     # 
     phrases =
       # Search for all phrases.
-      text.scan(SearchExp.new("(?:#{WORD}#{PUNCT_AND_WS}){,10}(?:#{esc '"'}#{PUNCT_AND_WS}(?:#{WORD}#{PUNCT_AND_WS}){,10})?#{sloch_s}(?:#{PUNCT_AND_WS}(?:#{WORD}|#{sloch_s})){,10}#{FINAL_PUNCT}")).
-      # There must be another words except /#{SLOCH_OCCURENCE}/.
+      text.scan(
+        SearchExp.new("(?:#{WORD}#{PUNCT_AND_WS}){,10}(?:#{esc '"'}#{PUNCT_AND_WS}(?:#{WORD}#{PUNCT_AND_WS}){,10})?#{SLOCH_OCCURENCE}(?:#{PUNCT_AND_WS}(?:#{WORD}|#{SLOCH_OCCURENCE})){,10}#{FINAL_PUNCT}"),
+        sloch
+      ).
+      # There must be another words except sloch.
       select do |phrase|
         phrase.split(sloch).any? do |part|
           part.scan(SearchExp.new(WORD)).not_empty?
@@ -116,6 +117,7 @@ module Redgerra
     SearchExp.escape(str)
   end
   
+  SLOCH_OCCURENCE = SearchExp::OCCURENCE
   WORD = SearchExp::WORD
   PUNCT_AND_WS = "(?:#{esc ','}|#{esc ' '})*"
   FINAL_PUNCT = "(?:#{esc '!'}|#{esc '?'}|#{esc '.'}|#{esc ';'}|#{esc '…'})*"
