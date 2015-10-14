@@ -78,7 +78,7 @@ module Redgerra
     # 
     sloch = SearchExp.new(
       sloch.split("*", -1).
-      map { |part| esc(part, false) }.
+      map { |part| SearchExp.escape(part, false) }.
       join(SearchExp::ASTERISK)
     )
     # 

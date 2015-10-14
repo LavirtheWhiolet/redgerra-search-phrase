@@ -48,7 +48,7 @@ module Redgerra
           end
       else
         encode(@str).
-          scan(Regexp.new("(#{search_exp.encoded_regexp_str})").map(&:first).
+          scan(Regexp.new("(#{search_exp.encoded_regexp_str})")).map(&:first).
           map { |part| Text.new(decode(part)) }
       end
     end

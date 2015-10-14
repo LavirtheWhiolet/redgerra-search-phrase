@@ -2,7 +2,7 @@ require 'redgerra/string/parse'
 require 'string/hex_encode'
 require 'redgerra/text'
 
-module Reggerra
+module Redgerra
   
   # Redgerra::SearchExp is a regular expression with the following syntax:
   # 
@@ -31,7 +31,7 @@ module Reggerra
     end
     
     def self.escape(str, case_sensitive = true)
-      parse do |token, type|
+      str.parse do |token, type|
         case type
         when :word
           if case_sensitive then
