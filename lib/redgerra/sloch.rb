@@ -1,5 +1,6 @@
 require 'redgerra/string/parse'
 require 'string/hex_encode'
+require 'redgerra/text'
 
 module Reggerra
   
@@ -48,14 +49,14 @@ module Reggerra
     ASTERISK = "#{WORD}((#{oo ' '})?(#{oo ','})?(#{oo ' '})?#{WORD})?"
     
     def initialize(str)
-      @encoded_regexp = Regexp.new(str)
+      @encoded_regexp_str = str
     end
     
     # Accessible to Text only.
     # 
-    # It returns Regexp.
+    # It returns String.
     # 
-    attr_reader :encoded_regexp
+    attr_reader :encoded_regexp_str
     
   end
   
