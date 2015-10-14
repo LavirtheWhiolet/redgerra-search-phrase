@@ -4,24 +4,24 @@ require 'redgerra/text'
 
 module Reggerra
   
-  # Sloch is a regular expression with the following syntax:
+  # Redgerra::SearchExp is a regular expression with the following syntax:
   # 
-  # - Sloch::escape(str) matches +str+.
-  # - Sloch::WORD matches any word.
-  # - Sloch::ASTERISK matches 1 or 2 words, any number of " " and one optional
-  #   "," between them.
+  # - #escape(str) matches +str+.
+  # - WORD matches any word.
+  # - ASTERISK matches 1 or 2 words, any number of " " and one optional ","
+  #   between them.
   # - All combinators from Regexp ("()", "{}", "x*", "x+", "x?") have the same
   #   meaning as in Regexp.
   # 
   # Example:
   #   
-  #   Sloch.new(
-  #     "#{Sloch::escape("do", false)} #{Sloch::ASTERISK} #{Sloch::escape("flop", false)}"
+  #   SearchExp.new(
+  #     "#{SearchExp::escape("do", false)} #{SearchExp::ASTERISK} #{SearchExp::escape("flop", false)}"
   #   )
   # 
-  class Sloch
+  class SearchExp
     
-    # Private for Sloch.
+    # Private for SearchExp.
     # 
     # Macro. See source code.
     # 

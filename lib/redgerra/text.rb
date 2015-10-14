@@ -2,11 +2,11 @@
 require 'string/hex_encode'
 require 'string/hex_decode'
 require 'redgerra/string/parse'
-require 'redgerra/sloch'
+require 'redgerra/search_exp'
 
 module Redgerra
   
-  # Redgerra::Text is the same as String but with slightly different methods.
+  # Redgerra::Text is the same as String but with different methods set.
   class Text
     
     def initialize(str)
@@ -18,20 +18,20 @@ module Redgerra
     end
     
     # 
-    # +sloch+ is Sloch.
+    # +search_exp+ is SearchExp.
     # 
-    def scan(sloch)
+    def scan(search_exp)
       encode(@str).
-        scan(Regexp.new("(#{sloch.encoded_regexp_str})").map(&:first).
+        scan(Regexp.new("(#{search_exp.encoded_regexp_str})").map(&:first).
         map { |part| Text.new(decode(part)) }
     end
     
     # 
-    # +sloch+ is Sloch.
+    # +search_exp+ is SearchExp.
     # 
-    def split(sloch)
+    def split(search_exp)
       encode(@str).
-        split(Regexp.new(sloch.encoded_regexp_str)).
+        split(Regexp.new(search_exp.encoded_regexp_str)).
         map { |part| Text.new(decode(part)) }
     end
     
