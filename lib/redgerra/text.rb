@@ -37,7 +37,7 @@ module Redgerra
     def scan(search_exp, used_as_search_exp_occurence = nil)
       if used_as_search_exp_occurence then
         encode(@str).
-          gsub(used_as_search_exp_occurence.encoded_regexp_str) do |o|
+          gsub(Regexp.new(used_as_search_exp_occurence.encoded_regexp_str)) do |o|
             "S#{o.hex_encode}S"
           end.
           scan(Regexp.new(search_exp.encoded_regexp_str)).
