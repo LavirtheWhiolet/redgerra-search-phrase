@@ -54,7 +54,10 @@ module Redgerra
     m = Memory.new
     # 
     phrases =
-      File.read("../test-data.txt").lines.map { |x| eval x }.
+      web_search.(%("#{sloch}"), "en", browser).
+      lazy_cached_filter do |web_search_result|
+        text_blocks_from_page_at(web_search_result.url, timeout_per_page)
+      end.
       lazy_cached_filter do |text_block|
         phrases_from(text_block, sloch).
           reject { |phrase| m.mentioned_before?(phrase.downcase.chomp("'")) }
