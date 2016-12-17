@@ -9,10 +9,10 @@ Gem::Specification.new do |s|
     /#{Regexp.escape("<!-- description -->")}(.*)#{Regexp.escape("<!-- end of description -->")}/m, 1
   ] or raise %(description is not found in "README.md")
   s.summary = s.description
-  s.version = '0.0.6'
+  s.version = '0.0.8'
   s.license = 'Public Domain'
   # 
-  s.required_ruby_version = '>= 1.9.3'
+  s.required_ruby_version = '>= 2.0.0'
   s.files = Dir["lib/**/**"] + ["config.ru"]
   s.bindir = "bin"
   s.executables = Dir["bin/**/**"].map { |f| f["bin/".length..-1] }
