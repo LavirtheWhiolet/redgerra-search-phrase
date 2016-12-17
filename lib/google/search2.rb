@@ -143,7 +143,7 @@ module Google
       #
       rescue Mechanize::ResponseCodeError => e
         # If Google asks captcha...
-        if e.response_code == "503" and (captcha_form = e.page.form(action: "CaptchaRedirect")).not_nil? then
+        if e.response_code == "503" and (captcha_form = e.page.form(action: "index")).not_nil? then
           # 
           raise ServerAsksCaptcha.new(
             # user readable message
@@ -154,8 +154,10 @@ module Google
             lambda do
               mon_synchronize do
                 begin
-                  @browser.get("https://google.com#{e.page.root.xpath("//img/@src").first.value}").content
-                rescue Mechanize::Error
+                  captcha_image_uri =
+                    e.page.uri.merge(e.page.root.xpath("//img/@src").first.value)
+                  @browser.get(captcha_image_uri).content
+                rescue Mechanize::Error => e
                   StringIO.new("")
                 end
               end
