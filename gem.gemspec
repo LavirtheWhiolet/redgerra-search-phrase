@@ -16,7 +16,7 @@ Gem::Specification.new do |s|
   s.files = Dir["lib/**/**"] + ["config.ru"]
   s.bindir = "bin"
   s.executables = Dir["bin/**/**"].map { |f| f["bin/".length..-1] }
-  s.add_runtime_dependency 'nokogiri'
+  s.add_runtime_dependency 'nokogiri', '= 1.6.8'
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'timers'
   s.add_runtime_dependency 'mechanize'

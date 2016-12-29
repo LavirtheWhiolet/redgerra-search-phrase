@@ -3,7 +3,7 @@ PATH
   specs:
     redgerra-search-phrase (0.0.8)
       mechanize
-      nokogiri
+      nokogiri (= 1.6.8)
       sinatra
       timers
 
@@ -30,10 +30,12 @@ GEM
     mini_portile2 (2.1.0)
     net-http-digest_auth (1.4)
     net-http-persistent (2.9.4)
-    nokogiri (1.6.8.1)
+    nokogiri (1.6.8)
       mini_portile2 (~> 2.1.0)
+      pkg-config (~> 1.1.7)
     ntlm-http (0.1.1)
-    puma (2.12.3)
+    pkg-config (1.1.7)
+    puma (3.6.2)
     rack (1.6.5)
     rack-protection (1.5.3)
       rack
