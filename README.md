@@ -8,11 +8,11 @@ Search for the specific phrase in files or in Internet as specified by Redgerra.
 Requirements
 ------------
 
-You need [Ruby](http://ruby-lang.org) version 1.9.3 or higher and the development kit for it.
+You need [Ruby](http://ruby-lang.org) version 2.0.0 or higher and the development kit for it.
 
 ### Microsoft Windows XP and above ###
 
-Download Ruby installer from http://rubyinstaller.org/downloads/. Version 1.9.3 or above is required. Run the installer.
+Download Ruby installer from http://rubyinstaller.org/downloads/. Version 2.0.0 or above is required. Run the installer.
 
 Download Development Kit from http://rubyinstaller.org/downloads/ which corresponds to the Ruby version you have installed previously. Unpack it into the directory with the installed Ruby.
 
