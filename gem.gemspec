@@ -12,12 +12,12 @@ Gem::Specification.new do |s|
   s.version = '0.0.8'
   s.license = 'Public Domain'
   # 
-  s.required_ruby_version = '>= 2.0.0'
+  s.required_ruby_version = '>= 1.9.3'
   s.files = Dir["lib/**/**"] + ["config.ru"]
   s.bindir = "bin"
   s.executables = Dir["bin/**/**"].map { |f| f["bin/".length..-1] }
   s.add_runtime_dependency 'nokogiri', '= 1.6.8'
   s.add_runtime_dependency 'sinatra'
   s.add_runtime_dependency 'timers'
-  s.add_runtime_dependency 'mechanize'
+  s.add_runtime_dependency 'mechanize', '= 2.7.4'
 end
